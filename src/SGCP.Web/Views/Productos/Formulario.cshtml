@@ -1,0 +1,27 @@
+@model ProductoFormViewModel
+@{ViewData["Title"]="Ficha de producto";}<div class="page-head">
+<div><span class="eyebrow">PRODUCTOS</span>
+<h1>Ficha de producto</h1>
+<p>Crear un producto define el catálogo. No agrega existencias.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert">
+</div><input asp-for="Id" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="Codigo">Código</label><input asp-for="Codigo" type="text" required/><span asp-validation-for="Codigo" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Nombre">Nombre del producto</label><input asp-for="Nombre" type="text" required/><span asp-validation-for="Nombre" class="validation"></span>
+</div>
+<div class="field"><label asp-for="ClasificacionProductoId">Clasificación</label><select asp-for="ClasificacionProductoId" required><option value="">Seleccionar tipo…</option>@foreach(var c in Model.Clasificaciones){<option value="@c.Id">@c.Nombre · @c.Familia.Replace('_',' ')</option>}</select>@if(Model.Clasificaciones.Count==0){<a href="/Clasificaciones/Formulario">Crear una clasificación primero</a>}</div>
+<div class="field"><label asp-for="Presentacion">Presentación</label><input asp-for="Presentacion" type="text" required/><span asp-validation-for="Presentacion" class="validation"></span>
+</div>
+<div class="field"><label asp-for="UnidadVenta">Unidad de venta</label><select asp-for="UnidadVenta"><option value="kg">Kilogramos · kg</option><option value="g">Gramos · g</option><option value="unidad">Unidad</option></select>
+</div>
+<div class="field wide"><label asp-for="Descripcion">Descripción</label><textarea asp-for="Descripcion" rows="3" maxlength="500"></textarea></div>
+</div>
+<div class="form-actions"><a class="button secondary" href="/Productos">Cancelar</a><button class="button" type="submit">Guardar cambios</button>
+</div>
+</form>
+</section>

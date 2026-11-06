@@ -1,0 +1,43 @@
+@model FichaViewModel<CotizacionDto>
+@{var c=Model.Datos;ViewData["Title"]=c.Codigo;var vigente=c.VigenteHasta>DateTime.UtcNow&&c.VersionPosterior is null;}
+<div class="page-head">
+<div><span class="eyebrow">COTIZACIÓN · VERSIÓN @c.Version</span>
+<h1>@c.Codigo <span class="badge">@c.Estado</span>
+</h1>
+<p>@c.Cliente · Válida hasta @Hora.Mostrar(c.VigenteHasta)</p>
+</div><a class="button secondary" href="/Cotizaciones">Volver al listado</a>
+</div>
+@if(c.VersionPosterior is not null){<div class="notice">Existe una versión más reciente: <a href="/Cotizaciones/Detalle/@c.VersionPosterior.Id">@c.VersionPosterior.Codigo · versión @c.VersionPosterior.Version</a>.</div>}
+@if(c.CotizacionOrigenId is not null){<p><a asp-action="Detalle" asp-route-id="@c.CotizacionOrigenId">← Consultar versión anterior</a></p>}
+<section class="card">
+<div class="card-head">
+<h2>Productos cotizados</h2><span class="tag">Canal @c.Canal</span>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Producto</th>
+<th>Cantidad</th>
+<th>Precio acordado</th>
+<th>Importe</th>
+</tr>
+</thead>
+<tbody>@foreach(var x in c.Detalles){<tr>
+<td class="strong">@x.Producto</td>
+<td>@x.Cantidad.ToString("0.###") @x.Unidad</td>
+<td>Bs @x.PrecioUnitario.ToString("N2")/@x.Unidad</td>
+<td>Bs @x.Subtotal.ToString("N2")</td>
+</tr>}</tbody>
+</table>
+</div>
+<div class="total-row"><span>Total de productos</span><strong>Bs @c.Total.ToString("N2")</strong>
+</div>
+@if(!string.IsNullOrWhiteSpace(c.MotivoRespuesta)){<div class="notice"><b>Respuesta del cliente:</b> @c.MotivoRespuesta</div>}
+<div class="actions wrap">@if(c.Estado=="BORRADOR"&&User.HasClaim("permiso","cotizaciones.administrar")){<a class="button secondary" asp-action="Formulario" asp-route-id="@c.Id">Editar borrador</a>
+<form asp-action="Presentar" method="post"><input name="id" value="@c.Id" type="hidden"/><button class="button">Presentar cotización</button>
+</form>}
+@if(c.Estado=="PRESENTADA"&&vigente&&User.HasClaim("permiso","cotizaciones.responder")){<a class="button" asp-action="Responder" asp-route-id="@c.Id" asp-route-valor="aceptar">Registrar aceptación</a><a class="button secondary" asp-action="Responder" asp-route-id="@c.Id" asp-route-valor="rechazar">Registrar rechazo / cambios</a>}
+@if(c.Estado!="BORRADOR"&&c.PedidoId is null&&c.VersionPosterior is null&&User.HasClaim("permiso","cotizaciones.administrar")){<a class="button secondary" asp-action="NuevaVersion" asp-route-id="@c.Id">Preparar nueva versión</a>}
+@if(c.PedidoId is not null){<a class="button" href="/Pedidos/Detalle/@c.PedidoId">Ver pedido confirmado →</a>}else if(User.HasClaim("permiso","pedidos.administrar")){if(c.Estado=="ACEPTADA"&&vigente){<a class="button" href="/Pedidos/Confirmar?cotizacionId=@c.Id">Crear pedido confirmado →</a>}else{<button class="button" disabled>Crear pedido</button>}}
+</div><p class="hint">Una cotización rechazada o vencida no genera pedido. No se reserva producto ni se inicia preparación.</p></section>

@@ -1,0 +1,40 @@
+@model ListaViewModel<ClasificacionDto>
+@{ViewData["Title"]="Clasificaciones";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">GESTIÓN COMERCIAL</span>
+<h1>Clasificaciones</h1>
+<p>Define los tipos de corte, derivado e insumo.</p>
+</div>
+<div class="actions">@if(User.HasClaim("permiso","catalogo.administrar")){<a class="button" asp-action="Formulario">+ Crear registro</a>}</div>
+</div>
+<section class="card">
+<form method="get" class="filters">
+<div class="search-field"><label for="busqueda" class="sr-only">Buscar</label><input id="busqueda" name="busqueda" value="@Model.Busqueda" placeholder="Buscar por nombre o código…"/>
+</div><label class="sr-only" for="filtro">Familia</label><select asp-for="Filtro" id="filtro" name="filtro"><option value="">Todas las familias</option><option value="CARNE_FRESCA">Carne fresca</option><option value="DERIVADO">Derivados</option><option value="INSUMO">Insumos</option></select><label class="sr-only" for="tamanoPagina">Registros por página</label><select id="tamanoPagina" name="tamanoPagina">@foreach(var n in new[]{10,20,50,100}){<option value="@n" selected="@(Model.Datos.TamanoPagina==n)">@n por página</option>}</select><button class="button secondary small">Buscar</button><a asp-action="Index" class="text-link">Limpiar</a>
+</form>
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">⌕</span>
+<h3>No hay registros para mostrar</h3>
+<p>Prueba otra búsqueda o crea el primer registro si tienes permiso.</p>
+</div>}else{<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Nombre</th>
+<th>Familia</th>
+<th>Estado</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody>@foreach(var x in Model.Datos.Elementos){<tr>
+<td class="code">@x.Codigo</td>
+<td>@x.Nombre</td>
+<td>@x.Familia.Replace('_',' ')</td>
+<td><span class="badge">@(x.Activo?"Activo":"Inactivo")</span>
+</td>
+<td class="row-actions"><a asp-action="Formulario" asp-route-id="@x.Id">Editar</a><a asp-action="Estado" asp-route-id="@x.Id" asp-route-valor="@((!x.Activo).ToString().ToLowerInvariant())">@(x.Activo?"Desactivar":"Activar")</a>
+</td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>

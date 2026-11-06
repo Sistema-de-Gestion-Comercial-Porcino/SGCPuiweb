@@ -1,0 +1,12 @@
+@model RecuperarViewModel
+@{ViewData["Title"]="Recuperar acceso";}<span class="eyebrow">RECUPERACIÓN DE ACCESO</span>
+<h1>Volvamos a tu cuenta</h1>
+<p class="muted">Escribe el correo con el que te registraste.</p>
+<form method="post">
+<div asp-validation-summary="All" class="validation">
+</div>
+<div class="field"><label asp-for="Correo">Correo electrónico</label><input asp-for="Correo" type="email" autocomplete="email" required/>
+</div><button class="button full">Solicitar enlace</button>
+</form>
+<p class="auth-note"><a asp-action="IniciarSesion">Volver al acceso</a>
+</p>

@@ -1,0 +1,44 @@
+@model FichaViewModel<ClienteDto>
+@{var c=Model.Datos;ViewData["Title"]=c.Nombre;}<div class="page-head">
+<div><span class="eyebrow">FICHA COMERCIAL</span>
+<h1>@c.Nombre</h1>
+<p>@c.Tipo · @(c.Activo?"Activo":"Inactivo")</p>
+</div>@if(User.HasClaim("permiso","clientes.administrar")){<a class="button secondary" asp-action="Formulario" asp-route-id="@c.Id">Editar ficha</a>}</div>
+<section class="card">
+<dl class="facts">
+<div>
+<dt>Teléfono</dt>
+<dd>@c.Telefono</dd>
+</div>
+<div>
+<dt>Dirección</dt>
+<dd>@(string.IsNullOrEmpty(c.Direccion)?"Sin registrar":c.Direccion)</dd>
+</div>
+<div>
+<dt>Identificación fiscal</dt>
+<dd>@(string.IsNullOrEmpty(c.IdentificacionFiscal)?"Sin registrar":c.IdentificacionFiscal)</dd>
+</div>
+<div>
+<dt>Condición habitual</dt>
+<dd>@c.CondicionHabitual.Replace('_',' ')</dd>
+</div>
+</dl>@if(!string.IsNullOrWhiteSpace(c.Observaciones)){<p>@c.Observaciones</p>}</section>
+<section class="card">
+<h2>Pedidos recientes</h2>@if(Model.Pedidos.Count==0){<p class="muted">No hay pedidos para mostrar.</p>}else{<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Pedido</th>
+<th>Fecha comprometida</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>@foreach(var x in Model.Pedidos){<tr>
+<td><a href="/Pedidos/Detalle/@x.Id">@x.Codigo</a>
+</td>
+<td>@Hora.Mostrar(x.FechaComprometida)</td>
+<td>@x.EstadoComercial</td>
+</tr>}</tbody>
+</table>
+</div>}<p class="hint">La gestión de saldo y cobranza estará disponible en una etapa posterior.</p>
+</section>

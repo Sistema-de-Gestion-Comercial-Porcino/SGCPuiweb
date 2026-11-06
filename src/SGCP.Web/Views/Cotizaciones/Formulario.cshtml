@@ -1,0 +1,62 @@
+@model CotizacionFormViewModel
+@{ViewData["Title"]="Preparar cotización";var productos=Model.Productos.Where(x=>x.PrecioVigente is not null).ToList();}
+<div class="page-head">
+<div><span class="eyebrow">ACUERDO COMERCIAL</span>
+<h1>Preparar cotización</h1>
+<p>Los productos y precios quedan registrados en esta versión.</p>
+</div>
+</div>
+<section class="card">
+<form method="post" id="cotizacion-form">
+<div asp-validation-summary="All" class="validation">
+</div><input asp-for="Id" type="hidden"/>
+<div class="form-grid three">
+<div class="field"><label asp-for="ClienteId">Cliente</label><select asp-for="ClienteId" required><option value="">Seleccionar cliente…</option>@foreach(var c in Model.Clientes){<option value="@c.Id">@c.Nombre</option>}</select>
+</div>
+<div class="field"><label asp-for="Canal">Canal de solicitud</label><select asp-for="Canal"><option value="LOCAL">En el local</option><option value="WHATSAPP">WhatsApp</option><option value="PORTAL">Portal</option></select>
+</div>
+<div class="field"><label asp-for="VigenteHasta">Válida hasta · Bolivia</label><input asp-for="VigenteHasta" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/>
+</div>
+</div>
+@if(productos.Count==0){<div class="notice danger">Primero crea productos activos y registra sus costos y precios vigentes.</div>}
+<div class="section-heading">
+<h2>Productos cotizados</h2><button type="button" class="button secondary small" id="agregar-detalle">+ Agregar producto</button>
+</div>
+<div class="table-wrap">
+<table class="detail-editor">
+<thead>
+<tr>
+<th>Producto</th>
+<th>Cantidad</th>
+<th>Unidad</th>
+<th>Precio · Bs</th>
+<th>Importe · Bs</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody id="detalles">
+@for(var i=0;i<Model.Detalles.Count;i++){<tr>
+<td><label class="sr-only" for="producto-@i">Producto @(i+1)</label><select id="producto-@i" name="Detalles[@i].ProductoId" data-prop="ProductoId" class="producto-select" required><option value="">Seleccionar…</option>@foreach(var p in productos){<option value="@p.Id" data-precio="@p.PrecioVigente!.PrecioVenta.ToString(CultureInfo.InvariantCulture)" data-unidad="@p.UnidadVenta" selected="@(Model.Detalles[i].ProductoId==p.Id)">@p.Nombre · @p.Presentacion</option>}</select>
+</td>
+<td><input name="Detalles[@i].Cantidad" data-prop="Cantidad" type="number" value="@Model.Detalles[i].Cantidad.ToString(CultureInfo.InvariantCulture)" min="0.001" step="0.001" aria-label="Cantidad" required/>
+</td>
+<td><input name="Detalles[@i].Unidad" data-prop="Unidad" value="@Model.Detalles[i].Unidad" aria-label="Unidad" readonly/>
+</td>
+<td><input name="Detalles[@i].PrecioUnitario" data-prop="PrecioUnitario" type="number" value="@Model.Detalles[i].PrecioUnitario.ToString(CultureInfo.InvariantCulture)" min="0.01" step="0.01" aria-label="Precio unitario" required/>
+</td>
+<td><output class="subtotal">0.00</output>
+</td>
+<td><button type="button" class="remove-row" aria-label="Quitar producto">×</button>
+</td>
+</tr>}
+</tbody>
+</table>
+</div>
+<div class="total-row"><span>Total de productos</span><strong>Bs <output id="total-cotizacion">0.00</output></strong>
+</div>
+<p class="hint">La solicitud todavía no es un pedido. No se reserva producto ni se inicia preparación.</p>
+<div class="form-actions"><a class="button secondary" href="/Cotizaciones">Cancelar</a><button class="button" disabled="@(productos.Count==0||Model.Clientes.Count==0)">Guardar borrador</button>
+</div>
+</form>
+</section>

@@ -1,0 +1,16 @@
+@model AccesoViewModel
+@{ViewData["Title"]="Iniciar sesión";}<span class="eyebrow">BIENVENIDO A SGCP</span>
+<h1>Inicia sesión</h1>
+<p class="muted">Ingresa con tu cuenta para continuar.</p>
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert">
+</div><input asp-for="ReturnUrl" type="hidden"/>
+<div class="field"><label asp-for="Login">Usuario</label><input asp-for="Login" autocomplete="username" placeholder="Tu usuario" required autofocus/>
+</div>
+<div class="field"><label asp-for="Clave">Contraseña</label>
+<div class="password-field"><input asp-for="Clave" type="password" autocomplete="current-password" required/><button type="button" class="show-password" aria-label="Mostrar contraseña">Ver</button>
+</div>
+</div><a class="forgot" asp-action="Recuperar">Olvidé mi contraseña</a><button class="button full" type="submit">Ingresar →</button>
+</form>
+<div class="auth-divider">¿Compras en la chanchería?</div><a class="button secondary full" asp-action="Registro">Crear cuenta de comprador</a>
+<p class="auth-note"><span class="status-dot"></span> El acceso requiere conexión.</p>

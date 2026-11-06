@@ -1,0 +1,12 @@
+@model RestablecerViewModel
+@{ViewData["Title"]="Nueva contraseña";}<span class="eyebrow">RECUPERACIÓN DE ACCESO</span>
+<h1>Establece tu contraseña</h1>
+<p class="muted">El enlace es personal y se puede utilizar una sola vez.</p>
+<form method="post">
+<div asp-validation-summary="All" class="validation">
+</div><input asp-for="Token" type="hidden"/>
+<div class="field"><label asp-for="Clave">Nueva contraseña</label><input asp-for="Clave" type="password" minlength="10" autocomplete="new-password" required/>
+</div>
+<div class="field"><label asp-for="Confirmacion">Repite la contraseña</label><input asp-for="Confirmacion" type="password" minlength="10" autocomplete="new-password" required/>
+</div><button class="button full">Guardar contraseña</button>
+</form>

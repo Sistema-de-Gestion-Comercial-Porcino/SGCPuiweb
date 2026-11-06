@@ -1,0 +1,30 @@
+@model ClienteFormViewModel
+@{ViewData["Title"]="Ficha comercial";}<div class="page-head">
+<div><span class="eyebrow">CLIENTES</span>
+<h1>Ficha comercial</h1>
+<p>Un cliente atendido en el local no necesita una cuenta de usuario.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert">
+</div><input asp-for="Id" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="Nombre">Nombre o razón comercial</label><input asp-for="Nombre" type="text" required/><span asp-validation-for="Nombre" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Tipo">Tipo de cliente</label><select asp-for="Tipo"><option value="Consumidor final">Consumidor final</option><option value="Restaurante">Restaurante</option><option value="Chicharronería">Chicharronería</option><option value="Carnicería">Carnicería</option><option value="Revendedor">Revendedor</option><option value="Pensión">Pensión</option></select>
+</div>
+<div class="field"><label asp-for="Telefono">Teléfono</label><input asp-for="Telefono" type="tel" required/><span asp-validation-for="Telefono" class="validation"></span>
+</div>
+<div class="field"><label asp-for="IdentificacionFiscal">Identificación fiscal</label><input asp-for="IdentificacionFiscal" type="text" /><span asp-validation-for="IdentificacionFiscal" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Direccion">Dirección</label><input asp-for="Direccion" type="text" /><span asp-validation-for="Direccion" class="validation"></span>
+</div>
+<div class="field"><label asp-for="CondicionHabitual">Condición habitual</label><select asp-for="CondicionHabitual"><option value="CONTADO">Contado</option><option value="CREDITO_ACORDADO">Crédito acordado</option></select>
+</div>
+<div class="field wide"><label asp-for="Observaciones">Observaciones</label><textarea asp-for="Observaciones" rows="3" maxlength="500"></textarea></div>
+</div>
+<div class="form-actions"><a class="button secondary" href="/Clientes">Cancelar</a><button class="button" type="submit">Guardar cambios</button>
+</div>
+</form>
+</section>

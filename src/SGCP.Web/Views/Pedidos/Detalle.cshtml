@@ -1,0 +1,55 @@
+@model FichaViewModel<PedidoDto>
+@{var p=Model.Datos;ViewData["Title"]=p.Codigo;}<div class="page-head">
+<div><span class="eyebrow">PEDIDO CONFIRMADO</span>
+<h1>@p.Codigo <span class="badge">@p.EstadoComercial</span>
+</h1>
+<p>@p.Cliente · Origen <a href="/Cotizaciones/Detalle/@p.CotizacionId">@p.Cotizacion aceptada</a>
+</p>
+</div><a class="button secondary" href="/Pedidos">Volver al listado</a>
+</div>
+<section class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th>Cantidad</th>
+<th>Precio acordado</th>
+<th>Importe</th>
+<th>Preparación</th>
+</tr>
+</thead>
+<tbody>@foreach(var x in p.Detalles){<tr>
+<td class="strong">@x.Producto</td>
+<td>@x.CantidadConfirmada.ToString("0.###") @x.Unidad</td>
+<td>Bs @x.PrecioAcordado.ToString("N2")/@x.Unidad</td>
+<td>Bs @x.Subtotal.ToString("N2")</td>
+<td>@x.Estado.Replace('_',' ')</td>
+</tr>}</tbody>
+</table>
+</div>
+<div class="total-row"><span>Total de productos</span><strong>Bs @p.Total.ToString("N2")</strong>
+</div>
+<dl class="facts">
+<div>
+<dt>Fecha comprometida</dt>
+<dd>@Hora.Mostrar(p.FechaComprometida)</dd>
+</div>
+<div>
+<dt>Condición de pago</dt>
+<dd>@p.CondicionPago.Replace('_',' ')</dd>
+</div>
+<div>
+<dt>Preparación</dt>
+<dd>@p.EstadoPreparacion.Replace('_',' ')</dd>
+</div>
+</dl>
+@if(p.MargenEstimadoConfirmado is not null){<div class="margin-card"><span class="eyebrow">INFORMACIÓN INTERNA</span>
+<h2>Margen estimado de productos <strong>Bs @p.MargenEstimadoConfirmado.Value.ToString("N2")</strong>
+</h2>@foreach(var x in p.Detalles){<p>@x.Producto: @x.CantidadConfirmada.ToString("0.###") @x.Unidad × (Bs @x.PrecioAcordado.ToString("N2") − Bs @x.CostoReferenciaAcordado?.ToString("N2"))</p>}<small>Importes conservados al confirmar. No representa utilidad real por animal.</small>
+</div>}
+@if(p.EstadoComercial=="CANCELADO"){<div class="notice"><b>Motivo de cancelación:</b> @p.MotivoCancelacion</div>}
+<div class="actions wrap">@if(p.EstadoComercial=="CONFIRMADO"&&User.HasClaim("permiso","pedidos.administrar")){<a class="button secondary danger-text" asp-action="Cancelar" asp-route-id="@p.Id">Cancelar pedido</a>}<button class="button secondary" disabled>Revisar reservas</button><button class="button secondary" disabled>Ver preparación</button><button class="button secondary" disabled>Ver despacho</button>
+</div>
+<p class="hint">Reservas, preparación, cobros y despacho estarán disponibles en las siguientes etapas.</p>
+</section>

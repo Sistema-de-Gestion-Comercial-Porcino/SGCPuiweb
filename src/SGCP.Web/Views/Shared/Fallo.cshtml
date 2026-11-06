@@ -1,0 +1,6 @@
+@{ViewData["Title"]="No pudimos completar la operación";}<section class="card empty"><span class="eyebrow">OPERACIÓN INTERRUMPIDA</span>
+<h1>No pudimos completar la operación</h1>
+<p>@(ViewData["Mensaje"]??"Ocurrió un error. Intenta nuevamente.")</p>
+<div class="actions"><a class="button" href="/">Volver al inicio</a><button type="button" class="button secondary" onclick="location.reload()">Reintentar</button>
+</div>
+</section>

@@ -1,0 +1,31 @@
+@model UsuarioFormViewModel
+@{ViewData["Title"]="Ficha de usuario";}<div class="page-head">
+<div><span class="eyebrow">USUARIOS</span>
+<h1>Ficha de usuario</h1>
+<p>
+</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert">
+</div><input asp-for="Id" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="Nombre">Nombre completo</label><input asp-for="Nombre" type="text" required maxlength="120"/><span asp-validation-for="Nombre" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Login">Usuario</label><input asp-for="Login" type="text" required autocomplete="off"/><span asp-validation-for="Login" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Correo">Correo electrónico</label><input asp-for="Correo" type="email" required/><span asp-validation-for="Correo" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Telefono">Teléfono</label><input asp-for="Telefono" type="tel" /><span asp-validation-for="Telefono" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Clave">Contraseña inicial o nueva</label><input asp-for="Clave" type="password" autocomplete="new-password"/><span asp-validation-for="Clave" class="validation"></span>
+</div>
+<p class="hint">Al editar, deja la contraseña vacía para conservarla. Un cambio de permisos cerrará las sesiones del usuario.</p>
+<fieldset class="wide roles">
+<legend>Responsabilidades</legend>@foreach(var r in Model.Disponibles){<label><input type="checkbox" name="Roles" value="@r.Id" checked="@Model.Roles.Contains(r.Id)"/>@r.Nombre.Replace('_',' ')</label>}</fieldset>
+</div>
+<div class="form-actions"><a class="button secondary" href="/Usuarios">Cancelar</a><button class="button" type="submit">Guardar cambios</button>
+</div>
+</form>
+</section>

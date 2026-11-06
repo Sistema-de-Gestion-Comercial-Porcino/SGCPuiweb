@@ -1,0 +1,4 @@
+@{var pagina=(int)(ViewData["Pagina"]??1);var total=(int)(ViewData["TotalPaginas"]??0);var registros=(int)(ViewData["TotalRegistros"]??0);string Link(int n){var q=Context.Request.Query.ToDictionary(x=>x.Key,x=>(string?)x.Value.ToString());q["pagina"]=n.ToString();return Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(Context.Request.Path,q);}}
+<div class="pagination"><span>@registros registros · Página @pagina de @Math.Max(1,total)</span>
+<nav aria-label="Paginación">@if(pagina>1){<a class="button secondary small" href="@Link(pagina-1)">← Anterior</a>}@if(pagina<total){<a class="button secondary small" href="@Link(pagina+1)">Siguiente →</a>}</nav>
+</div>

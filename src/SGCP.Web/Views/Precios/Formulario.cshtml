@@ -1,0 +1,26 @@
+@model PrecioFormViewModel
+@{ViewData["Title"]="Vigencia de costo y precio";}<div class="page-head">
+<div><span class="eyebrow">PRECIOS</span>
+<h1>Vigencia de costo y precio</h1>
+<p>El propietario registra los importes por unidad de venta.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert">
+</div><input asp-for="Id" type="hidden"/><input asp-for="ProductoId" type="hidden"/><input asp-for="Producto" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="CostoReferencia">Costo de referencia · Bs</label><input asp-for="CostoReferencia" type="number" min="0.01" step="0.01" required/><span asp-validation-for="CostoReferencia" class="validation"></span>
+</div>
+<div class="field"><label asp-for="PrecioVenta">Precio de venta · Bs</label><input asp-for="PrecioVenta" type="number" min="0.01" step="0.01" required/><span asp-validation-for="PrecioVenta" class="validation"></span>
+</div>
+<div class="field"><label asp-for="VigenteDesde">Vigente desde · hora de Bolivia</label><input asp-for="VigenteDesde" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/><span asp-validation-for="VigenteDesde" class="validation"></span>
+</div>
+<div class="field"><label>Margen por unidad</label><output id="margen-preview">Completa costo y precio</output>
+</div><label class="checkbox wide"><input asp-for="ConfirmarMargenNoPositivo"/>Confirmo guardar aunque el precio no supere el costo.</label>
+<div class="notice wide">Esta vigencia no cambia los importes de cotizaciones ni pedidos existentes.</div>
+</div>
+<div class="form-actions"><a class="button secondary" href="/Precios">Cancelar</a><button class="button" type="submit">Guardar cambios</button>
+</div>
+</form>
+</section>

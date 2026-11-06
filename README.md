@@ -1,1 +1,62 @@
 # SGCPuiweb
+
+Web responsiva del Sistema de Gestión Comercial Porcino. ASP.NET Core MVC 10, controladores, ViewModels dentro de `Models/ViewModels/`, DTO separados y clientes HTTP tipados. **Sin EF Core ni conexión directa a la base de datos.**
+
+## Equipo
+
+- Dario Haziel Tambo Parra
+- Angel Sebastian Eguez Mur
+- Sofia Cuellar Roca
+- Victor Manuel Manrique Arancivia
+
+## Ejecutar
+
+Primero ejecuta SGCPapi con su base MySQL preparada. En este repositorio:
+
+```bash
+dotnet restore
+dotnet build --warnaserror
+dotnet run --project src/SGCP.Web
+```
+
+Abre `http://localhost:5080`. La configuración `Api:UrlBase` apunta a `http://localhost:5081/api/v1/`. Para otra máquina configúrala con la dirección de la API, mediante `Api__UrlBase` o un archivo `appsettings.Local.json` ignorado por Git. El proceso MVC es quien se conecta a la API: la URL debe ser accesible desde el servidor de la web.
+
+## Sprint 1
+
+- Acceso, registro de comprador, recuperación y cierre de sesión.
+- Resumen con indicadores reales y filtrados por permisos.
+- Usuarios y responsabilidades, clientes, clasificaciones y productos.
+- Costos/precios con historial de vigencias y confirmación previa de margen no positivo.
+- Cotización con múltiples productos, presentación, aceptación/rechazo y nueva versión.
+- Pedido confirmado desde cotización aceptada, importe, margen interno conservado y cancelación con motivo.
+- Portal del comprador limitado a su catálogo, cotizaciones y pedidos.
+
+La interfaz sigue la organización de los mockups: barra lateral, gestión comercial, formularios y seguimiento por estado. Se diseñó para escritorio y móvil. Los módulos de otros sprints aparecen pendientes para el personal y no ejecutan operaciones ficticias.
+
+Moneda Bs; cantidades siempre con unidad; fechas mostradas en hora de Bolivia (UTC−4). Al enviar se convierten a UTC. El costo de referencia no se muestra al comprador.
+
+## Seguridad y validación
+
+Cookie HttpOnly protegida por ASP.NET Core Data Protection; JWT utilizado por el servidor al consumir la API. Políticas en MVC y comprobación definitiva en la API. Formularios con antiforgery; redirecciones de retorno únicamente locales. Sesión sin renovación deslizante; una sesión revocada redirige al acceso en la siguiente llamada protegida.
+
+En producción usa HTTPS tanto en web como en API y conserva las claves de Data Protection del despliegue. No se incluyen contraseñas, tokens ni datos de conexión a la base de datos en este repositorio.
+
+La recuperación local se explica en el README de SGCPapi. Para entregar correos a compradores reales se requiere configurar SMTP en la API.
+
+## Demostración
+
+1. Entrar como administrador; crear un usuario de ventas y un cliente.
+2. Crear clasificación/producto sin existencia, o usar los ejemplos opcionales.
+3. Registrar costo Bs 28 y precio Bs 35 por kg.
+4. Crear cotización de 4 kg; demostrar que presentada/rechazada no crea pedido.
+5. Preparar nueva versión, presentarla y aceptarla; confirmar el pedido.
+6. Ver margen Bs 28. Cambiar el precio/costo del catálogo y comprobar que sigue en Bs 28.
+7. Entrar como comprador y comprobar que solo ve lo suyo, sin costos ni margen.
+
+No mezclar este escenario con una vigencia de costo Bs 30 antes de confirmar: el resultado sería otro margen. Los importes son ilustrativos.
+
+## Ejecución paso a paso
+
+La API tiene que estar corriendo antes que la web. La guía completa del equipo está en `Modelado_Chancheria/00_Definicion/Como_ejecutar_el_sistema.md`.
+
+El motor pasó de SQL Server a MySQL el 6 de noviembre de 2026. Qué se cambió, por qué el proveedor de Oracle y no Pomelo, y las tres trampas de MySQL: `Modelado_Chancheria/00_Definicion/Cambio_a_MySQL.md`.

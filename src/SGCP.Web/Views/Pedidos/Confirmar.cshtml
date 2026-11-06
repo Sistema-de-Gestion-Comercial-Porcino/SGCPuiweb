@@ -1,0 +1,22 @@
+@model ConfirmarPedidoViewModel
+@{ViewData["Title"]="Confirmar pedido";}<div class="page-head">
+<div><span class="eyebrow">CONFIRMACIÓN COMERCIAL</span>
+<h1>Crear pedido</h1>
+<p>@Model.Codigo · @Model.Cliente</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation">
+</div><input asp-for="CotizacionId" type="hidden"/><input asp-for="Codigo" type="hidden"/><input asp-for="Cliente" type="hidden"/><input asp-for="Total" type="hidden"/>
+<div class="notice">El pedido conservará el precio aceptado y el costo de referencia vigente al confirmar.</div>
+<div class="form-grid">
+<div class="field"><label asp-for="FechaComprometida">Fecha comprometida · Bolivia</label><input asp-for="FechaComprometida" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/>
+</div>
+<div class="field"><label asp-for="CondicionPago">Condición de pago</label><select asp-for="CondicionPago"><option value="CONTADO">Contado</option><option value="CREDITO_ACORDADO">Crédito acordado</option></select>
+</div>
+</div>
+<div class="form-actions"><a href="/Cotizaciones/Detalle/@Model.CotizacionId" class="button secondary">Revisar cotización</a><button class="button">Confirmar pedido</button>
+</div>
+</form>
+</section>

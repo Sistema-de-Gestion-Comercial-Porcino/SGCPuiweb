@@ -1,0 +1,14 @@
+@model ConfirmacionViewModel
+@{ViewData["Title"]=Model.Titulo;}<div class="page-head"><span class="eyebrow">REVISAR OPERACIÓN</span>
+<h1>@Model.Titulo</h1>
+</div>
+<section class="card form-card">
+<p class="lead">@Model.Mensaje</p>
+<form asp-action="@Model.Accion" method="post">
+<div asp-validation-summary="All" class="validation" role="alert">
+</div><input asp-for="Id" type="hidden"/><input asp-for="Valor" type="hidden"/><input asp-for="Titulo" type="hidden"/><input asp-for="Mensaje" type="hidden"/><input asp-for="Accion" type="hidden"/><input asp-for="Volver" type="hidden"/><input asp-for="MotivoRequerido" type="hidden"/>
+@if(Model.MotivoRequerido){<div class="field"><label asp-for="Motivo">Motivo</label><textarea asp-for="Motivo" rows="3" maxlength="500" required></textarea></div>}
+<div class="form-actions"><a href="@Model.Volver" class="button secondary">Volver sin cambios</a><button class="button" type="submit">Confirmar operación</button>
+</div>
+</form>
+</section>

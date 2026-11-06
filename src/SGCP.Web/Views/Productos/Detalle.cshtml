@@ -1,0 +1,30 @@
+@model FichaViewModel<ProductoDto>
+@{var p=Model.Datos;ViewData["Title"]=p.Nombre;}<div class="page-head">
+<div><span class="eyebrow">@p.Codigo · @p.Clasificacion.Familia.Replace('_',' ')</span>
+<h1>@p.Nombre</h1>
+<p>@p.Clasificacion.Nombre · @p.Presentacion · @p.UnidadVenta</p>
+</div>
+<div class="actions">@if(User.HasClaim("permiso","catalogo.administrar")){<a class="button secondary" asp-action="Formulario" asp-route-id="@p.Id">Editar producto</a>}@if(User.HasClaim("permiso","costos.consultar")){<a class="button" href="/Precios/Historial/@p.Id">Costos y precios</a>}</div>
+</div>
+<section class="card">
+<dl class="facts">
+<div>
+<dt>Precio vigente</dt>
+<dd>@(p.PrecioVigente is null?"Sin registrar":"Bs "+p.PrecioVigente.PrecioVenta.ToString("N2")+"/"+p.UnidadVenta)</dd>
+</div>
+<div>
+<dt>Presentación</dt>
+<dd>@p.Presentacion</dd>
+</div>
+<div>
+<dt>Unidad de venta</dt>
+<dd>@p.UnidadVenta</dd>
+</div>
+<div>
+<dt>Estado</dt>
+<dd>@(p.Activo?"Activo":"Inactivo")</dd>
+</div>
+</dl>
+<p>@p.Descripcion</p>
+<p class="hint">El catálogo describe el producto; no representa existencia disponible.</p>
+</section>

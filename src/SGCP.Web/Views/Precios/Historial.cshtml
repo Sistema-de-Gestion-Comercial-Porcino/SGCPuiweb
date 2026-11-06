@@ -1,0 +1,34 @@
+@model FichaViewModel<ProductoDto>
+@{ViewData["Title"]="Vigencias · "+Model.Datos.Nombre;}<div class="page-head">
+<div><span class="eyebrow">COSTOS Y PRECIOS</span>
+<h1>@Model.Datos.Nombre</h1>
+<p>@Model.Datos.Codigo · Importes por @Model.Datos.UnidadVenta</p>
+</div>@if(User.HasClaim("permiso","costos.administrar")){<a class="button" asp-action="Formulario" asp-route-productoId="@Model.Datos.Id">+ Nueva vigencia</a>}</div>
+<section class="card">
+<h2>Historial de vigencias</h2>@if(Model.Precios.Count==0){<div class="empty">
+<h3>Sin importes registrados</h3>
+<p>Registra el costo de referencia y el precio por unidad para poder cotizar.</p>
+</div>}else{<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Desde · Bolivia</th>
+<th>Hasta · Bolivia</th>
+<th>Costo · Bs</th>
+<th>Precio · Bs</th>
+<th>Margen / unidad</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody>@foreach(var x in Model.Precios){<tr>
+<td>@Hora.Mostrar(x.VigenteDesde)</td>
+<td>@(x.VigenteHasta is null?"Abierta":Hora.Mostrar(x.VigenteHasta.Value))</td>
+<td>@x.CostoReferencia?.ToString("N2")</td>
+<td>@x.PrecioVenta.ToString("N2")</td>
+<td>Bs @x.Margen.ToString("N2") <small>@((100*x.Margen/x.PrecioVenta).ToString("N1")) % sobre venta</small>
+</td>
+<td class="row-actions">@if(User.HasClaim("permiso","costos.administrar")){<a asp-action="Formulario" asp-route-id="@x.Id" asp-route-productoId="@Model.Datos.Id">Corregir</a>@if(x.VigenteHasta is null){<a asp-action="Finalizar" asp-route-id="@x.Id" asp-route-productoId="@Model.Datos.Id">Finalizar</a>}}</td>
+</tr>}</tbody>
+</table>
+</div>}<p class="hint">Abrir una nueva vigencia cierra la anterior. Los pedidos conservan los importes acordados.</p>
+</section>

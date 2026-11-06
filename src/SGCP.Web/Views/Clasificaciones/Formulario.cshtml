@@ -1,0 +1,24 @@
+@model ClasificacionFormViewModel
+@{ViewData["Title"]="Ficha de clasificación";}<div class="page-head">
+<div><span class="eyebrow">CLASIFICACIONES</span>
+<h1>Ficha de clasificación</h1>
+<p>Ejemplo: Costilla dentro de Carne fresca.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert">
+</div><input asp-for="Id" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="Codigo">Código</label><input asp-for="Codigo" type="text" required/><span asp-validation-for="Codigo" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Nombre">Nombre del tipo</label><input asp-for="Nombre" type="text" required/><span asp-validation-for="Nombre" class="validation"></span>
+</div>
+<div class="field"><label asp-for="Familia">Familia</label><select asp-for="Familia"><option value="CARNE_FRESCA">Carne fresca</option><option value="DERIVADO">Derivado</option><option value="INSUMO">Insumo</option></select>
+</div>
+<div class="field wide"><label asp-for="Descripcion">Descripción</label><textarea asp-for="Descripcion" rows="3" maxlength="500"></textarea></div>
+</div>
+<div class="form-actions"><a class="button secondary" href="/Clasificaciones">Cancelar</a><button class="button" type="submit">Guardar cambios</button>
+</div>
+</form>
+</section>

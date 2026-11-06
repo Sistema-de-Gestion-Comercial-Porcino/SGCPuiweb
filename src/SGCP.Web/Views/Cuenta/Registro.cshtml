@@ -1,0 +1,27 @@
+@model RegistroViewModel
+@{ViewData["Title"]="Crear cuenta de comprador";}<span class="eyebrow">PORTAL DEL COMPRADOR</span>
+<h1>Crea tu cuenta</h1>
+<p class="muted">Consulta tus cotizaciones y pedidos desde un mismo lugar.</p>
+<form method="post">
+<div asp-validation-summary="All" class="validation">
+</div>
+<div class="field"><label asp-for="Nombre">Nombre completo</label><input asp-for="Nombre" autocomplete="name" required/>
+</div>
+<div class="form-grid">
+<div class="field"><label asp-for="Login">Usuario</label><input asp-for="Login" autocomplete="username" required/>
+</div>
+<div class="field"><label asp-for="Telefono">Teléfono</label><input asp-for="Telefono" type="tel" autocomplete="tel"/>
+</div>
+</div>
+<div class="field"><label asp-for="Correo">Correo electrónico</label><input asp-for="Correo" type="email" autocomplete="email" required/>
+</div>
+<div class="form-grid">
+<div class="field"><label asp-for="Clave">Contraseña</label><input asp-for="Clave" type="password" minlength="10" autocomplete="new-password" required/>
+</div>
+<div class="field"><label asp-for="Confirmacion">Repite la contraseña</label><input asp-for="Confirmacion" type="password" minlength="10" autocomplete="new-password" required/>
+</div>
+</div>
+<p class="hint">Al menos 10 caracteres. Esta cuenta permite acceder únicamente a tus operaciones.</p><button class="button full">Crear mi cuenta</button>
+</form>
+<p class="auth-note"><a asp-action="IniciarSesion">Ya tengo una cuenta</a>
+</p>
