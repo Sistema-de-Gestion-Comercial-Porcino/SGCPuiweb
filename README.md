@@ -57,6 +57,39 @@ No mezclar este escenario con una vigencia de costo Bs 30 antes de confirmar: el
 
 ## Ejecución paso a paso
 
-La API tiene que estar corriendo antes que la web. La guía completa del equipo está en `Modelado_Chancheria/00_Definicion/Como_ejecutar_el_sistema.md`.
+La API tiene que estar corriendo antes que la web. La guía completa del equipo está en `SGCPdocumentacion/00_Definicion/Como_ejecutar_el_sistema.md`.
 
-El motor pasó de SQL Server a MySQL el 6 de noviembre de 2026. Qué se cambió, por qué el proveedor de Oracle y no Pomelo, y las tres trampas de MySQL: `Modelado_Chancheria/00_Definicion/Cambio_a_MySQL.md`.
+El motor pasó de SQL Server a MySQL el 6 de noviembre de 2026. Qué se cambió, por qué el proveedor de Oracle y no Pomelo, y las tres trampas de MySQL: `SGCPdocumentacion/00_Definicion/Cambio_a_MySQL.md`.
+
+## Control de versiones
+
+Formato `vMAYOR.MENOR.PARCHE`, donde **MAYOR es el número de sprint**:
+
+| Posición | Significado | Ejemplo |
+|---|---|---|
+| MAYOR | sprint entregado. `0` es el trabajo anterior a la primera entrega | `v2.0.0` es el Sprint 2 |
+| MENOR | un caso de uso o una funcionalidad terminada | `v1.2.0` |
+| PARCHE | corrección que no agrega funcionalidad | `v1.2.1` |
+
+Los cuatro repositorios comparten MAYOR, porque el sprint es el mismo para todos, y avanzan MENOR y PARCHE por separado: no hay que forzarlos al mismo número.
+
+Cada versión de la tabla tiene su etiqueta en git, así que `git show v1.0.0` muestra el código exacto de esa fila. **La etiqueta se crea después del commit**, nunca antes, o apunta al estado anterior:
+
+```bash
+git commit -m "v1.0.0 - Sprint 1"
+git tag -a v1.0.0 -m "Sprint 1 entregado"
+git push origin main --follow-tags
+```
+
+En la columna *Cambio*, los prefijos son fijos para que la tabla se pueda leer de un tirón: `Corrección:`, `Documentación:`, `Infraestructura:`, o nada cuando es funcionalidad nueva. Si el cambio llegó por una rama, la fila termina en `(PR #n)`; la rama en sí no se anota, porque git ya la guarda en el commit de fusión.
+
+Desde `v1.0.0` el prefijo es `v` sin punto, que es la convención y lo que admite una etiqueta de git. Las filas anteriores se conservan como se escribieron.
+
+### Historial
+
+Más reciente arriba.
+
+| Versión | Fecha | Sprint | Cambio | Autor |
+|---|---|---|---|---|
+| v1.0.0 | 2026-11-06 | 1 | Documentación: convención de versionamiento del repositorio | Dario Haziel Tambo Parra |
+| v.0.1.0 | 2026-11-06 | 1 | Pantallas de acceso, usuarios, clientes, clasificaciones, productos, precios, cotizaciones y pedidos, con enlace de decimales independiente de la configuración regional | Dario Haziel Tambo Parra |
