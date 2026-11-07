@@ -67,11 +67,13 @@ Formato `vMAYOR.MENOR.PARCHE`, donde **MAYOR es el número de sprint**:
 
 | Posición | Significado | Ejemplo |
 |---|---|---|
-| MAYOR | sprint entregado. `0` es el trabajo anterior a la primera entrega | `v2.0.0` es el Sprint 2 |
-| MENOR | un caso de uso o una funcionalidad terminada | `v1.2.0` |
-| PARCHE | corrección que no agrega funcionalidad | `v1.2.1` |
+| MAYOR | número de sprint. `0` es el trabajo anterior a la primera entrega | `v2.4.0` pertenece al Sprint 2 |
+| MENOR | número de parte del reparto: P1, P2, P3 o P4 | `v2.1.0` es la parte 1 del Sprint 2 |
+| PARCHE | corrección sobre esa misma parte, sin agregar funcionalidad | `v2.1.1` |
 
-Los cuatro repositorios comparten MAYOR, porque el sprint es el mismo para todos, y avanzan MENOR y PARCHE por separado: no hay que forzarlos al mismo número.
+Los cuatro repositorios comparten MAYOR y MENOR, porque el sprint y la parte son los mismos para todos; el PARCHE avanza por separado en cada repositorio.
+
+**La etiqueta de cierre de un sprint es `vN.4.0`**, la versión del commit de P4, que es siempre el último. Desde el Sprint 2 no se crea `vN.0.0`: quedaría por detrás de versiones ya entregadas. El Sprint 1 conserva su `v1.0.0` porque se entregó en un solo bloque.
 
 Cada versión de la tabla tiene su etiqueta en git, así que `git show v1.0.0` muestra el código exacto de esa fila. **La etiqueta se crea después del commit**, nunca antes, o apunta al estado anterior:
 
@@ -91,5 +93,6 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v1.0.1 | 2026-11-07 | 1 | Corrección: el esquema de versiones aclara que MENOR es el número de parte y que la etiqueta de cierre del sprint es `vN.4.0` | Dario Haziel Tambo Parra |
 | v1.0.0 | 2026-11-06 | 1 | Documentación: convención de versionamiento del repositorio | Dario Haziel Tambo Parra |
 | v.0.1.0 | 2026-11-06 | 1 | Pantallas de acceso, usuarios, clientes, clasificaciones, productos, precios, cotizaciones y pedidos, con enlace de decimales independiente de la configuración regional | Dario Haziel Tambo Parra |
