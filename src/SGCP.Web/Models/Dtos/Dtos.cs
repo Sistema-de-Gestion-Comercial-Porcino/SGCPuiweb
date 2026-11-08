@@ -162,3 +162,159 @@ public class ResumenDto
     ;
 }
 public class CreadoDto { public Guid Id { get; set; } }
+
+// Sprint 2 · producción, sanidad, almacén, frío y cargos (S2-P2).
+public class AnimalDto
+{
+    public Guid Id { get; set; }
+    public string Identificacion { get; set; } = "";
+    public string Procedencia { get; set; } = "";
+    public string Proveedor { get; set; } = "";
+    public decimal PesoIngreso { get; set; }
+    public string Estado { get; set; } = "PENDIENTE";
+    public DateTime FechaIngreso { get; set; }
+    public bool Activo { get; set; }
+}
+public class ControlSanitarioDto
+{
+    public Guid Id { get; set; }
+    public Guid AnimalId { get; set; }
+    public string Resultado { get; set; } = "";
+    public string Observacion { get; set; } = "";
+    public Guid ResponsableId { get; set; }
+    public DateTime Fecha { get; set; }
+}
+public class OrdenProduccionDto
+{
+    public Guid Id { get; set; }
+    public string Codigo { get; set; } = "";
+    public string Tipo { get; set; } = "FAENEO";
+    public string Estado { get; set; } = "PLANIFICADA";
+    public Guid? AnimalId { get; set; }
+    public Guid ResponsableId { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public DateTime InicioPrevisto { get; set; }
+    public DateTime FinPrevisto { get; set; }
+    public DateTime? InicioReal { get; set; }
+    public DateTime? FinReal { get; set; }
+    public string Observacion { get; set; } = "";
+}
+public class PrevisionDto
+{
+    public Guid Id { get; set; }
+    public Guid ProductoId { get; set; }
+    public decimal CantidadEstimada { get; set; }
+    public string Unidad { get; set; } = "";
+}
+public class ResultadoProduccionDto
+{
+    public Guid Id { get; set; }
+    public Guid ProductoId { get; set; }
+    public string Producto { get; set; } = "";
+    public string TipoCarneODerivado { get; set; } = "";
+    public string Familia { get; set; } = "";
+    public Guid LoteId { get; set; }
+    public string Lote { get; set; } = "";
+    public string Estado { get; set; } = "";
+    public decimal? CantidadReal { get; set; }
+    public string Unidad { get; set; } = "";
+}
+public class InsumoDto
+{
+    public Guid Id { get; set; }
+    public Guid ReferenciaUnica { get; set; }
+    public Guid ExistenciaId { get; set; }
+    public decimal Cantidad { get; set; }
+    public string Unidad { get; set; } = "";
+    public Guid ResponsableId { get; set; }
+    public DateTime Fecha { get; set; }
+}
+public class OrdenDetalleDto
+{
+    public OrdenProduccionDto Orden { get; set; } = new();
+    public List<PrevisionDto> Previsiones { get; set; } = [];
+    public List<ResultadoProduccionDto> Resultados { get; set; } = [];
+    public List<InsumoDto> Insumos { get; set; } = [];
+}
+public class LoteDto
+{
+    public Guid Id { get; set; }
+    public string Codigo { get; set; } = "";
+    public Guid ProductoId { get; set; }
+    public Guid? OrdenProduccionId { get; set; }
+    public DateTime FechaProduccion { get; set; }
+    public DateTime Vencimiento { get; set; }
+    public string Unidad { get; set; } = "";
+    public string Procedencia { get; set; } = "";
+    public string ReferenciaExterna { get; set; } = "";
+    public string Estado { get; set; } = "APTO";
+}
+public class PesajeDto
+{
+    public Guid Id { get; set; }
+    public Guid LoteId { get; set; }
+    public Guid ProductoId { get; set; }
+    public Guid ResponsableId { get; set; }
+    public decimal PesoBruto { get; set; }
+    public decimal Tara { get; set; }
+    public decimal Neto { get; set; }
+    public string Unidad { get; set; } = "";
+    public DateTime Fecha { get; set; }
+    public string Observacion { get; set; } = "";
+}
+public class EntradaInventarioDto
+{
+    public Guid Id { get; set; }
+    public Guid LoteId { get; set; }
+    public Guid ProductoId { get; set; }
+    public Guid PesajeId { get; set; }
+    public Guid ExistenciaId { get; set; }
+    public Guid ResponsableId { get; set; }
+    public DateTime Fecha { get; set; }
+    public decimal Cantidad { get; set; }
+    public bool Anulada { get; set; }
+    public DateTime? AnuladaEn { get; set; }
+    public string MotivoAnulacion { get; set; } = "";
+}
+public class ExistenciaDto
+{
+    public Guid Id { get; set; }
+    public Guid ProductoId { get; set; }
+    public string Producto { get; set; } = "";
+    public Guid LoteId { get; set; }
+    public string Lote { get; set; } = "";
+    public string Unidad { get; set; } = "";
+    public string Ubicacion { get; set; } = "";
+    public decimal CantidadFisica { get; set; }
+    public string Estado { get; set; } = "";
+    public DateTime Vencimiento { get; set; }
+    public decimal Reservada { get; set; }
+    public decimal Disponible { get; set; }
+}
+public class ControlFrioDto
+{
+    public Guid Id { get; set; }
+    public Guid? EntregaId { get; set; }
+    public Guid? LoteId { get; set; }
+    public Guid ResponsableId { get; set; }
+    public string Unidad { get; set; } = "°C";
+    public decimal Temperatura { get; set; }
+    public string Ubicacion { get; set; } = "";
+    public string Evaluacion { get; set; } = "";
+    public string Observacion { get; set; } = "";
+    public DateTime Fecha { get; set; }
+}
+public class CargoDto
+{
+    public Guid Id { get; set; }
+    public Guid PedidoId { get; set; }
+    public Guid? DetallePedidoId { get; set; }
+    public string Tipo { get; set; } = "PRODUCTO";
+    public string Concepto { get; set; } = "";
+    public decimal Importe { get; set; }
+    public string AcuerdoServicio { get; set; } = "";
+    public DateTime? PrestadoEn { get; set; }
+    public DateTime Fecha { get; set; }
+    public bool Anulado { get; set; }
+    public string MotivoAnulacion { get; set; } = "";
+}

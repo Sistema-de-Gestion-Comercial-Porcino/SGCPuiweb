@@ -1,0 +1,31 @@
+@model AnimalFichaViewModel
+@{var a=Model.Animal;ViewData["Title"]=a.Identificacion;var rechazado=a.Estado=="BLOQUEADO";var ultimo=Model.Controles.OrderByDescending(x=>x.Fecha).FirstOrDefault();}
+<div class="page-head">
+<div><span class="eyebrow">FICHA SANITARIA</span>
+<h1>@a.Identificacion <span class="badge @(rechazado?"danger":a.Estado=="APTO"?"":"muted-badge")">@(rechazado?"RECHAZADO":a.Estado)</span></h1>
+<p>@a.Procedencia · Proveedor: @a.Proveedor</p>
+</div>
+<div class="actions">@if(User.HasClaim("permiso","produccion.administrar")&&a.Activo&&a.Estado!="FAENADO"){<a class="button" asp-action="Control" asp-route-id="@a.Id">Registrar control</a>}<a class="button secondary" asp-action="Index">Volver al listado</a></div>
+</div>
+@if(rechazado){<div class="notice danger" role="alert"><b>Animal rechazado en el control sanitario.</b> No se puede crear una orden de faeneo sobre él.@if(ultimo is not null){<br/><span>Motivo registrado el @Hora.Mostrar(ultimo.Fecha): @ultimo.Observacion</span>}</div>}
+else if(a.Estado=="PENDIENTE"){<div class="notice">Pendiente de control sanitario. Hasta aprobarlo no se puede faenar.</div>}
+<section class="card">
+<dl class="facts">
+<div><dt>Identificación</dt><dd>@a.Identificacion</dd></div>
+<div><dt>Procedencia</dt><dd>@a.Procedencia</dd></div>
+<div><dt>Peso de ingreso</dt><dd>@a.PesoIngreso.ToString("0.###") kg</dd></div>
+<div><dt>Ingreso</dt><dd>@Hora.Mostrar(a.FechaIngreso)</dd></div>
+</dl>
+<h2>Controles sanitarios</h2>
+@if(Model.Controles.Count==0){<p class="muted">Sin controles registrados.</p>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Fecha</th><th>Resultado</th><th>Responsable</th><th>Observación</th></tr></thead>
+<tbody>@foreach(var c in Model.Controles.OrderByDescending(x=>x.Fecha)){<tr>
+<td>@Hora.Mostrar(c.Fecha)</td>
+<td><span class="badge @(c.Resultado=="RECHAZADO"?"danger":"")">@c.Resultado</span></td>
+<td>@SGCP.Web.Services.Nombres.Responsable(Model.Nombres,c.ResponsableId)</td>
+<td>@c.Observacion</td>
+</tr>}</tbody>
+</table>
+</div>}
+</section>

@@ -1,0 +1,20 @@
+@model AnimalFormViewModel
+@{ViewData["Title"]=Model.Id is null?"Registrar animal":"Editar animal";}
+<div class="page-head">
+<div><span class="eyebrow">SANIDAD</span>
+<h1>@ViewData["Title"]</h1>
+<p>Identificación y procedencia se conservan una vez registrado el control sanitario.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div><input asp-for="Id" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="Identificacion">Identificación (arete, código)</label><input asp-for="Identificacion" maxlength="80" required/><span asp-validation-for="Identificacion" class="validation"></span></div>
+<div class="field"><label asp-for="PesoIngreso">Peso de ingreso · kg</label><input asp-for="PesoIngreso" type="number" min="0.001" step="0.001" required/><span asp-validation-for="PesoIngreso" class="validation"></span></div>
+<div class="field"><label asp-for="Procedencia">Procedencia</label><input asp-for="Procedencia" maxlength="300" required/><span asp-validation-for="Procedencia" class="validation"></span></div>
+<div class="field"><label asp-for="Proveedor">Proveedor</label><input asp-for="Proveedor" maxlength="180" required/><span asp-validation-for="Proveedor" class="validation"></span></div>
+</div>
+<div class="form-actions"><a class="button secondary" asp-action="Index">Cancelar</a><button class="button" type="submit">Guardar</button></div>
+</form>
+</section>

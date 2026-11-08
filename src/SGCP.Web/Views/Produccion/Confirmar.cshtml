@@ -1,0 +1,29 @@
+@model ConfirmarProduccionViewModel
+@{ViewData["Title"]="Resultados de la orden";}
+<div class="page-head">
+<div><span class="eyebrow">@(Model.Tipo=="FAENEO"?"FAENEO":"FABRICACIÓN") · @Model.Codigo</span>
+<h1>Registrar resultados</h1>
+<p>Una orden puede producir varios productos, cada uno en su propio lote (por ejemplo costilla y lomo).</p>
+</div>
+</div>
+<section class="card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div><input asp-for="OrdenId" type="hidden"/><input asp-for="Codigo" type="hidden"/><input asp-for="Tipo" type="hidden"/>
+<div class="section-heading"><h2>Productos resultantes</h2><button type="button" class="button secondary small" data-agregar-fila="resultados">+ Agregar producto</button></div>
+<div class="table-wrap">
+<table class="detail-editor">
+<thead><tr><th>Producto</th><th>Código de lote</th><th>Vencimiento · Bolivia</th><th></th></tr></thead>
+<tbody id="resultados" data-filas="Resultados">
+@for(var i=0;i<Model.Resultados.Count;i++){<tr>
+<td><select name="Resultados[@i].ProductoId" data-prop="ProductoId" aria-label="Producto resultante" required><option value="">Seleccionar…</option>@foreach(var p in Model.Productos){<option value="@p.Id" selected="@(Model.Resultados[i].ProductoId==p.Id)">@p.Nombre · @p.Clasificacion.Nombre</option>}</select></td>
+<td><input name="Resultados[@i].CodigoLote" data-prop="CodigoLote" value="@Model.Resultados[i].CodigoLote" maxlength="80" aria-label="Código de lote" required/></td>
+<td><input name="Resultados[@i].Vencimiento" data-prop="Vencimiento" type="datetime-local" value="@Model.Resultados[i].Vencimiento.ToString("yyyy-MM-ddTHH:mm",CultureInfo.InvariantCulture)" aria-label="Vencimiento" required/></td>
+<td><button type="button" class="remove-row" aria-label="Quitar fila">×</button></td>
+</tr>}
+</tbody>
+</table>
+</div>
+<div class="notice">Confirmar crea los lotes <b>sin cantidad</b>. La cantidad real se registra después en Almacén → Pesajes, y el stock recién sube cuando almacén confirma la entrada física.</div>
+<div class="form-actions"><a class="button secondary" asp-action="Detalle" asp-route-id="@Model.OrdenId">Cancelar</a><button class="button" type="submit">Confirmar orden</button></div>
+</form>
+</section>

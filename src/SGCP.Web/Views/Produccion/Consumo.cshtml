@@ -1,0 +1,19 @@
+@model ConsumoFormViewModel
+@{ViewData["Title"]="Insumo consumido";}
+<div class="page-head">
+<div><span class="eyebrow">FABRICACIÓN · @Model.Codigo</span>
+<h1>Registrar insumo consumido</h1>
+<p>Se descuenta de la existencia elegida. Si el envío se repite, no se consume dos veces.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div><input asp-for="OrdenId" type="hidden"/><input asp-for="Codigo" type="hidden"/><input asp-for="ReferenciaUnica" type="hidden"/>
+@if(Model.Existencias.Count==0){<div class="notice danger">No hay existencias disponibles. Primero debe entrar stock apto al almacén.</div>}
+<div class="form-grid">
+<div class="field wide"><label asp-for="ExistenciaId">Existencia (producto · lote · disponible)</label><select asp-for="ExistenciaId" required><option value="">Seleccionar…</option>@foreach(var e in Model.Existencias){<option value="@e.Id">@e.Producto · lote @e.Lote · @e.Disponible.ToString("0.###") @e.Unidad disponibles</option>}</select><span asp-validation-for="ExistenciaId" class="validation"></span></div>
+<div class="field"><label asp-for="Cantidad">Cantidad consumida</label><input asp-for="Cantidad" type="number" min="0.001" step="0.001" required/><span asp-validation-for="Cantidad" class="validation"></span></div>
+</div>
+<div class="form-actions"><a class="button secondary" asp-action="Detalle" asp-route-id="@Model.OrdenId">Cancelar</a><button class="button" type="submit" disabled="@(Model.Existencias.Count==0)">Registrar consumo</button></div>
+</form>
+</section>

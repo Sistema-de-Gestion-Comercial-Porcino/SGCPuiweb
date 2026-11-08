@@ -1,0 +1,51 @@
+@model OrdenFichaViewModel
+@{var o=Model.Detalle.Orden;ViewData["Title"]=o.Codigo;var admin=User.HasClaim("permiso","produccion.administrar");string Producto(Guid id)=>Model.Productos.TryGetValue(id,out var p)?p.Nombre:"Producto";}
+<div class="page-head">
+<div><span class="eyebrow">ORDEN DE @(o.Tipo=="FAENEO"?"FAENEO":"FABRICACIÓN")</span>
+<h1>@o.Codigo <span class="badge @(o.Estado=="ANULADA"||o.Estado=="BLOQUEADA"?"danger":o.Estado=="CONFIRMADA"?"":"muted-badge")">@o.Estado.Replace('_',' ')</span></h1>
+<p>Responsable: @SGCP.Web.Services.Nombres.Responsable(Model.Nombres,o.ResponsableId)@if(Model.Animal is not null){<text> · Animal <a href="/Sanidad/Detalle/@Model.Animal.Id">@Model.Animal.Identificacion</a></text>}</p>
+</div>
+<a class="button secondary" asp-action="Index">Volver al listado</a>
+</div>
+<section class="card">
+<dl class="facts">
+<div><dt>Inicio previsto</dt><dd>@Hora.Mostrar(o.InicioPrevisto)</dd></div>
+<div><dt>Fin previsto</dt><dd>@Hora.Mostrar(o.FinPrevisto)</dd></div>
+<div><dt>Inicio real</dt><dd>@(o.InicioReal is null?"—":Hora.Mostrar(o.InicioReal.Value))</dd></div>
+<div><dt>Fin real</dt><dd>@(o.FinReal is null?"—":Hora.Mostrar(o.FinReal.Value))</dd></div>
+</dl>
+@if(!string.IsNullOrWhiteSpace(o.Observacion)){<p class="muted">@o.Observacion</p>}
+@if(admin){<div class="actions wrap">
+@if(o.Estado=="PLANIFICADA"){<form asp-action="Iniciar" asp-route-id="@o.Id" method="post"><button class="button" type="submit">Iniciar orden</button></form>}
+@if(o.Estado=="EN_PROCESO"&&o.Tipo=="FABRICACION"){<a class="button secondary" asp-action="Consumo" asp-route-id="@o.Id">Registrar insumo consumido</a>}
+@if(o.Estado=="EN_PROCESO"){<a class="button" asp-action="Confirmar" asp-route-id="@o.Id">Registrar resultados</a>}
+@if(o.Estado=="PLANIFICADA"||o.Estado=="EN_PROCESO"){<a class="button secondary danger-text" asp-action="Anular" asp-route-id="@o.Id">Anular</a>}
+</div>}
+</section>
+<section class="card">
+<h2>Resultados por lote</h2>
+<p class="muted">Cada producto resultante queda en su propio lote. La cantidad real se confirma con el pesaje en almacén.</p>
+@if(Model.Detalle.Resultados.Count==0){<p class="muted">Sin resultados registrados todavía.</p>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Producto</th><th>Tipo de corte o derivado</th><th>Lote</th><th>Cantidad real</th><th>Estado</th></tr></thead>
+<tbody>@foreach(var r in Model.Detalle.Resultados){<tr>
+<td class="strong">@r.Producto</td>
+<td>@r.TipoCarneODerivado<small>@r.Familia.Replace('_',' ')</small></td>
+<td>@r.Lote</td>
+<td>@(r.CantidadReal is null?"Pendiente de pesaje":r.CantidadReal.Value.ToString("0.###")+" "+r.Unidad)</td>
+<td><span class="badge @(r.Estado=="BLOQUEADO"?"danger":r.Estado=="CONFIRMADO"?"":"muted-badge")">@r.Estado.Replace('_',' ')</span>@if(r.Estado=="PENDIENTE_PESAJE"&&User.HasClaim("permiso","inventario.administrar")){<small><a href="/Almacen/Pesar?loteId=@r.LoteId">Registrar pesaje</a></small>}</td>
+</tr>}</tbody>
+</table>
+</div>}
+</section>
+@if(Model.Detalle.Previsiones.Count>0){<section class="card">
+<h2>Previsiones</h2>
+<p class="muted">Estimaciones de planificación. No forman parte de las existencias ni de la disponibilidad.</p>
+<div class="table-wrap"><table><thead><tr><th>Producto</th><th>Cantidad estimada</th></tr></thead>
+<tbody>@foreach(var p in Model.Detalle.Previsiones){<tr><td>@Producto(p.ProductoId)</td><td>@p.CantidadEstimada.ToString("0.###") @p.Unidad</td></tr>}</tbody></table></div>
+</section>}
+@if(o.Tipo=="FABRICACION"){<section class="card">
+<h2>Insumos realmente consumidos</h2>
+@if(Model.Detalle.Insumos.Count==0){<p class="muted">Sin consumos registrados. Una fabricación necesita al menos uno para confirmarse.</p>}else{<div class="table-wrap"><table><thead><tr><th>Insumo</th><th>Lote</th><th>Cantidad</th><th>Responsable</th><th>Fecha</th></tr></thead>
+<tbody>@foreach(var i in Model.Detalle.Insumos){var e=Model.Existencias.GetValueOrDefault(i.ExistenciaId);<tr><td>@(e?.Producto??"Existencia")</td><td>@(e?.Lote??"—")</td><td>@i.Cantidad.ToString("0.###") @i.Unidad</td><td>@SGCP.Web.Services.Nombres.Responsable(Model.Nombres,i.ResponsableId)</td><td>@Hora.Mostrar(i.Fecha)</td></tr>}</tbody></table></div>}
+</section>}

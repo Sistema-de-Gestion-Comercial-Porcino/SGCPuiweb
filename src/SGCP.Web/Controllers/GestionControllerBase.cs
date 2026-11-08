@@ -15,6 +15,14 @@ public abstract class GestionControllerBase : Controller
         && e.Estado != 403)
         { ModelState.AddModelError("", e.Message); return false; }
     }
+    /// <summary>Como Intentar, pero devuelve el error de la API para que la pantalla pueda traducir su código.</summary>
+    protected static async Task<ApiException?> IntentarConCodigo(Func<Task> accion)
+    {
+        try
+        { await accion(); return null; }
+        catch (ApiException e) when (e.Estado != 401 && e.Estado != 403)
+        { return e; }
+    }
     protected void Correcto(string texto) => TempData["Exito"] = texto;
     protected string Query(string ruta,
             string? busqueda,

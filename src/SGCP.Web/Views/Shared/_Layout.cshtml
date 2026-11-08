@@ -7,7 +7,11 @@
 <nav aria-label="Principal">
 <a class="@(actual=="Inicio"?"active":"")" href="/"><span class="nav-icon">◫</span>Resumen</a>
 @foreach(var item in new[]{("Usuarios","Usuarios","usuarios.consultar"),("Clientes","Clientes","clientes.consultar"),("Productos","Productos","catalogo.consultar"),("Precios","Gestión de costos","costos.consultar"),("Cotizaciones","Cotizaciones","cotizaciones.consultar"),("Pedidos","Pedidos","pedidos.consultar")}){if(User.HasClaim("permiso",item.Item3)){<a class="@(actual==item.Item1||actual=="Clasificaciones"&&item.Item1=="Productos"?"active":"")" href="/@item.Item1"><span class="nav-icon">◇</span>@item.Item2</a>}}
-@if(!User.IsInRole("COMPRADOR")){<p class="nav-label">PRÓXIMAS ETAPAS</p>@foreach(var nombre in new[]{"Producción","Inventario","Cobranza","Transporte / entregas","Reportes"}){<span class="nav-disabled" aria-disabled="true"><span class="nav-icon">·</span>@nombre<small>Pendiente</small></span>}}
+@{/* Sprint 2: cada ítem se muestra según el permiso. Producción no ve pesajes ni entradas; almacén no ve precios. */
+var operacion=new List<(string Ruta,string Nombre,bool Ver,string Controlador)>{("/Sanidad","Sanidad",User.HasClaim("permiso","produccion.consultar"),"Sanidad"),("/Produccion","Producción",User.HasClaim("permiso","produccion.consultar"),"Produccion"),("/Almacen/Existencias","Existencias",User.HasClaim("permiso","inventario.consultar"),"Almacen"),("/Almacen/Pesajes","Pesajes y entradas",User.HasClaim("permiso","inventario.administrar"),"Almacen"),("/Frio","Control de frío",User.HasClaim("permiso","frio.administrar")&&User.HasClaim("permiso","inventario.consultar"),"Frio")}.Where(x=>x.Ver).ToList();
+var accionActual=ViewContext.RouteData.Values["action"]?.ToString();}
+@if(operacion.Count>0){<p class="nav-label">PRODUCCIÓN E INVENTARIO</p>@foreach(var item in operacion){var activo=actual==item.Controlador&&(item.Controlador!="Almacen"||(item.Ruta=="/Almacen/Existencias")==(accionActual=="Existencias"));<a class="@(activo?"active":"")" href="@item.Ruta"><span class="nav-icon">◇</span>@item.Nombre</a>}}
+@if(!User.IsInRole("COMPRADOR")){<p class="nav-label">PRÓXIMAS ETAPAS</p>@foreach(var nombre in new[]{"Cobranza","Transporte / entregas","Reportes"}){<span class="nav-disabled" aria-disabled="true"><span class="nav-icon">·</span>@nombre<small>Pendiente</small></span>}}
 </nav><div class="sidebar-foot"><span class="status-dot"></span> Operación con conexión<small>Santa Cruz de la Sierra · Bolivia</small></div></aside>
 <div class="shade" id="sombra" hidden>
 </div>

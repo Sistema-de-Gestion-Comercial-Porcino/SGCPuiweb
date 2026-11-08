@@ -1,0 +1,23 @@
+@model FrioFormViewModel
+@{ViewData["Title"]="Registrar control de frío";}
+<div class="page-head">
+<div><span class="eyebrow">CONTROL DE FRÍO</span>
+<h1>Registrar control de frío</h1>
+<p>Anota la temperatura que leíste y tu evaluación. El responsable queda registrado con tu cuenta.</p>
+</div>
+</div>
+<div class="notice" role="note">El sistema <b>no mide</b> la temperatura ni la evalúa solo: la evaluación es tuya, no un cálculo automático por umbral.</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<div class="form-grid">
+<div class="field wide"><label asp-for="LoteId">Lote controlado</label><select asp-for="LoteId" required><option value="">Seleccionar lote…</option>@foreach(var l in Model.Lotes){<option value="@l.Id">@l.Codigo · @(Model.Productos.TryGetValue(l.ProductoId,out var p)?p.Nombre:"Producto")</option>}</select><span asp-validation-for="LoteId" class="validation"></span></div>
+<div class="field"><label asp-for="Temperatura">Temperatura · °C</label><input asp-for="Temperatura" type="number" min="-100" max="100" step="0.01" required/><span asp-validation-for="Temperatura" class="validation"></span></div>
+<div class="field"><label asp-for="Evaluacion">Evaluación del responsable</label><select asp-for="Evaluacion" required><option value="">Seleccionar…</option><option value="APTO">Apto</option><option value="OBSERVADO">Observado</option><option value="RECHAZADO">Rechazado</option></select><span asp-validation-for="Evaluacion" class="validation"></span></div>
+<div class="field"><label asp-for="Ubicacion">Ubicación</label><input asp-for="Ubicacion" maxlength="180" placeholder="Cámara 1, mostrador…" required/><span asp-validation-for="Ubicacion" class="validation"></span></div>
+<div class="field"><label asp-for="Fecha">Fecha de la lectura · Bolivia</label><input asp-for="Fecha" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
+<div class="field wide"><label asp-for="Observacion">Observación</label><textarea asp-for="Observacion" rows="2" maxlength="1000" required></textarea><span asp-validation-for="Observacion" class="validation"></span></div>
+</div>
+<div class="form-actions"><a class="button secondary" asp-action="Index">Cancelar</a><button class="button" type="submit">Registrar control</button></div>
+</form>
+</section>

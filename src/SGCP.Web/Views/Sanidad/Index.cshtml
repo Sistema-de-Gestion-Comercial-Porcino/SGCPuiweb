@@ -1,0 +1,37 @@
+@model ListaViewModel<AnimalDto>
+@{ViewData["Title"]="Sanidad";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;
+string Estado(string e)=>e switch{"APTO"=>"Apto para faeneo","BLOQUEADO"=>"Rechazado · bloqueado","FAENADO"=>"Faenado",_=>"Pendiente de control"};}
+<div class="page-head">
+<div><span class="eyebrow">PRODUCCIÓN</span>
+<h1>Sanidad de animales</h1>
+<p>Cada animal se faena solo después de un control sanitario aprobado.</p>
+</div>
+<div class="actions">@if(User.HasClaim("permiso","produccion.administrar")){<a class="button" asp-action="Formulario">+ Registrar animal</a>}</div>
+</div>
+<section class="card">
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">⌕</span>
+<h3>Todavía no hay animales registrados</h3>
+<p>Registra el ingreso del animal y luego su control sanitario.</p>
+</div>}else{<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Identificación</th>
+<th>Procedencia</th>
+<th>Peso de ingreso</th>
+<th>Ingreso</th>
+<th>Estado sanitario</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody>@foreach(var x in Model.Datos.Elementos){<tr>
+<td><a class="strong" asp-action="Detalle" asp-route-id="@x.Id">@x.Identificacion</a>@if(!x.Activo){<small>Inactivo</small>}</td>
+<td>@x.Procedencia<small>Proveedor: @x.Proveedor</small></td>
+<td>@x.PesoIngreso.ToString("0.###") kg</td>
+<td>@Hora.Mostrar(x.FechaIngreso)</td>
+<td><span class="badge @(x.Estado=="BLOQUEADO"?"danger":x.Estado=="APTO"?"":"muted-badge")">@Estado(x.Estado)</span></td>
+<td class="row-actions"><a asp-action="Detalle" asp-route-id="@x.Id">Ver controles</a>@if(User.HasClaim("permiso","produccion.administrar")&&x.Activo&&x.Estado!="FAENADO"){<a asp-action="Control" asp-route-id="@x.Id">Registrar control</a>}</td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>

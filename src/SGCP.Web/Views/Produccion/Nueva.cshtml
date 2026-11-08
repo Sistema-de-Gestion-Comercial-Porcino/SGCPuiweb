@@ -1,0 +1,37 @@
+@model OrdenFormViewModel
+@{ViewData["Title"]="Planificar orden";}
+<div class="page-head">
+<div><span class="eyebrow">PRODUCCIÓN</span>
+<h1>Planificar orden</h1>
+<p>Las cantidades previstas son estimaciones: no suman disponibilidad ni se pueden reservar.</p>
+</div>
+</div>
+<section class="card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<div class="form-grid">
+<div class="field"><label asp-for="Tipo">Tipo de orden</label><select asp-for="Tipo" id="tipo-orden"><option value="FAENEO">Faeneo · a partir de un animal</option><option value="FABRICACION">Fabricación · a partir de insumos</option></select></div>
+<div class="field" id="campo-animal"><label asp-for="AnimalId">Animal</label><select asp-for="AnimalId"><option value="">Seleccionar animal…</option>@foreach(var a in Model.Animales){<option value="@a.Id">@a.Identificacion · @(a.Estado=="APTO"?"aprobado":a.Estado=="BLOQUEADO"?"rechazado":"sin control")</option>}</select><span asp-validation-for="AnimalId" class="validation"></span></div>
+<div class="field"><label asp-for="InicioPrevisto">Inicio previsto · Bolivia</label><input asp-for="InicioPrevisto" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
+<div class="field"><label asp-for="FinPrevisto">Fin previsto · Bolivia</label><input asp-for="FinPrevisto" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/><span asp-validation-for="FinPrevisto" class="validation"></span></div>
+<div class="field wide"><label asp-for="Observacion">Observación</label><textarea asp-for="Observacion" rows="2" maxlength="1000"></textarea></div>
+</div>
+<div class="section-heading"><h2>Productos previstos <small class="muted">(opcional)</small></h2><button type="button" class="button secondary small" data-agregar-fila="previsiones">+ Agregar producto</button></div>
+<div class="table-wrap">
+<table class="detail-editor">
+<thead><tr><th>Producto</th><th>Cantidad estimada</th><th>Unidad</th><th></th></tr></thead>
+<tbody id="previsiones" data-filas="Previsiones">
+@{var filas=Model.Previsiones.Count==0?new List<PrevisionFormViewModel>{new()}:Model.Previsiones;}
+@for(var i=0;i<filas.Count;i++){<tr>
+<td><select name="Previsiones[@i].ProductoId" data-prop="ProductoId" aria-label="Producto previsto"><option value="">Sin previsión…</option>@foreach(var p in Model.Productos){<option value="@p.Id" data-unidad="@p.UnidadVenta" selected="@(filas[i].ProductoId==p.Id)">@p.Nombre · @p.Clasificacion.Nombre</option>}</select></td>
+<td><input name="Previsiones[@i].CantidadEstimada" data-prop="CantidadEstimada" type="number" min="0.001" step="0.001" value="@filas[i].CantidadEstimada.ToString(CultureInfo.InvariantCulture)" aria-label="Cantidad estimada"/></td>
+<td><input name="Previsiones[@i].Unidad" data-prop="Unidad" value="@filas[i].Unidad" aria-label="Unidad" readonly/></td>
+<td><button type="button" class="remove-row" aria-label="Quitar fila">×</button></td>
+</tr>}
+</tbody>
+</table>
+</div>
+<p class="hint">Un faeneo exige un animal con control sanitario aprobado. Si el animal fue rechazado, verás el motivo al guardar.</p>
+<div class="form-actions"><a class="button secondary" asp-action="Index">Cancelar</a><button class="button" type="submit">Planificar orden</button></div>
+</form>
+</section>

@@ -33,3 +33,42 @@
   costo?.addEventListener('input', actualizarMargen); precio?.addEventListener('input', actualizarMargen); actualizarMargen();
   document.querySelectorAll('form[method="post"]').forEach(form => form.addEventListener('submit', () => { const button = form.querySelector('button[type="submit"], button:not([type])'); if (button && form.checkValidity()) { setTimeout(() => { button.disabled = true; button.textContent = 'Procesando…'; }, 0); } }));
 })();
+// Sprint 2 · editores de filas genéricos (previsiones y resultados de producción) y neto del pesaje.
+(() => {
+  function renumerar(cuerpo) {
+    [...cuerpo.children].forEach((fila, i) => {
+      fila.querySelectorAll('[data-prop]').forEach(c => c.name = `${cuerpo.dataset.filas}[${i}].${c.dataset.prop}`);
+      const quitar = fila.querySelector('.remove-row'); if (quitar) quitar.disabled = cuerpo.children.length === 1;
+    });
+  }
+  document.querySelectorAll('[data-filas]').forEach(cuerpo => {
+    cuerpo.addEventListener('click', e => { if (e.target.matches('.remove-row') && cuerpo.children.length > 1) { e.target.closest('tr').remove(); renumerar(cuerpo); } });
+    cuerpo.addEventListener('change', e => {
+      const opcion = e.target.matches('select') ? e.target.selectedOptions[0] : null;
+      const unidad = e.target.closest('tr')?.querySelector('[data-prop="Unidad"]');
+      if (opcion && unidad && opcion.dataset.unidad) unidad.value = opcion.dataset.unidad;
+    });
+    renumerar(cuerpo);
+  });
+  document.querySelectorAll('[data-agregar-fila]').forEach(boton => boton.addEventListener('click', () => {
+    const cuerpo = document.getElementById(boton.dataset.agregarFila);
+    if (!cuerpo || cuerpo.children.length >= 100) return;
+    const fila = cuerpo.children[0].cloneNode(true);
+    fila.querySelectorAll('input:not([readonly]), select').forEach(c => { if (c.tagName === 'SELECT') c.value = ''; else if (c.type !== 'datetime-local' && c.type !== 'number') c.value = ''; });
+    cuerpo.append(fila); renumerar(cuerpo); fila.querySelector('select, input')?.focus();
+  }));
+  const lote = document.getElementById('lote-pesaje'), unidad = document.getElementById('unidad-pesaje');
+  const bruto = document.getElementById('peso-bruto'), tara = document.getElementById('peso-tara'), neto = document.getElementById('peso-neto');
+  function actualizarNeto() {
+    if (!bruto || !tara || !neto) return;
+    if (bruto.value === '' || tara.value === '') { neto.textContent = 'Completa bruto y tara'; return; }
+    const valor = Number(bruto.value) - Number(tara.value);
+    neto.textContent = `${valor.toFixed(3)} ${unidad?.value || ''}`; neto.style.color = valor <= 0 ? '#a83a38' : '#285c49';
+  }
+  lote?.addEventListener('change', () => { const u = lote.selectedOptions[0]?.dataset.unidad; if (u && unidad) unidad.value = u; actualizarNeto(); });
+  if (lote && unidad && lote.selectedOptions[0]?.dataset.unidad) unidad.value = lote.selectedOptions[0].dataset.unidad;
+  bruto?.addEventListener('input', actualizarNeto); tara?.addEventListener('input', actualizarNeto); actualizarNeto();
+  const tipo = document.getElementById('tipo-orden'), campoAnimal = document.getElementById('campo-animal');
+  function mostrarAnimal() { if (tipo && campoAnimal) campoAnimal.hidden = tipo.value !== 'FAENEO'; }
+  tipo?.addEventListener('change', mostrarAnimal); mostrarAnimal();
+})();

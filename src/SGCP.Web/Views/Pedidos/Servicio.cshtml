@@ -1,0 +1,20 @@
+@model ServicioFormViewModel
+@{ViewData["Title"]="Registrar servicio prestado";}
+<div class="page-head">
+<div><span class="eyebrow">CARGOS · @Model.Codigo</span>
+<h1>Registrar servicio prestado</h1>
+<p>El servicio de faeneo o corte se registra como un cargo aparte, nunca sumado al cargo del producto.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div><input asp-for="PedidoId" type="hidden"/><input asp-for="Codigo" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="Concepto">Servicio</label><input asp-for="Concepto" maxlength="300" required/><span asp-validation-for="Concepto" class="validation"></span></div>
+<div class="field"><label asp-for="Importe">Importe · Bs</label><input asp-for="Importe" type="number" min="0.01" step="0.01" required/><span asp-validation-for="Importe" class="validation"></span></div>
+<div class="field wide"><label asp-for="AcuerdoServicio">Cómo se acordó con el cliente</label><input asp-for="AcuerdoServicio" maxlength="300" placeholder="Ej.: acordado por WhatsApp el 05/11 con el cliente" required/><span asp-validation-for="AcuerdoServicio" class="validation"></span></div>
+<div class="field"><label asp-for="PrestadoEn">Prestado el · Bolivia</label><input asp-for="PrestadoEn" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
+</div>
+<div class="form-actions"><a class="button secondary" asp-action="Detalle" asp-route-id="@Model.PedidoId">Cancelar</a><button class="button" type="submit">Registrar cargo de servicio</button></div>
+</form>
+</section>
