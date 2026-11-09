@@ -1,0 +1,25 @@
+@model FrioListaViewModel
+@{ViewData["Title"]="Control de frío";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">ALMACÉN</span>
+<h1>Control de frío</h1>
+<p>Registro manual de temperaturas. El sistema no mide: guarda la lectura y la evaluación del responsable.</p>
+</div>
+<div class="actions">@if(User.HasClaim("permiso","inventario.consultar")){<a class="button" asp-action="Registrar">+ Registrar control</a>}</div>
+</div>
+<section class="card">
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">⌕</span><h3>Sin controles registrados</h3><p>Registra la temperatura leída en cámara o mostrador.</p></div>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Fecha</th><th>Referencia</th><th>Ubicación</th><th>Temperatura</th><th>Evaluación</th><th>Responsable</th><th>Observación</th></tr></thead>
+<tbody>@foreach(var x in Model.Datos.Elementos){var lote=x.LoteId is null?null:Model.Lotes.GetValueOrDefault(x.LoteId.Value);<tr>
+<td>@Hora.Mostrar(x.Fecha)</td>
+<td>@if(lote is not null){<span>Lote @lote.Codigo</span><small>@(Model.Productos.TryGetValue(lote.ProductoId,out var p)?p.Nombre:"")</small>}else if(x.EntregaId is not null){<span>Entrega</span>}else{<span>—</span>}</td>
+<td>@x.Ubicacion</td>
+<td class="strong">@x.Temperatura.ToString("0.##") @x.Unidad</td>
+<td><span class="badge @(x.Evaluacion=="RECHAZADO"?"danger":x.Evaluacion=="OBSERVADO"?"muted-badge":"")">@x.Evaluacion</span></td>
+<td>@SGCP.Web.Services.Nombres.Responsable(Model.Nombres,x.ResponsableId)</td>
+<td>@x.Observacion</td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>

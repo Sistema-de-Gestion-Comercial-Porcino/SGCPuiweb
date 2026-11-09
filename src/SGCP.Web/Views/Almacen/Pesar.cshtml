@@ -1,0 +1,24 @@
+@model PesajeFormViewModel
+@{ViewData["Title"]="Registrar pesaje";}
+<div class="page-head">
+<div><span class="eyebrow">ALMACÉN · PASO 1 DE 2</span>
+<h1>Registrar pesaje</h1>
+<p>Bruto, tara y neto del lote, con su responsable.</p>
+</div>
+</div>
+<div class="notice" role="note"><b>Registrar el peso no da de alta la existencia.</b> Después de pesar, almacén debe confirmar la entrada física para que el producto sume al stock.</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+@if(Model.Lotes.Count==0){<div class="notice danger">No hay lotes aptos pendientes de pesaje.</div>}
+<div class="form-grid">
+<div class="field wide"><label asp-for="LoteId">Lote (producto)</label><select asp-for="LoteId" id="lote-pesaje" required><option value="">Seleccionar lote…</option>@foreach(var l in Model.Lotes){<option value="@l.Id" data-unidad="@l.Unidad">@l.Codigo · @(Model.Productos.TryGetValue(l.ProductoId,out var p)?p.Nombre:"Producto") · @l.Unidad</option>}</select><span asp-validation-for="LoteId" class="validation"></span></div>
+<div class="field"><label asp-for="PesoBruto">Peso bruto</label><input asp-for="PesoBruto" id="peso-bruto" type="number" min="0.001" step="0.001" required/><span asp-validation-for="PesoBruto" class="validation"></span></div>
+<div class="field"><label asp-for="Tara">Tara</label><input asp-for="Tara" id="peso-tara" type="number" min="0" step="0.001" required/><span asp-validation-for="Tara" class="validation"></span></div>
+<div class="field"><label asp-for="Unidad">Unidad (la del producto)</label><input asp-for="Unidad" id="unidad-pesaje" readonly required/></div>
+<div class="field"><label>Peso neto</label><output id="peso-neto">Completa bruto y tara</output></div>
+<div class="field wide"><label asp-for="Observacion">Observación</label><textarea asp-for="Observacion" rows="2" maxlength="1000"></textarea></div>
+</div>
+<div class="form-actions"><a class="button secondary" asp-action="Pesajes">Cancelar</a><button class="button" type="submit" disabled="@(Model.Lotes.Count==0)">Registrar pesaje</button></div>
+</form>
+</section>

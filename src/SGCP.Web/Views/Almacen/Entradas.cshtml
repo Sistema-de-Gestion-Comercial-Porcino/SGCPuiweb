@@ -1,0 +1,26 @@
+@model EntradaListaViewModel
+@{ViewData["Title"]="Entradas físicas";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">ALMACÉN · PASO 2 DE 2</span>
+<h1>Entradas físicas</h1>
+<p>Almacén confirma que el producto entró. Esta es la única operación que suma stock, una sola vez por lote y producto.</p>
+</div>
+<div class="actions"><a class="button" asp-action="Entrada">+ Confirmar entrada</a><a class="button secondary" asp-action="Pesajes">Pesajes</a></div>
+</div>
+<section class="card">
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">⌕</span><h3>Sin entradas</h3><p>Confirma la entrada de un lote ya pesado.</p></div>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Lote</th><th>Producto</th><th>Cantidad</th><th>Ubicación</th><th>Responsable</th><th>Fecha</th><th>Estado</th><th></th></tr></thead>
+<tbody>@foreach(var x in Model.Datos.Elementos){var lote=Model.Lotes.GetValueOrDefault(x.LoteId);<tr>
+<td class="strong">@(lote?.Codigo??"—")</td>
+<td>@(Model.Productos.TryGetValue(x.ProductoId,out var p)?p.Nombre:"—")</td>
+<td>@x.Cantidad.ToString("0.###") @(lote?.Unidad)</td>
+<td>@Model.Ubicaciones.GetValueOrDefault(x.ExistenciaId,"—")</td>
+<td>@SGCP.Web.Services.Nombres.Responsable(Model.Nombres,x.ResponsableId)</td>
+<td>@Hora.Mostrar(x.Fecha)</td>
+<td>@if(x.Anulada){<span class="badge danger">Anulada</span><small>@x.MotivoAnulacion</small>}else{<span class="badge">Vigente</span>}</td>
+<td class="row-actions">@if(!x.Anulada){<a class="danger-text" asp-action="Anular" asp-route-id="@x.Id">Anular</a>}</td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>

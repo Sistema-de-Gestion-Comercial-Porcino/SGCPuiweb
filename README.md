@@ -35,6 +35,20 @@ La interfaz sigue la organización de los mockups: barra lateral, gestión comer
 
 Moneda Bs; cantidades siempre con unidad; fechas mostradas en hora de Bolivia (UTC−4). Al enviar se convierten a UTC. El costo de referencia no se muestra al comprador.
 
+## Sprint 2
+
+Pantallas de producción e inventario (S2-P2), contra la API de P1 sin tocar la base de datos:
+
+- **Sanidad** (`/Sanidad`): animales con su estado y control sanitario con resultado, responsable y observación. Un animal rechazado se ve rechazado, y al intentar faenarlo la pantalla muestra el motivo del rechazo (`ANIMAL_RECHAZADO`).
+- **Producción** (`/Produccion`): órdenes de faeneo y fabricación con responsable y tiempos estimado y real, previsiones que no suman disponibilidad, insumos consumidos con referencia única y resultados con **varios productos en lotes distintos**.
+- **Pesajes y entradas** (`/Almacen/Pesajes`, `/Almacen/Entradas`): dos pantallas separadas. El pesaje guarda bruto, tara y neto **sin cambiar el stock**; la entrada física suma stock una sola vez por lote y producto, y si ya existe dice cuándo y quién la registró (`ENTRADA_YA_REGISTRADA`).
+- **Existencias** (`/Almacen/Existencias`): física apta, reservada y disponible (física − reservada), sin cantidades previstas.
+- **Control de frío** (`/Frio`): registro manual de temperatura en °C con evaluación humana; el sistema no mide ni evalúa por umbral.
+- **Cargos** (detalle del pedido): cargo por productos y cargo por servicio de faeneo o corte en líneas separadas; el servicio solo se registra cuando se acordó y se prestó.
+- **Menú por permiso**: producción no ve pesajes ni entradas; almacén no ve precios de venta. Cobranza, transporte y reportes siguen pendientes.
+
+Todo `[Range]` sobre `decimal` lleva `ParseLimitsInInvariantCulture` y `ConvertValueInInvariantCulture`; probar con `LANG=es_BO.UTF-8`.
+
 ## Seguridad y validación
 
 Cookie HttpOnly protegida por ASP.NET Core Data Protection; JWT utilizado por el servidor al consumir la API. Políticas en MVC y comprobación definitiva en la API. Formularios con antiforgery; redirecciones de retorno únicamente locales. Sesión sin renovación deslizante; una sesión revocada redirige al acceso en la siguiente llamada protegida.
@@ -93,6 +107,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v2.2.0 | 2026-11-07 | 2 | Pantallas de sanidad, producción, pesajes, entradas físicas, existencias, control de frío y cargos separados; menú por permiso | Angel Sebastian Eguez Mur |
 | v1.0.1 | 2026-11-07 | 1 | Corrección: el esquema de versiones aclara que MENOR es el número de parte y que la etiqueta de cierre del sprint es `vN.4.0` | Dario Haziel Tambo Parra |
 | v1.0.0 | 2026-11-06 | 1 | Documentación: convención de versionamiento del repositorio | Dario Haziel Tambo Parra |
 | v.0.1.0 | 2026-11-06 | 1 | Pantallas de acceso, usuarios, clientes, clasificaciones, productos, precios, cotizaciones y pedidos, con enlace de decimales independiente de la configuración regional | Dario Haziel Tambo Parra |

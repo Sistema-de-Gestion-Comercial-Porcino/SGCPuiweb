@@ -1,0 +1,19 @@
+@model EntradaFormViewModel
+@{ViewData["Title"]="Confirmar entrada física";}
+<div class="page-head">
+<div><span class="eyebrow">ALMACÉN · PASO 2 DE 2</span>
+<h1>Confirmar entrada física</h1>
+<p>Al confirmar, la cantidad neta del pesaje suma al stock del lote.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+@if(Model.Pesajes.Count==0){<div class="notice danger">No hay pesajes pendientes de entrada. Primero registra el pesaje del lote.</div>}
+<div class="form-grid">
+<div class="field wide"><label asp-for="PesajeId">Pesaje del lote</label><select asp-for="PesajeId" required><option value="">Seleccionar pesaje…</option>@foreach(var x in Model.Pesajes){var l=Model.Lotes.GetValueOrDefault(x.LoteId);<option value="@x.Id">@(l?.Codigo??"Lote") · @(Model.Productos.TryGetValue(x.ProductoId,out var p)?p.Nombre:"Producto") · neto @x.Neto.ToString("0.###") @x.Unidad · @Hora.Mostrar(x.Fecha)</option>}</select><span asp-validation-for="PesajeId" class="validation"></span></div>
+<div class="field wide"><label asp-for="Ubicacion">Ubicación en almacén (cámara, estante)</label><input asp-for="Ubicacion" maxlength="180" required/><span asp-validation-for="Ubicacion" class="validation"></span></div>
+</div>
+<div class="form-actions"><a class="button secondary" asp-action="Entradas">Cancelar</a><button class="button" type="submit" disabled="@(Model.Pesajes.Count==0)">Confirmar entrada</button></div>
+</form>
+</section>

@@ -22,7 +22,35 @@ public class PedidosController(PedidosApi api) : GestionControllerBase
                             pagina,
                             tamanoPagina))
             });
-    public async Task<IActionResult> Detalle(Guid id) => View(new FichaViewModel<PedidoDto> { Datos = await api.Get<PedidoDto>("pedidos/" + id) });
+    public async Task<IActionResult> Detalle(Guid id) => View(new FichaViewModel<PedidoDto>
+    {
+        Datos = await api.Get<PedidoDto>("pedidos/" + id),
+        // RF-20: los cargos de producto y de servicio se muestran por separado, nunca sumados en una línea.
+        Cargos = User.HasClaim("permiso", "cargos.administrar") ? await api.Todos<CargoDto>($"cargos?pedidoId={id}") : []
+    });
+    [Authorize(Policy = "cargos.administrar")]
+    public async Task<IActionResult> Servicio(Guid id)
+    {
+        var p = await api.Get<PedidoDto>("pedidos/" + id);
+        return View(new ServicioFormViewModel { PedidoId = id, Codigo = p.Codigo + " · " + p.Cliente });
+    }
+    [HttpPost, Authorize(Policy = "cargos.administrar")]
+    public async Task<IActionResult> Servicio(ServicioFormViewModel m)
+    {
+        if (ModelState.IsValid && await Intentar(async () => await api.Post<CreadoDto>("cargos", new
+        {
+            m.PedidoId,
+            m.Concepto,
+            m.Importe,
+            m.AcuerdoServicio,
+            PrestadoEn = Hora.Utc(m.PrestadoEn)
+        })))
+        {
+            Correcto("Cargo de servicio registrado por separado del cargo de productos.");
+            return RedirectToAction(nameof(Detalle), new { id = m.PedidoId });
+        }
+        return View(m);
+    }
     [Authorize(Policy = "pedidos.administrar")]
     public async Task<IActionResult> Confirmar(Guid cotizacionId)
     {

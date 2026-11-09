@@ -1,0 +1,28 @@
+@model OrdenListaViewModel
+@{ViewData["Title"]="Producción";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">PRODUCCIÓN</span>
+<h1>Órdenes de producción</h1>
+<p>Faeneo y fabricación con su responsable y tiempos estimado y real.</p>
+</div>
+<div class="actions">@if(User.HasClaim("permiso","produccion.administrar")){<a class="button" asp-action="Nueva">+ Planificar orden</a>}</div>
+</div>
+<section class="card">
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">⌕</span>
+<h3>Todavía no hay órdenes</h3>
+<p>Planifica un faeneo sobre un animal aprobado o una fabricación con insumos en stock.</p>
+</div>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Orden</th><th>Tipo</th><th>Estado</th><th>Responsable</th><th>Previsto</th><th>Real</th><th>Acciones</th></tr></thead>
+<tbody>@foreach(var x in Model.Datos.Elementos){<tr>
+<td><a class="strong" asp-action="Detalle" asp-route-id="@x.Id">@x.Codigo</a>@if(x.AnimalId is not null){<small>Animal @(Model.Animales.GetValueOrDefault(x.AnimalId.Value,"—"))</small>}</td>
+<td>@(x.Tipo=="FAENEO"?"Faeneo":"Fabricación")</td>
+<td><span class="badge @(x.Estado=="ANULADA"||x.Estado=="BLOQUEADA"?"danger":x.Estado=="CONFIRMADA"?"":"muted-badge")">@x.Estado.Replace('_',' ')</span></td>
+<td>@SGCP.Web.Services.Nombres.Responsable(Model.Nombres,x.ResponsableId)</td>
+<td>@Hora.Mostrar(x.InicioPrevisto)<small>a @Hora.Mostrar(x.FinPrevisto)</small></td>
+<td>@(x.InicioReal is null?"—":Hora.Mostrar(x.InicioReal.Value))<small>@(x.FinReal is null?"":"a "+Hora.Mostrar(x.FinReal.Value))</small></td>
+<td class="row-actions"><a asp-action="Detalle" asp-route-id="@x.Id">Ver</a></td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>

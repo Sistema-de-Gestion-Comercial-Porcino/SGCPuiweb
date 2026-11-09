@@ -1,5 +1,5 @@
 @model ListaViewModel<ProductoDto>
-@{ViewData["Title"]="Productos";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+@{ViewData["Title"]="Productos";var verPrecio=User.HasClaim("permiso","precios.consultar");ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
 <div class="page-head">
 <div><span class="eyebrow">GESTIÓN COMERCIAL</span>
 <h1>Productos</h1>
@@ -22,7 +22,7 @@
 <th>Producto</th>
 <th>Clasificación</th>
 <th>Presentación</th>
-<th>Precio vigente</th>
+@if(verPrecio){<th>Precio vigente</th>}
 <th>Estado</th>
 <th>Acciones</th>
 </tr>
@@ -33,7 +33,7 @@
 <td>@x.Clasificacion.Nombre<small>@x.Clasificacion.Familia.Replace('_',' ')</small>
 </td>
 <td>@x.Presentacion · @x.UnidadVenta</td>
-<td>@(x.PrecioVigente is null?"Sin vigencia":"Bs "+x.PrecioVigente.PrecioVenta.ToString("N2")+"/"+x.UnidadVenta)</td>
+@if(verPrecio){<td>@(x.PrecioVigente is null?"Sin vigencia":"Bs "+x.PrecioVigente.PrecioVenta.ToString("N2")+"/"+x.UnidadVenta)</td>}
 <td><span class="badge">@(x.Activo?"Activo":"Inactivo")</span>
 </td>
 <td class="row-actions"><a asp-action="Detalle" asp-route-id="@x.Id">Ver</a>@if(User.HasClaim("permiso","catalogo.administrar")){<a asp-action="Formulario" asp-route-id="@x.Id">Editar</a><a asp-action="Estado" asp-route-id="@x.Id" asp-route-valor="@((!x.Activo).ToString().ToLowerInvariant())">@(x.Activo?"Desactivar":"Activar")</a>}</td>
