@@ -290,6 +290,31 @@ public class EntregasController(RepartoApi api) : GestionControllerBase
         return View(m);
     }
 
+    /// <summary>
+    /// RF-14 · constancia en PDF. Solo existe con recepción conforme confirmada en el servidor; la API lo valida otra vez
+    /// y, como la constancia lleva el saldo histórico, pide además permiso de saldos.
+    /// </summary>
+    [Authorize(Policy = "saldos.consultar")]
+    public async Task<IActionResult> Constancia(Guid id)
+    {
+        try
+        {
+            var archivo = await api.Descargar($"entregas/{id}/constancia", "Constancia.pdf");
+            Response.Headers.CacheControl = "no-store";
+            return File(archivo.Contenido, "application/pdf", archivo.Nombre);
+        }
+        catch (ApiException e) when (e.Estado is not (401 or 403))
+        {
+            TempData["Error"] = e.Codigo switch
+            {
+                "RECEPCION_PENDIENTE" => "Todavía no hay constancia: la recepción no está confirmada en el servidor. Una captura que sigue en el teléfono no alcanza.",
+                "RECEPCION_OBSERVADA" => "Esta entrega no tiene constancia definitiva: la recepción se registró con observaciones.",
+                _ => e.Message
+            };
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
     private async Task<Dictionary<Guid, PedidoDto>> Pedidos() =>
         User.HasClaim("permiso", "pedidos.consultar") ? (await api.Todos<PedidoDto>("pedidos")).ToDictionary(x => x.Id) : [];
 

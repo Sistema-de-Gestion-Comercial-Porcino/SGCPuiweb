@@ -4,6 +4,9 @@ namespace SGCP.Web.Services;
 /// <summary>RF-05, RF-06, RF-19 · condición de pago, pagos, saldos y señas.</summary>
 public class CobranzaApi(HttpClient http, IHttpContextAccessor acceso) : ClienteApiBase(http, acceso) { }
 
+/// <summary>RF-15 · reportes por perfil y exportación (Sprint 4).</summary>
+public class ReportesApi(HttpClient http, IHttpContextAccessor acceso) : ClienteApiBase(http, acceso) { }
+
 /// <summary>RF-07, RF-08 · transportes, rutas, entregas y recepción. Incluye la descarga de evidencias.</summary>
 public class RepartoApi(HttpClient http, IHttpContextAccessor acceso) : ClienteApiBase(http, acceso)
 {

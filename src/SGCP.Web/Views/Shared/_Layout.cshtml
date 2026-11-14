@@ -16,7 +16,7 @@ var cobranza=new List<(string Ruta,string Nombre,bool Ver,string Controlador)>{(
 var reparto=new List<(string Ruta,string Nombre,bool Ver,string Controlador)>{("/Entregas","Entregas",User.HasClaim("permiso","entregas.administrar"),"Entregas"),("/Rutas","Rutas",User.HasClaim("permiso","entregas.administrar"),"Rutas"),("/Transportes","Transportes",User.HasClaim("permiso","entregas.administrar"),"Transportes"),("/Recepciones/Conflictos","Conflictos de recepción",User.HasClaim("permiso","entregas.revisar"),"Recepciones")}.Where(x=>x.Ver).ToList();}
 @if(cobranza.Count>0){<p class="nav-label">COBRANZA</p>@foreach(var item in cobranza){<a class="@(actual==item.Controlador?"active":"")" href="@item.Ruta"><span class="nav-icon">◇</span>@item.Nombre</a>}}
 @if(reparto.Count>0){<p class="nav-label">TRANSPORTE Y ENTREGAS</p>@foreach(var item in reparto){<a class="@(actual==item.Controlador?"active":"")" href="@item.Ruta"><span class="nav-icon">◇</span>@item.Nombre</a>}}
-@if(!User.IsInRole("COMPRADOR")){<p class="nav-label">PRÓXIMAS ETAPAS</p><span class="nav-disabled" aria-disabled="true"><span class="nav-icon">·</span>Reportes<small>Pendiente</small></span>}
+@if(User.HasClaim("permiso","reportes.consultar")){<p class="nav-label">CONSULTAS</p><a class="@(actual=="Reportes"?"active":"")" href="/Reportes"><span class="nav-icon">◇</span>@(User.IsInRole("COMPRADOR")?"Mis reportes":"Reportes")</a>}
 </nav><div class="sidebar-foot"><span class="status-dot"></span> Operación con conexión<small>Santa Cruz de la Sierra · Bolivia</small></div></aside>
 <div class="shade" id="sombra" hidden>
 </div>

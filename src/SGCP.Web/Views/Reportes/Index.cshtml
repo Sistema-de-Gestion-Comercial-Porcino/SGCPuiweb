@@ -1,0 +1,47 @@
+@model ReportesViewModel
+@{ViewData["Title"]=Model.EsComprador?"Mis reportes":"Reportes";var f=Model.Filtro;var tipo=f.Tipo;}
+<div class="page-head">
+<div><span class="eyebrow">REPORTES · RF-15</span>
+<h1>@(Model.EsComprador?"Mis reportes":"Reportes")</h1>
+<p>@(Model.EsComprador?"Consulta y descarga tus cotizaciones, pedidos, pagos y entregas.":"Consultas por perfil con filtros, y descarga en PDF o Excel con las mismas filas que ves.")</p>
+</div>
+</div>
+<div class="notice" role="note">@if(Model.EsComprador){<span>Solo ves <b>tus</b> datos. Los archivos que descargas traen exactamente lo mismo que la pantalla.</span>}else{<span>Los reportes son <b>de solo lectura</b>: no cambian estados ni recalculan importes. El margen que aparece es el histórico, guardado al confirmar el pedido.</span>}</div>
+@if(Model.Disponibles.Count==0){<section class="card"><div class="empty"><span class="empty-mark">⌕</span><h3>Tu perfil no tiene reportes</h3><p>Consulta con administración si necesitas alguno.</p></div></section>}else{
+<nav class="actions wrap" aria-label="Reportes disponibles">@foreach(var t in Model.Disponibles){<a class="button @(t==tipo?"":"secondary") small" href="/Reportes?tipo=@t">@Reportes.Nombre(t)</a>}</nav>
+@if(tipo is null){<section class="card"><div class="empty"><span class="empty-mark">⌕</span><h3>Elige un reporte</h3><p>El listado muestra solo los reportes que corresponden a tu perfil.</p></div></section>}else{
+<section class="card">
+<form method="get" class="form-grid">
+<input type="hidden" name="tipo" value="@tipo"/>
+<div class="field"><label for="desde">Desde</label><input id="desde" name="desde" type="date" value="@f.Desde?.ToString("yyyy-MM-dd")"/></div>
+<div class="field"><label for="hasta">Hasta</label><input id="hasta" name="hasta" type="date" value="@f.Hasta?.ToString("yyyy-MM-dd")"/></div>
+@if(Reportes.AdmiteProducto(tipo)&&Model.Productos.Count>0){<div class="field"><label for="productoId">Producto</label><select id="productoId" name="productoId"><option value="">Todos</option>@foreach(var p in Model.Productos){<option value="@p.Id" selected="@(p.Id==f.ProductoId)">@p.Nombre</option>}</select></div>
+<div class="field"><label for="clasificacionId">Corte o derivado</label><select id="clasificacionId" name="clasificacionId"><option value="">Todos</option>@foreach(var c in Model.Clasificaciones){<option value="@c.Id" selected="@(c.Id==f.ClasificacionId)">@c.Nombre</option>}</select></div>}
+@if(Reportes.AdmiteCliente(tipo)&&Model.Clientes.Count>0){<div class="field"><label for="clienteId">Cliente</label><select id="clienteId" name="clienteId"><option value="">Todos</option>@foreach(var c in Model.Clientes){<option value="@c.Id" selected="@(c.Id==f.ClienteId)">@c.Nombre</option>}</select></div>}
+@if(Reportes.Estados(tipo).Length>0){<div class="field"><label for="estado">Estado</label><select id="estado" name="estado"><option value="">Todos</option>@foreach(var e in Reportes.Estados(tipo)){<option value="@e" selected="@(e==f.Estado)">@e.Replace('_',' ')</option>}</select></div>}
+<div class="form-actions wide"><a class="button secondary" href="/Reportes?tipo=@tipo">Quitar filtros</a><button class="button" type="submit">Consultar</button></div>
+</form>
+</section>
+@if(Model.Error is not null){<div class="notice danger" role="alert">@Model.Error</div>}
+@if(Model.Tabla is not null){var tabla=Model.Tabla;
+<section class="card">
+<div class="section-heading"><div><h2>@tabla.Titulo</h2><p class="muted">@tabla.Filas.Count fila(s). Fechas en hora de Bolivia.</p></div>
+<div class="actions"><a class="button secondary small descarga" href="/Reportes/Exportar@(f.Pantalla("pdf"))">Descargar PDF</a><a class="button secondary small descarga" href="/Reportes/Exportar@(f.Pantalla("xlsx"))">Descargar Excel</a></div></div>
+<p class="hint" id="generando" hidden role="status">Generando el archivo… puede tardar unos segundos. No hace falta volver a tocar el botón.</p>
+@if(tabla.Filas.Count==0){<p class="muted">No hay filas con estos filtros.</p>}else{<div class="table-wrap">
+<table>
+<thead><tr>@foreach(var c in tabla.Columnas){<th>@Reportes.Columna(c)</th>}</tr></thead>
+<tbody>@foreach(var fila in tabla.Filas){<tr>@for(var i=0;i<fila.Count&&i<tabla.Columnas.Count;i++){<td class="@(i==0||tabla.Columnas[i].EndsWith("Bs")?"nowrap":"")">@Reportes.Celda(tabla.Columnas[i],fila[i])</td>}</tr>}</tbody>
+</table>
+</div>}
+</section>}
+}}
+@section Scripts{<script>
+// Aviso visible mientras se genera el archivo, para no producir cinco descargas por cinco clics.
+document.querySelectorAll('a.descarga').forEach(function(a){a.addEventListener('click',function(e){
+  if(a.dataset.ocupado){e.preventDefault();return;}
+  document.querySelectorAll('a.descarga').forEach(function(b){b.dataset.ocupado='1';b.setAttribute('aria-disabled','true');b.style.opacity='.6';});
+  var aviso=document.getElementById('generando');if(aviso){aviso.hidden=false;}
+  setTimeout(function(){document.querySelectorAll('a.descarga').forEach(function(b){delete b.dataset.ocupado;b.removeAttribute('aria-disabled');b.style.opacity='';});if(aviso){aviso.hidden=true;}},6000);
+});});
+</script>}

@@ -51,6 +51,35 @@ public class ClienteApiBase(HttpClient http, IHttpContextAccessor acceso)
             return string.IsNullOrWhiteSpace(texto) ? default! : JsonSerializer.Deserialize<T>(texto, new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
         }
     }
+    /// <summary>Descarga un archivo de la API (PDF o Excel) con el token del usuario. Un rechazo se traduce igual que en Pedir.</summary>
+    public async Task<(byte[] Contenido, string Tipo, string Nombre)> Descargar(string ruta, string nombrePorDefecto)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, ruta);
+        var token = Token();
+        if (!string.IsNullOrWhiteSpace(token))
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        HttpResponseMessage res;
+        try
+        { res = await http.SendAsync(req); }
+        catch (HttpRequestException)
+        { throw new ApiException(503, "API_NO_DISPONIBLE", "No podemos conectar con el servidor. Revisa la conexión y vuelve a intentar."); }
+        catch (TaskCanceledException)
+        { throw new ApiException(503, "TIEMPO_AGOTADO", "El servidor tardó demasiado en generar el archivo. Acota los filtros y vuelve a intentar."); }
+        using (res)
+        {
+            if (!res.IsSuccessStatusCode)
+            {
+                string codigo = "ERROR", mensaje = "No se pudo generar el archivo.";
+                try
+                { using var j = JsonDocument.Parse(await res.Content.ReadAsStringAsync()); codigo = j.RootElement.GetProperty("codigo").GetString() ?? codigo; mensaje = j.RootElement.GetProperty("mensaje").GetString() ?? mensaje; }
+                catch (JsonException) { }
+                catch (KeyNotFoundException) { }
+                throw new ApiException((int)res.StatusCode, codigo, mensaje);
+            }
+            var nombre = res.Content.Headers.ContentDisposition?.FileNameStar ?? res.Content.Headers.ContentDisposition?.FileName?.Trim('"') ?? nombrePorDefecto;
+            return (await res.Content.ReadAsByteArrayAsync(), res.Content.Headers.ContentType?.MediaType ?? "application/octet-stream", nombre);
+        }
+    }
     public Task<T> Get<T>(string ruta) => Pedir<T>(HttpMethod.Get, ruta);
     public Task<T> Post<T>(string ruta, object? cuerpo = null) => Pedir<T>(HttpMethod.Post, ruta, cuerpo);
     public Task<T> Put<T>(string ruta, object cuerpo) => Pedir<T>(HttpMethod.Put, ruta, cuerpo);

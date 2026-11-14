@@ -64,6 +64,20 @@ Verificado el 14 de noviembre de 2026 con `LANG=es_BO.UTF-8`, contra la API loca
 
 Límite conocido de la API: el perfil Ventas puede ver los conflictos, pero `GET entregas` le está prohibido y la revisión pide la versión actual de la entrega. La pantalla lo explica y la revisión la hace Administración.
 
+## Sprint 4
+
+Reportes, portal del comprador, constancia y leyenda fiscal (S4-P2), contra la API de P1.
+
+- **Reportes** (`/Reportes`): las pestañas salen de `GET reportes`, así que cada perfil ve solo los suyos según la matriz de `Reportes_por_perfil.md`. Filtros de fecha (días de Bolivia enviados en UTC), producto, corte o derivado, cliente y estado; solo se ofrecen los que admite cada reporte. Son de solo lectura y el margen es el histórico.
+- **Descargas PDF y Excel**: el botón llama al mismo endpoint autorizado con los mismos filtros de la pantalla, sin camino alterno. Mientras se genera el archivo hay un aviso y los botones se bloquean unos segundos.
+- **Portal del comprador** («Mis reportes»): mismas pantallas; la API lo limita a su cliente y sin costos ni márgenes. No elige cliente. Si escribe en la URL el cliente de otro comprador, recibe «sin permiso», no datos.
+- **Constancia** (RF-14): botón solo en entregas ENTREGADAS. Una observada no tiene botón y dice por qué; forzarla por URL explica el motivo, distinto del de una recepción todavía no confirmada.
+- **Fiscal** (RF-11 no habilitado, `Decisiones.md`): el pedido confirmado avisa que no se emiten comprobantes y que la venta sigue sin él. Administración puede registrar la operación SIN_PROVEEDOR; la referencia única es estable y la pantalla aclara que no es un número fiscal.
+
+Verificado el 14 de noviembre de 2026 con `LANG=es_BO.UTF-8`: 21 comprobaciones por HTTP que cubren C4-01 a C4-08 de `Criterios_Sprint4.md`. Entre ellas, dos compradores con pedidos propios (cada uno ve y exporta solo su fila, sin costo ni margen, y el cambio de cliente en la URL se rechaza), el Excel con las mismas filas que la pantalla, y la referencia fiscal que no cambia al registrar dos veces.
+
+Límite conocido de la API: la constancia se pide por identificador de entrega, y ni Ventas ni el comprador pueden listar entregas. Desde la web la descarga Administración en `/Entregas`.
+
 ## Seguridad y validación
 
 Cookie HttpOnly protegida por ASP.NET Core Data Protection; JWT utilizado por el servidor al consumir la API. Políticas en MVC y comprobación definitiva en la API. Formularios con antiforgery; redirecciones de retorno únicamente locales. Sesión sin renovación deslizante; una sesión revocada redirige al acceso en la siguiente llamada protegida.
@@ -122,6 +136,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v4.2.0 | 2026-11-14 | 4 | Reportes por perfil con filtros y descarga PDF/Excel, «Mis reportes» del comprador, constancia de entrega y leyenda fiscal con registro sin proveedor | Angel Sebastian Eguez Mur |
 | v3.2.1 | 2026-11-14 | 3 | Corrección: las tablas de saldos, rutas y entregas entran en una ventana angosta sin cortar columnas ni partir importes | Angel Sebastian Eguez Mur |
 | v3.2.0 | 2026-11-14 | 3 | Pantallas de saldos y pagos, condición de pago, señas, transportes, rutas, entregas, recepción en el local y revisión de conflictos; deuda y entrega en secciones separadas | Angel Sebastian Eguez Mur |
 | v2.2.0 | 2026-11-07 | 2 | Pantallas de sanidad, producción, pesajes, entradas físicas, existencias, control de frío y cargos separados; menú por permiso | Angel Sebastian Eguez Mur |
