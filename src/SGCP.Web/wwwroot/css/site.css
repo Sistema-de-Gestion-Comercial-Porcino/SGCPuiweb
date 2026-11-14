@@ -4,3 +4,4 @@
 
 /* Sprint 3: observada es un aviso, no un error; evidencia de recepción */
 .badge.aviso{background:#fbf1dc;color:#8a5a12}.evidencia{max-width:220px;max-height:220px;border-radius:8px;border:1px solid var(--line)}
+.nowrap{white-space:nowrap}

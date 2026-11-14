@@ -122,6 +122,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v3.2.1 | 2026-11-14 | 3 | Corrección: las tablas de saldos, rutas y entregas entran en una ventana angosta sin cortar columnas ni partir importes | Angel Sebastian Eguez Mur |
 | v3.2.0 | 2026-11-14 | 3 | Pantallas de saldos y pagos, condición de pago, señas, transportes, rutas, entregas, recepción en el local y revisión de conflictos; deuda y entrega en secciones separadas | Angel Sebastian Eguez Mur |
 | v2.2.0 | 2026-11-07 | 2 | Pantallas de sanidad, producción, pesajes, entradas físicas, existencias, control de frío y cargos separados; menú por permiso | Angel Sebastian Eguez Mur |
 | v1.0.1 | 2026-11-07 | 1 | Corrección: el esquema de versiones aclara que MENOR es el número de parte y que la etiqueta de cierre del sprint es `vN.4.0` | Dario Haziel Tambo Parra |

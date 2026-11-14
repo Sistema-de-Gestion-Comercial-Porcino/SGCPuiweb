@@ -11,13 +11,11 @@
 <section class="card">
 @if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">◇</span><h3>Sin rutas</h3><p>Planifica una ruta para preparar entregas a domicilio.</p></div>}else{<div class="table-wrap">
 <table>
-<thead><tr><th>Código</th><th>Fecha</th><th>Zona</th><th>Transporte</th><th>Responsable</th><th>Estado</th><th></th></tr></thead>
+<thead><tr><th>Ruta</th><th>Salida</th><th>Transporte y responsable</th><th>Estado</th><th></th></tr></thead>
 <tbody>@foreach(var r in Model.Datos.Elementos){var t=Model.Transportes.GetValueOrDefault(r.TransporteId);<tr>
-<td class="strong">@r.Codigo</td>
-<td>@Hora.Mostrar(r.Fecha)</td>
-<td>@r.Zona</td>
-<td>@(t is null?"—":t.Codigo+" · "+t.Placa)</td>
-<td>@SGCP.Web.Services.Nombres.Responsable(Model.Responsables,r.ResponsableId)</td>
+<td><span class="strong nowrap">@r.Codigo</span><small>@r.Zona</small></td>
+<td class="nowrap">@Hora.Mostrar(r.Fecha)</td>
+<td>@(t?.Placa??"—")<small>@SGCP.Web.Services.Nombres.Responsable(Model.Responsables,r.ResponsableId)</small></td>
 <td><span class="badge @(r.Estado=="FINALIZADA"?"muted-badge":"")">@r.Estado.Replace('_',' ')</span>@if(r.RetornoReal is not null){<small>Retorno @Hora.Mostrar(r.RetornoReal.Value)</small>}</td>
 <td>@if(r.Estado!="FINALIZADA"){<form method="post" asp-action="Finalizar"><input type="hidden" name="id" value="@r.Id"/><button class="button secondary small" type="submit">Finalizar</button></form>}</td>
 </tr>}</tbody>
