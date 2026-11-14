@@ -10,6 +10,9 @@ public class ApiException(int estado,
 { public int Estado { get; } = estado; public string Codigo { get; } = codigo; }
 public class ClienteApiBase(HttpClient http, IHttpContextAccessor acceso)
 {
+    /// <summary>Para clientes que necesitan algo distinto de JSON, como descargar una evidencia.</summary>
+    protected HttpClient Http => http;
+    protected string? Token() => acceso.HttpContext?.User.FindFirstValue("jwt");
     public async Task<T> Pedir<T>(HttpMethod metodo, string ruta, object? cuerpo = null)
     {
         using var req = new HttpRequestMessage(metodo, ruta);

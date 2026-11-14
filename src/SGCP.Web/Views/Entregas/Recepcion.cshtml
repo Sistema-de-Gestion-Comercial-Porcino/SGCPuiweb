@@ -1,0 +1,25 @@
+@model RecepcionFormViewModel
+@{ViewData["Title"]="Registrar recepción";}
+<div class="page-head">
+<div><span class="eyebrow">ENTREGAS · RF-07</span>
+<h1>Registrar recepción</h1>
+<p>@Model.Descripcion. Usa el mismo contrato que la app Android: si envías dos veces, se guarda una sola recepción.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post" enctype="multipart/form-data">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<input asp-for="EntregaId" type="hidden"/><input asp-for="VersionBase" type="hidden"/><input asp-for="ClaveUnica" type="hidden"/><input asp-for="Descripcion" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="Receptor">Quién recibe</label><input asp-for="Receptor" maxlength="180" required/><span asp-validation-for="Receptor" class="validation"></span></div>
+<div class="field"><label asp-for="FechaReal">Fecha y hora real · Bolivia</label><input asp-for="FechaReal" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
+<div class="field"><label asp-for="PesoRecibido">Peso recibido</label><input asp-for="PesoRecibido" type="number" min="0.001" step="0.001" value="@(Model.PesoRecibido==0?"":Model.PesoRecibido.ToString(System.Globalization.CultureInfo.InvariantCulture))" required/><span asp-validation-for="PesoRecibido" class="validation"></span></div>
+<div class="field"><label asp-for="Unidad">Unidad</label><select asp-for="Unidad"><option value="kg">kg</option><option value="g">g</option></select></div>
+<div class="field wide"><label class="checkbox"><input asp-for="Conforme"/> Recepción conforme, sin observaciones</label></div>
+<div class="field wide"><label asp-for="Observacion">Observaciones (obligatorias si no es conforme)</label><textarea asp-for="Observacion" rows="3" maxlength="1000"></textarea><span asp-validation-for="Observacion" class="validation"></span></div>
+<div class="field wide"><label asp-for="Fotos">Evidencia · de 1 a 3 fotos JPEG o PNG, hasta 512 KiB cada una</label><input asp-for="Fotos" type="file" accept="image/jpeg,image/png" multiple required/><span asp-validation-for="Fotos" class="validation"></span></div>
+</div>
+<p class="hint">Conforme deja la entrega ENTREGADA; con observaciones, OBSERVADA. Ninguna de las dos cambia el saldo del cliente.</p>
+<div class="form-actions"><a class="button secondary" asp-action="Index">Cancelar</a><button class="button" type="submit">Registrar recepción</button></div>
+</form>
+</section>

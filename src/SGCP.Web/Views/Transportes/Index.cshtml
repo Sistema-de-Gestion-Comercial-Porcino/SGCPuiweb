@@ -1,0 +1,27 @@
+@model Pagina<TransporteDto>
+@{ViewData["Title"]="Transportes";ViewData["Pagina"]=Model.PaginaNumero;ViewData["TotalPaginas"]=Model.TotalPaginas;ViewData["TotalRegistros"]=Model.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">TRANSPORTE · RF-08</span>
+<h1>Transportes</h1>
+<p>Vehículos propios o externos. Se desactivan para no usarlos más; su historial se conserva.</p>
+</div>
+<div class="actions"><a class="button" asp-action="Formulario">+ Registrar transporte</a></div>
+</div>
+<section class="card">
+@if(Model.Elementos.Count==0){<div class="empty"><span class="empty-mark">◇</span><h3>Sin transportes</h3><p>Registra el vehículo antes de planificar una ruta.</p></div>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Código</th><th>Modalidad</th><th>Transportista</th><th>Contacto</th><th>Vehículo</th><th>Conservación</th><th>Estado</th><th></th></tr></thead>
+<tbody>@foreach(var t in Model.Elementos){<tr>
+<td class="strong">@t.Codigo</td>
+<td>@(t.Modalidad=="PROPIO"?"Propio":"Externo")</td>
+<td>@t.Transportista</td>
+<td>@t.Contacto</td>
+<td>@t.Placa<small>@t.DescripcionVehiculo</small></td>
+<td>@t.Conservacion</td>
+<td><span class="badge @(t.Activo?"":"muted-badge")">@(t.Activo?"Activo":"Inactivo")</span></td>
+<td class="row-actions"><a class="text-link" asp-action="Formulario" asp-route-id="@t.Id">Editar</a>
+<form method="post" asp-action="Estado"><input type="hidden" name="id" value="@t.Id"/><input type="hidden" name="activo" value="@((!t.Activo).ToString().ToLowerInvariant())"/><button class="text-button" type="submit">@(t.Activo?"Desactivar":"Activar")</button></form></td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>

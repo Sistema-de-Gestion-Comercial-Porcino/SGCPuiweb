@@ -1,0 +1,26 @@
+@model RutasViewModel
+@{ViewData["Title"]="Rutas";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">TRANSPORTE · RF-08</span>
+<h1>Rutas</h1>
+<p>Cada ruta asocia un transporte, un responsable y sus entregas a domicilio.</p>
+</div>
+<div class="actions"><a class="button" asp-action="Nueva">+ Planificar ruta</a></div>
+</div>
+<div class="notice" role="note">Finalizar una ruta exige que todas sus entregas tengan resultado (entregada, observada o cancelada) y que no queden conflictos. No resuelve observaciones ni salda deudas. Si el repartidor tiene capturas sin enviar en el teléfono, la app no le deja cerrar la ruta.</div>
+<section class="card">
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">◇</span><h3>Sin rutas</h3><p>Planifica una ruta para preparar entregas a domicilio.</p></div>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Código</th><th>Fecha</th><th>Zona</th><th>Transporte</th><th>Responsable</th><th>Estado</th><th></th></tr></thead>
+<tbody>@foreach(var r in Model.Datos.Elementos){var t=Model.Transportes.GetValueOrDefault(r.TransporteId);<tr>
+<td class="strong">@r.Codigo</td>
+<td>@Hora.Mostrar(r.Fecha)</td>
+<td>@r.Zona</td>
+<td>@(t is null?"—":t.Codigo+" · "+t.Placa)</td>
+<td>@SGCP.Web.Services.Nombres.Responsable(Model.Responsables,r.ResponsableId)</td>
+<td><span class="badge @(r.Estado=="FINALIZADA"?"muted-badge":"")">@r.Estado.Replace('_',' ')</span>@if(r.RetornoReal is not null){<small>Retorno @Hora.Mostrar(r.RetornoReal.Value)</small>}</td>
+<td>@if(r.Estado!="FINALIZADA"){<form method="post" asp-action="Finalizar"><input type="hidden" name="id" value="@r.Id"/><button class="button secondary small" type="submit">Finalizar</button></form>}</td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>

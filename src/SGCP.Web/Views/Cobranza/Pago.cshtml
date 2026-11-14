@@ -1,0 +1,33 @@
+@model PagoFormViewModel
+@{ViewData["Title"]="Registrar pago";}
+<div class="page-head">
+<div><span class="eyebrow">COBRANZA · @Model.Cliente</span>
+<h1>Registrar pago</h1>
+<p>Distribuye el dinero recibido entre los cargos con saldo. El total del pago es la suma de lo que apliques.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<input asp-for="ClienteId" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="ReferenciaUnica">Referencia (recibo o comprobante)</label><input asp-for="ReferenciaUnica" maxlength="80" required/><span asp-validation-for="ReferenciaUnica" class="validation"></span></div>
+<div class="field"><label asp-for="Medio">Medio</label><input asp-for="Medio" maxlength="80" list="medios" required/><datalist id="medios"><option value="Efectivo"></option><option value="Transferencia"></option><option value="QR"></option></datalist></div>
+<div class="field"><label asp-for="Fecha">Fecha del pago · Bolivia</label><input asp-for="Fecha" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
+</div>
+@if(Model.Aplicaciones.Count==0){<p class="muted">Este cliente no tiene cargos con saldo pendiente.</p>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Pedido</th><th>Concepto</th><th>Tipo</th><th>Saldo</th><th>Aplicar · Bs</th></tr></thead>
+<tbody>@for(var i=0;i<Model.Aplicaciones.Count;i++){var a=Model.Aplicaciones[i];<tr>
+<td>@a.Pedido<input type="hidden" name="Aplicaciones[@i].CargoId" value="@a.CargoId"/><input type="hidden" name="Aplicaciones[@i].Pedido" value="@a.Pedido"/><input type="hidden" name="Aplicaciones[@i].Concepto" value="@a.Concepto"/><input type="hidden" name="Aplicaciones[@i].Tipo" value="@a.Tipo"/><input type="hidden" name="Aplicaciones[@i].Saldo" value="@a.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture)"/></td>
+<td>@a.Concepto</td>
+<td>@(a.Tipo=="SERVICIO"?"Servicio":"Producto")</td>
+<td>Bs @a.Saldo.ToString("N2")</td>
+<td><input type="number" name="Aplicaciones[@i].Importe" value="@(a.Importe?.ToString(System.Globalization.CultureInfo.InvariantCulture))" min="0" max="@a.Saldo.ToString(System.Globalization.CultureInfo.InvariantCulture)" step="0.01" aria-label="Importe aplicado a @a.Concepto"/></td>
+</tr>}</tbody>
+</table>
+</div>}
+<p class="hint">Registrar un pago no cambia el estado de ninguna entrega.</p>
+<div class="form-actions"><a class="button secondary" href="/Cobranza?clienteId=@Model.ClienteId">Cancelar</a><button class="button" type="submit">Registrar pago</button></div>
+</form>
+</section>

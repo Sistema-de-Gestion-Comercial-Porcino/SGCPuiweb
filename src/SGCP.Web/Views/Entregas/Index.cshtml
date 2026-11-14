@@ -1,0 +1,32 @@
+@model EntregasViewModel
+@{ViewData["Title"]="Entregas";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">ENTREGAS · RF-07</span>
+<h1>Entregas</h1>
+<p>Preparación, despacho y resultado de la recepción de cada pedido.</p>
+</div>
+<div class="actions">@if(User.HasClaim("permiso","pedidos.consultar")){<a class="button" asp-action="Preparar">+ Preparar entrega</a>}</div>
+</div>
+<div class="notice" role="note">Esta pantalla muestra solo el <b>estado de la entrega</b>. La deuda del cliente está en <b>Cobranza</b>: entregar no cobra, y una entrega <b>observada</b> no es un rechazo: llegó, con reparos.</div>
+<section class="card">
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">◇</span><h3>Sin entregas</h3><p>Prepara una entrega desde un pedido confirmado con su reserva completa.</p></div>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Pedido</th><th>Modalidad</th><th>Ruta</th><th>Responsable</th><th>Prevista</th><th>Estado de la entrega</th><th>Recepción</th><th>Acciones</th></tr></thead>
+<tbody>@foreach(var e in Model.Datos.Elementos){var p=Model.Pedidos.GetValueOrDefault(e.PedidoId);var r=e.RutaId is null?null:Model.Rutas.GetValueOrDefault(e.RutaId.Value);<tr>
+<td>@if(p is not null){<a class="strong" href="/Pedidos/Detalle/@p.Id">@p.Codigo</a><small>@p.Cliente</small>}else{<span>Pedido</span>}</td>
+<td>@(e.Modalidad=="DOMICILIO"?"A domicilio":"Retiro en el local")</td>
+<td>@(r?.Codigo??"—")</td>
+<td>@SGCP.Web.Services.Nombres.Responsable(Model.Responsables,e.ResponsableId)</td>
+<td>@Hora.Mostrar(e.FechaPrevista)</td>
+<td><span class="badge @Textos.ClaseEntrega(e.Estado)">@Textos.Entrega(e.Estado)</span></td>
+<td>@if(e.FechaConfirmacion is not null){<span>@e.Receptor</span><small>Real @(e.FechaReal is null?"—":Hora.Mostrar(e.FechaReal.Value)) · confirmada @Hora.Mostrar(e.FechaConfirmacion.Value)</small>@if(!string.IsNullOrWhiteSpace(e.ObservacionRecepcion)){<small>@e.ObservacionRecepcion</small>}}else if(e.Estado=="DESPACHADA"){<small>Esperando la recepción</small>}else{<span>—</span>}</td>
+<td class="row-actions">
+@if(e.Estado=="PREPARADA"){<form method="post" asp-action="Despachar"><input type="hidden" name="id" value="@e.Id"/><button class="button secondary small" type="submit">Despachar</button></form>}
+@if(e.Estado is "PREPARADA" or "DESPACHADA"){<a class="text-link" asp-action="Reasignar" asp-route-id="@e.Id">Reasignar</a>}
+@if(e.Estado=="DESPACHADA"&&e.ResponsableId==Model.UsuarioId){<a class="text-link" asp-action="Recepcion" asp-route-id="@e.Id">Registrar recepción</a>}
+</td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>
+<p class="hint">La recepción la registra el responsable asignado: desde la app Android en la calle, o aquí en la web para el retiro en el local.</p>

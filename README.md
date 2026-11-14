@@ -45,9 +45,24 @@ Pantallas de producción e inventario (S2-P2), contra la API de P1 sin tocar la 
 - **Existencias** (`/Almacen/Existencias`): física apta, reservada y disponible (física − reservada), sin cantidades previstas.
 - **Control de frío** (`/Frio`): registro manual de temperatura en °C con evaluación humana; el sistema no mide ni evalúa por umbral.
 - **Cargos** (detalle del pedido): cargo por productos y cargo por servicio de faeneo o corte en líneas separadas; el servicio solo se registra cuando se acordó y se prestó.
-- **Menú por permiso**: producción no ve pesajes ni entradas; almacén no ve precios de venta. Cobranza, transporte y reportes siguen pendientes.
+- **Menú por permiso**: producción no ve pesajes ni entradas; almacén no ve precios de venta. Reportes sigue pendiente.
 
 Todo `[Range]` sobre `decimal` lleva `ParseLimitsInInvariantCulture` y `ConvertValueInInvariantCulture`; probar con `LANG=es_BO.UTF-8`.
+
+## Sprint 3
+
+Pantallas de cobranza, transporte y entregas (S3-P2), contra la API de P1 sin tocar la base de datos. **La deuda y la entrega están en secciones separadas del menú**: que una entrega llegue no cancela la deuda, y pagar no marca una entrega.
+
+- **Saldos y pagos** (`/Cobranza`): saldo por cliente calculado por la API, con las cinco distinciones del Excel (producto, servicio, contado, crédito vigente y crédito vencido) más lo que todavía no tiene condición acordada. Registrar pagos repartidos entre cargos y anularlos con motivo.
+- **Condición de pago** (`/Cobranza/Condicion`): contado o crédito con importe y vencimiento acordados por operación, sin plazo por defecto. El historial conserva los acuerdos sustituidos. Autorizar crédito no liquida la deuda.
+- **Señas** (`/Cobranza/Senas`): dinero recibido por adelantado, aplicable una sola vez a un cargo. La cancelación registra el acuerdo de resolución; no hay devolución ni retención automáticas.
+- **Transportes** (`/Transportes`) propios o externos, que se desactivan sin borrarse, y **rutas** (`/Rutas`) con transporte, responsable y zona. Finalizar una ruta exige recepciones sincronizadas y conflictos resueltos.
+- **Entregas** (`/Entregas`): preparar (requiere reserva completa), despachar (requiere condición de pago resuelta), reasignar con motivo y registrar la recepción del retiro en el local con foto, con el mismo contrato que Android. ENTREGADA y OBSERVADA se muestran distintas; observada se ve como aviso, no como error.
+- **Conflictos de recepción** (`/Recepciones/Conflictos`): capturas que llegaron sobre una versión vieja de la entrega. Una persona las aplica o las descarta con motivo, viendo la evidencia. Nunca se resuelven solas.
+
+Verificado el 14 de noviembre de 2026 con `LANG=es_BO.UTF-8`, contra la API local y MySQL 8.0: 38 comprobaciones por HTTP. Un pago escrito `10.25` resta exactamente Bs 10,25; una seña no se aplica dos veces; descartar un conflicto no cambia la entrega; registrar la recepción no cambia el saldo; y reenviar el mismo formulario de recepción no crea una segunda fila.
+
+Límite conocido de la API: el perfil Ventas puede ver los conflictos, pero `GET entregas` le está prohibido y la revisión pide la versión actual de la entrega. La pantalla lo explica y la revisión la hace Administración.
 
 ## Seguridad y validación
 
@@ -107,6 +122,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v3.2.0 | 2026-11-14 | 3 | Pantallas de saldos y pagos, condición de pago, señas, transportes, rutas, entregas, recepción en el local y revisión de conflictos; deuda y entrega en secciones separadas | Angel Sebastian Eguez Mur |
 | v2.2.0 | 2026-11-07 | 2 | Pantallas de sanidad, producción, pesajes, entradas físicas, existencias, control de frío y cargos separados; menú por permiso | Angel Sebastian Eguez Mur |
 | v1.0.1 | 2026-11-07 | 1 | Corrección: el esquema de versiones aclara que MENOR es el número de parte y que la etiqueta de cierre del sprint es `vN.4.0` | Dario Haziel Tambo Parra |
 | v1.0.0 | 2026-11-06 | 1 | Documentación: convención de versionamiento del repositorio | Dario Haziel Tambo Parra |
