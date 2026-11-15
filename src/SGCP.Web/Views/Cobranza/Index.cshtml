@@ -1,0 +1,61 @@
+@model SaldosViewModel
+@{ViewData["Title"]="Saldos y pagos";}
+<div class="page-head">
+<div><span class="eyebrow">COBRANZA</span>
+<h1>Saldos y pagos</h1>
+<p>Estado de la deuda por cliente. El saldo se calcula en el servidor: cargos menos pagos aplicados.</p>
+</div>
+</div>
+<div class="notice" role="note">Esta pantalla muestra solo la <b>deuda</b>. El estado de cada entrega está en <b>Transporte y entregas</b>: que una entrega llegue no cancela la deuda, y pagar no marca una entrega como recibida.</div>
+<section class="card">
+<form method="get" class="filters">
+<div class="field"><label for="clienteId">Cliente</label><select id="clienteId" name="clienteId" onchange="this.form.submit()"><option value="">Seleccionar cliente…</option>@foreach(var c in Model.Clientes){<option value="@c.Id" selected="@(c.Id==Model.ClienteId)">@c.Nombre</option>}</select></div>
+<noscript><button class="button secondary" type="submit">Ver saldo</button></noscript>
+</form>
+@if(Model.Cliente is null){<div class="empty"><span class="empty-mark">⌕</span><h3>Elige un cliente</h3><p>Verás sus cargos por concepto, lo aplicado y lo que falta.</p></div>}
+</section>
+@if(Model.Cliente is not null){var s=Model.Saldos.Cargos;
+<div class="metrics">
+<div class="metric"><span>Por productos</span><strong>@Model.Por(x=>x.Tipo=="PRODUCTO").ToString("N2")</strong><small>Bs · cargos de producto</small></div>
+<div class="metric"><span>Por servicios</span><strong>@Model.Por(x=>x.Tipo=="SERVICIO").ToString("N2")</strong><small>Bs · faeneo o corte prestado</small></div>
+<div class="metric"><span>Al contado</span><strong>@Model.Por(x=>x.Condicion=="CONTADO").ToString("N2")</strong><small>Bs · condición contado</small></div>
+<div class="metric"><span>Crédito vigente</span><strong>@Model.Por(x=>x.Condicion=="CREDITO_VIGENTE").ToString("N2")</strong><small>Bs · dentro del plazo</small></div>
+</div>
+<div class="metrics">
+<div class="metric"><span>Crédito vencido</span><strong>@Model.Por(x=>x.Condicion=="CREDITO_VENCIDO").ToString("N2")</strong><small>Bs · plazo cumplido sin pagar</small></div>
+<div class="metric"><span>Sin condición acordada</span><strong>@Model.Por(x=>x.Condicion=="SIN_ACUERDO").ToString("N2")</strong><small>Bs · falta acordar contado o crédito</small></div>
+<div class="metric"><span>Saldo total</span><strong>@Model.Saldos.Total.ToString("N2")</strong><small>Bs · @Model.Cliente.Nombre</small></div>
+</div>
+<section class="card">
+<div class="section-heading"><h2>Cargos de @Model.Cliente.Nombre</h2>@if(Model.PuedeRegistrar&&s.Any(x=>x.Saldo>0)){<a class="button small" href="/Cobranza/Pago?clienteId=@Model.Cliente.Id">+ Registrar pago</a>}</div>
+@if(s.Count==0){<p class="muted">Este cliente no tiene cargos.</p>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Pedido y concepto</th><th>Condición</th><th>Importe</th><th>Aplicado</th><th>Saldo</th></tr></thead>
+<tbody>@foreach(var c in s.OrderBy(x=>x.Vencimiento??DateTime.MaxValue)){var p=Model.Pedidos.GetValueOrDefault(c.PedidoId);<tr>
+<td>@if(p is not null){<a class="nowrap" href="/Pedidos/Detalle/@p.Id">@p.Codigo</a>}else{<span>Pedido</span>}<small>@(c.Tipo=="SERVICIO"?"Servicio":"Producto") · @c.Concepto</small></td>
+<td><span class="badge @(c.Condicion=="CREDITO_VENCIDO"?"danger":c.Condicion=="SIN_ACUERDO"?"muted-badge":"")">@Textos.Condicion(c.Condicion)</span>@if(c.Vencimiento is not null){<small class="nowrap">Vence @Hora.Mostrar(c.Vencimiento.Value)</small>}</td>
+<td class="nowrap">Bs @c.Importe.ToString("N2")</td>
+<td class="nowrap">Bs @c.Aplicado.ToString("N2")</td>
+<td class="strong nowrap">Bs @c.Saldo.ToString("N2")</td>
+</tr>}</tbody>
+</table>
+</div>}
+</section>
+@if(Model.PuedeRegistrar){<section class="card">
+<h2>Pagos registrados</h2>
+@if(Model.Pagos.Count==0){<p class="muted">Sin pagos registrados.</p>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Fecha</th><th>Referencia</th><th>Tipo</th><th>Medio</th><th>Importe</th><th>Estado</th><th></th></tr></thead>
+<tbody>@foreach(var x in Model.Pagos){<tr>
+<td class="nowrap">@Hora.Mostrar(x.Fecha)</td>
+<td>@x.ReferenciaUnica</td>
+<td>@(x.Tipo=="SENA"?"Seña":"Pago")</td>
+<td>@x.Medio</td>
+<td class="nowrap">Bs @x.Importe.ToString("N2")</td>
+<td>@if(x.Anulado){<span class="badge muted-badge">Anulado</span><small>@x.MotivoAnulacion</small>}else{<span class="badge">Vigente</span>}</td>
+<td>@if(!x.Anulado&&x.Tipo=="PAGO"){<a class="text-link" href="/Cobranza/Anular/@x.Id?clienteId=@Model.Cliente.Id">Anular</a>}</td>
+</tr>}</tbody>
+</table>
+</div>}
+</section>}
+}

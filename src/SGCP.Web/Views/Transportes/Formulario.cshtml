@@ -1,0 +1,24 @@
+@model TransporteFormViewModel
+@{ViewData["Title"]=Model.Id is null?"Registrar transporte":"Editar transporte";}
+<div class="page-head">
+<div><span class="eyebrow">TRANSPORTE</span>
+<h1>@ViewData["Title"]</h1>
+<p>Identifica el vehículo y quién lo conduce. Las condiciones de conservación son descriptivas: el sistema no mide temperatura.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<input asp-for="Id" type="hidden"/>
+<div class="form-grid">
+<div class="field"><label asp-for="Codigo">Código</label><input asp-for="Codigo" maxlength="80" placeholder="TR-001" required/><span asp-validation-for="Codigo" class="validation"></span></div>
+<div class="field"><label asp-for="Modalidad">Modalidad</label><select asp-for="Modalidad"><option value="PROPIO">Propio</option><option value="EXTERNO">Externo</option></select></div>
+<div class="field"><label asp-for="Transportista">Transportista</label><input asp-for="Transportista" maxlength="180" required/><span asp-validation-for="Transportista" class="validation"></span></div>
+<div class="field"><label asp-for="Contacto">Contacto</label><input asp-for="Contacto" maxlength="100" required/><span asp-validation-for="Contacto" class="validation"></span></div>
+<div class="field"><label asp-for="Placa">Placa</label><input asp-for="Placa" maxlength="40" required/><span asp-validation-for="Placa" class="validation"></span></div>
+<div class="field wide"><label asp-for="DescripcionVehiculo">Vehículo</label><input asp-for="DescripcionVehiculo" maxlength="300" placeholder="Camioneta con caja refrigerada" required/><span asp-validation-for="DescripcionVehiculo" class="validation"></span></div>
+<div class="field wide"><label asp-for="Conservacion">Condiciones de conservación</label><input asp-for="Conservacion" maxlength="300" placeholder="Conservadora con hielo, evaluación manual" required/><span asp-validation-for="Conservacion" class="validation"></span></div>
+</div>
+<div class="form-actions"><a class="button secondary" asp-action="Index">Cancelar</a><button class="button" type="submit">Guardar transporte</button></div>
+</form>
+</section>

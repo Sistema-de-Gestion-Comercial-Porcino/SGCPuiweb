@@ -49,9 +49,13 @@
 </h2>@foreach(var x in p.Detalles){<p>@x.Producto: @x.CantidadConfirmada.ToString("0.###") @x.Unidad × (Bs @x.PrecioAcordado.ToString("N2") − Bs @x.CostoReferenciaAcordado?.ToString("N2"))</p>}<small>Importes conservados al confirmar. No representa utilidad real por animal.</small>
 </div>}
 @if(p.EstadoComercial=="CANCELADO"){<div class="notice"><b>Motivo de cancelación:</b> @p.MotivoCancelacion</div>}
-<div class="actions wrap">@if(p.EstadoComercial=="CONFIRMADO"&&User.HasClaim("permiso","pedidos.administrar")){<a class="button secondary danger-text" asp-action="Cancelar" asp-route-id="@p.Id">Cancelar pedido</a>}<button class="button secondary" disabled>Revisar reservas</button><button class="button secondary" disabled>Ver preparación</button><button class="button secondary" disabled>Ver despacho</button>
+@if(p.EstadoComercial=="CONFIRMADO"&&(User.HasClaim("permiso","pagos.administrar")||User.HasClaim("permiso","entregas.administrar"))){<div class="actions wrap">
+@if(User.HasClaim("permiso","pagos.administrar")){<a class="button secondary" href="/Cobranza/Condicion?pedidoId=@p.Id">Condición de pago</a><a class="button secondary" href="/Cobranza/Senas?pedidoId=@p.Id">Señas</a><a class="button secondary" href="/Cobranza?clienteId=@p.ClienteId">Saldo del cliente</a>}
+@if(User.HasClaim("permiso","entregas.administrar")){<a class="button secondary" href="/Entregas/Preparar?pedidoId=@p.Id">Preparar entrega</a>}
+</div><p class="hint">La deuda (cobranza) y la entrega (reparto) avanzan por separado: pagar no marca la entrega y entregar no cobra.</p>}
+<div class="actions wrap">@if(p.EstadoComercial=="CONFIRMADO"&&User.HasClaim("permiso","pedidos.administrar")){<a class="button secondary danger-text" asp-action="Cancelar" asp-route-id="@p.Id">Cancelar pedido</a>}<button class="button secondary" disabled>Revisar reservas</button><button class="button secondary" disabled>Ver preparación</button>@if(User.HasClaim("permiso","entregas.administrar")){<a class="button secondary" href="/Entregas">Ver despacho</a>}
 </div>
-<p class="hint">Reservas, preparación, cobros y despacho estarán disponibles en las siguientes etapas.</p>
+<p class="hint">La revisión de reservas y de preparación desde esta ficha estará disponible en una etapa posterior.</p>
 </section>
 @if(User.HasClaim("permiso","cargos.administrar")){var productos=Model.Cargos.Where(x=>x.Tipo=="PRODUCTO").ToList();var servicios=Model.Cargos.Where(x=>x.Tipo=="SERVICIO").ToList();
 <section class="card">

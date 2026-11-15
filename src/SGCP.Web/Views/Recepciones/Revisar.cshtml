@@ -1,0 +1,35 @@
+@model RevisarFormViewModel
+@{ViewData["Title"]="Revisar conflicto";var r=Model.Detalle?.Recepcion;}
+<div class="page-head">
+<div><span class="eyebrow">RECEPCIÓN EN CONFLICTO</span>
+<h1>Revisar captura</h1>
+<p>@(Model.Pedido is null?"Entrega":Model.Pedido.Codigo+" · "+Model.Pedido.Cliente)</p>
+</div><a class="button secondary" asp-action="Conflictos">Volver</a>
+</div>
+@if(r is not null){<section class="card">
+<h2>Lo que se capturó</h2>
+<dl class="facts">
+<div><dt>Receptor</dt><dd>@r.Receptor</dd></div>
+<div><dt>Peso</dt><dd>@r.PesoRecibido.ToString("0.###") @r.Unidad</dd></div>
+<div><dt>Conformidad</dt><dd>@(r.Conforme?"Conforme":"Con observaciones")</dd></div>
+<div><dt>Fecha real</dt><dd>@Hora.Mostrar(r.FechaReal)</dd></div>
+<div><dt>Llegó al servidor</dt><dd>@Hora.Mostrar(r.FechaSincronizacion)</dd></div>
+<div><dt>Versión capturada</dt><dd>v@(r.VersionBase)@(Model.Entrega is null?"":" · actual v"+Model.Entrega.Version+" ("+Textos.Entrega(Model.Entrega.Estado)+")")</dd></div>
+</dl>
+@if(!string.IsNullOrWhiteSpace(r.Observacion)){<p><b>Observación:</b> @r.Observacion</p>}
+<p class="muted"><b>Motivo del conflicto:</b> @r.MotivoConflicto</p>
+<h3>Evidencia</h3>
+<div class="actions wrap">@foreach(var ev in Model.Detalle!.Evidencias){<a href="/Recepciones/Evidencia/@r.Id?evidenciaId=@ev.Id" target="_blank" rel="noopener"><img src="/Recepciones/Evidencia/@r.Id?evidenciaId=@ev.Id" alt="Evidencia de la recepción" class="evidencia"/></a>}</div>
+</section>}
+<section class="card form-card">
+<h2>Decisión</h2>
+@if(Model.Entrega is null){<p class="muted">No se puede leer la versión actual de la entrega con tu perfil. Pide a administración que revise este conflicto.</p>}else{
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<input asp-for="Id" type="hidden"/><input asp-for="VersionActual" type="hidden"/>
+<div class="field"><label class="checkbox"><input type="radio" name="Aplicar" value="true" checked="@Model.Aplicar"/> Aplicar la captura a la entrega</label>
+<label class="checkbox"><input type="radio" name="Aplicar" value="false" checked="@(!Model.Aplicar)"/> Descartar la captura (se conserva con su evidencia)</label></div>
+<div class="field"><label asp-for="Motivo">Motivo de la revisión</label><textarea asp-for="Motivo" rows="3" maxlength="1000" required></textarea><span asp-validation-for="Motivo" class="validation"></span></div>
+<div class="form-actions"><a class="button secondary" asp-action="Conflictos">Cancelar</a><button class="button" type="submit">Registrar revisión</button></div>
+</form>}
+</section>

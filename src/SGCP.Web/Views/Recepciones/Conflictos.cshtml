@@ -1,0 +1,27 @@
+@model ConflictosViewModel
+@{ViewData["Title"]="Conflictos de recepción";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">RECEPCIÓN · RNF-01</span>
+<h1>Conflictos de recepción</h1>
+<p>Capturas que llegaron cuando la entrega ya había cambiado (reasignada, cancelada o con otra versión). Esperan que una persona las revise.</p>
+</div>
+</div>
+<div class="notice" role="note">Un conflicto <b>nunca se resuelve solo</b> y no sobrescribe la entrega. Al revisar, aplicas la captura o la descartas con un motivo; la captura original y su evidencia se conservan.</div>
+<section class="card">
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">✓</span><h3>Sin conflictos pendientes</h3><p>Todas las capturas sincronizadas se aplicaron o ya fueron revisadas.</p></div>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Entrega</th><th>Receptor</th><th>Peso</th><th>Fecha real</th><th>Llegó al servidor</th><th>Versión capturada</th><th>Motivo</th><th></th></tr></thead>
+<tbody>@foreach(var r in Model.Datos.Elementos){var e=Model.Entregas.GetValueOrDefault(r.EntregaId);var p=e is null?null:Model.Pedidos.GetValueOrDefault(e.PedidoId);<tr>
+<td>@(p is null?"Entrega":p.Codigo)<small>@p?.Cliente</small></td>
+<td>@r.Receptor<small>@(r.Conforme?"Conforme":"Con observaciones")</small></td>
+<td>@r.PesoRecibido.ToString("0.###") @r.Unidad</td>
+<td>@Hora.Mostrar(r.FechaReal)</td>
+<td>@Hora.Mostrar(r.FechaSincronizacion)</td>
+<td>v@(r.VersionBase)@if(e is not null){<small>actual v@(e.Version) · @Textos.Entrega(e.Estado)</small>}</td>
+<td>@r.MotivoConflicto</td>
+<td><a class="button secondary small" asp-action="Revisar" asp-route-id="@r.Id">Revisar</a></td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>
+@if(!Model.PuedeVerEntregas){<p class="hint">Tu perfil puede ver los conflictos, pero la API no le entrega la versión actual de la entrega, que es necesaria para aplicar o descartar. Pide a administración que haga la revisión.</p>}

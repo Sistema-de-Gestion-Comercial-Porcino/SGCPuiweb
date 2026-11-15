@@ -20,6 +20,8 @@ builder.Services.AddHttpClient<ProduccionApi>(Configurar);
 builder.Services.AddHttpClient<SanidadApi>(Configurar);
 builder.Services.AddHttpClient<InventarioApi>(Configurar);
 builder.Services.AddHttpClient<FrioApi>(Configurar);
+builder.Services.AddHttpClient<CobranzaApi>(Configurar);
+builder.Services.AddHttpClient<RepartoApi>(Configurar);
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(o => { o.LoginPath = "/Cuenta/IniciarSesion"; o.AccessDeniedPath = "/Cuenta/SinPermiso"; o.ExpireTimeSpan = TimeSpan.FromHours(8); o.SlidingExpiration = false; o.Cookie.Name = "SGCP.Sesion"; o.Cookie.HttpOnly = true; o.Cookie.SameSite = SameSiteMode.Lax; o.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always; });
 builder.Services.AddAuthorization(o =>
@@ -45,7 +47,10 @@ builder.Services.AddAuthorization(o =>
         "inventario.administrar",
         "frio.administrar",
         "cargos.administrar",
-        "saldos.consultar" })
+        "saldos.consultar",
+        "pagos.administrar",
+        "entregas.administrar",
+        "entregas.revisar" })
         o.AddPolicy(permiso, p => p.RequireAuthenticatedUser().RequireClaim("permiso",
         permiso));
 });

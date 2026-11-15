@@ -1,0 +1,14 @@
+@model MotivoFormViewModel
+@{ViewData["Title"]=Model.Titulo;}
+<div class="page-head"><div><span class="eyebrow">REVISAR OPERACIÓN</span>
+<h1>@Model.Titulo</h1>
+<p>@Model.Explicacion</p></div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<input asp-for="Id" type="hidden"/><input asp-for="Titulo" type="hidden"/><input asp-for="Explicacion" type="hidden"/><input asp-for="Volver" type="hidden"/>
+<div class="field"><label asp-for="Motivo">Motivo</label><textarea asp-for="Motivo" rows="3" maxlength="1000" required></textarea><span asp-validation-for="Motivo" class="validation"></span></div>
+<div class="form-actions"><a href="@Model.Volver" class="button secondary">Volver sin cambios</a><button class="button" type="submit">Confirmar</button></div>
+</form>
+</section>

@@ -1,0 +1,21 @@
+@model RutaFormViewModel
+@{ViewData["Title"]="Planificar ruta";}
+<div class="page-head">
+<div><span class="eyebrow">TRANSPORTE</span>
+<h1>Planificar ruta</h1>
+<p>Elige un transporte activo y el responsable que llevará la app de reparto.</p>
+</div>
+</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<div class="form-grid">
+<div class="field"><label asp-for="TransporteId">Transporte</label><select asp-for="TransporteId" required><option value="">Seleccionar…</option>@foreach(var t in Model.Transportes){<option value="@t.Id">@t.Codigo · @t.Placa · @t.Transportista</option>}</select><span asp-validation-for="TransporteId" class="validation"></span></div>
+<div class="field"><label asp-for="ResponsableId">Responsable de entrega</label><select asp-for="ResponsableId" required><option value="">Seleccionar…</option>@foreach(var r in Model.Responsables){<option value="@r.Id">@r.Nombre</option>}</select><span asp-validation-for="ResponsableId" class="validation"></span></div>
+<div class="field"><label asp-for="Fecha">Fecha y hora de salida · Bolivia</label><input asp-for="Fecha" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
+<div class="field"><label asp-for="Zona">Zona</label><input asp-for="Zona" maxlength="180" placeholder="Centro, Norte, Plan 3000…" required/><span asp-validation-for="Zona" class="validation"></span></div>
+</div>
+@if(Model.Transportes.Count==0){<p class="hint">No hay transportes activos. <a href="/Transportes/Formulario">Registra uno</a>.</p>}
+<div class="form-actions"><a class="button secondary" asp-action="Index">Cancelar</a><button class="button" type="submit">Planificar ruta</button></div>
+</form>
+</section>
