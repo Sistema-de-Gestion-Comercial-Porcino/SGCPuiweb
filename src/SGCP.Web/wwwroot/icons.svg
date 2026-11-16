@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="home" viewBox="0 0 24 24"><path d="M3 10.8 12 3l9 7.8v9.7a.5.5 0 0 1-.5.5H15v-6H9v6H3.5a.5.5 0 0 1-.5-.5Z"/></symbol>
+  <symbol id="users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="client" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="box" viewBox="0 0 24 24"><path d="m21 8-9-5-9 5 9 5 9-5ZM3 8v10l9 5 9-5V8M12 13v10"/></symbol>
+  <symbol id="coins" viewBox="0 0 24 24"><ellipse cx="8" cy="6" rx="5" ry="3"/><path d="M3 6v4c0 1.7 2.2 3 5 3s5-1.3 5-3V6M3 10v4c0 1.7 2.2 3 5 3 1.1 0 2.1-.2 3-.6M14 10.5c.9-.9 2.4-1.5 4-1.5 2.8 0 5 1.3 5 3s-2.2 3-5 3-5-1.3-5-3M13 12v4c0 1.7 2.2 3 5 3s5-1.3 5-3v-4"/></symbol>
+  <symbol id="document" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zM15 2v5h5M9 12h8M9 16h8"/></symbol>
+  <symbol id="cart" viewBox="0 0 24 24"><path d="M3 3h2l2.2 11h10.9l2-8H6M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM18 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></symbol>
+  <symbol id="shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10ZM12 8v8M8 12h8"/></symbol>
+  <symbol id="factory" viewBox="0 0 24 24"><path d="M3 21V10l6 3V9l6 4V5h6v16ZM7 17h2M12 17h2M17 17h2"/></symbol>
+  <symbol id="layers" viewBox="0 0 24 24"><path d="m12 2 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 17l9 5 9-5"/></symbol>
+  <symbol id="scale" viewBox="0 0 24 24"><path d="M12 3v18M5 6h14M5 6 2 13h6L5 6ZM19 6l-3 7h6l-3-7ZM8 21h8"/></symbol>
+  <symbol id="snow" viewBox="0 0 24 24"><path d="M12 2v20M4.2 6.5l15.6 11M4.2 17.5l15.6-11M8 4l4 3 4-3M8 20l4-3 4 3M3.7 10l4.6 2-4.6 2M20.3 10l-4.6 2 4.6 2"/></symbol>
+  <symbol id="wallet" viewBox="0 0 24 24"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4H19v4H5.5A2.5 2.5 0 0 1 3 5.5V19h18V9H5.5M16 13h2"/></symbol>
+  <symbol id="truck" viewBox="0 0 24 24"><path d="M3 5h11v12H3zM14 9h4l3 4v4h-7zM7 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/></symbol>
+  <symbol id="route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h3a3 3 0 0 0 0-6h2a3 3 0 0 0 3-3V8"/></symbol>
+  <symbol id="transport" viewBox="0 0 24 24"><path d="M4 4h13v13H4zM17 9h2l2 3v5h-4M7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4M8 8h5"/></symbol>
+  <symbol id="alert" viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3ZM12 9v5M12 18h.01"/></symbol>
+  <symbol id="report" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7M2 20h22"/></symbol>
+  <symbol id="logout" viewBox="0 0 24 24"><path d="M10 4H4v16h6M14 8l4 4-4 4M18 12H8"/></symbol>
+  <symbol id="menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="plus-user" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/></symbol>
+  <symbol id="arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M14 7l5 5-5 5"/></symbol>
+  <symbol id="pig" viewBox="0 0 72 44">
+    <path d="M18.5 11.3 14.2 4.7l9.2 3.2 2.8 3.2c6.1-3.2 14.5-3.9 21.2-1.6 5.3 1.8 9 5.6 10.1 10.4.9 3.9-.2 7.5-3.2 10.4l1.2 7.9h-7.1l-1.6-5.9c-2.6.8-5.5 1.2-8.5 1.2l-.5 4.7h-7.1l-.8-5.5c-2.3-.5-4.5-1.2-6.3-2.1l-1 7.6h-7.1l-.3-11.1c-2.3-1.5-4-3.4-5-5.7H5.8C2.5 21.4.5 19.8.5 17.3c0-2.3 2.1-3.8 5.3-3.8h4.6c1.8-1.4 4.5-2.2 8.1-2.2Z"/>
+    <path d="M56.1 13.2c3.5-5 10.4-4.6 11.6-.7.8 2.7-1.8 5.2-4.3 3.7-1.5-.9-.7-2.7.8-2.2" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>
+    <circle cx="9.4" cy="16.5" r="1.1" fill="#f5f1e7"/>
+  </symbol>
+</svg>
