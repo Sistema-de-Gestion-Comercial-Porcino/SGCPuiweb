@@ -341,17 +341,12 @@ public class EntregasController(RepartoApi api) : GestionControllerBase
 [Authorize(Policy = "entregas.revisar")]
 public class RecepcionesController(RepartoApi api) : GestionControllerBase
 {
-    public async Task<IActionResult> Conflictos(int pagina = 1, int tamanoPagina = 20)
+    public async Task<IActionResult> Conflictos(int pagina = 1, int tamanoPagina = 20) => View(new ConflictosViewModel
     {
-        var puede = User.HasClaim("permiso", "entregas.administrar");
-        return View(new ConflictosViewModel
-        {
-            Datos = await api.Get<Pagina<RecepcionDto>>($"recepciones/conflictos?pagina={pagina}&tamanoPagina={tamanoPagina}"),
-            PuedeVerEntregas = puede,
-            Entregas = puede ? (await api.Todos<EntregaDto>("entregas")).ToDictionary(x => x.Id) : [],
-            Pedidos = User.HasClaim("permiso", "pedidos.consultar") ? (await api.Todos<PedidoDto>("pedidos")).ToDictionary(x => x.Id) : []
-        });
-    }
+        // La API trae la versión, el estado y el código del pedido de cada entrega en conflicto: alcanza con entregas.revisar.
+        Datos = await api.Get<Pagina<RecepcionDto>>($"recepciones/conflictos?pagina={pagina}&tamanoPagina={tamanoPagina}"),
+        Pedidos = User.HasClaim("permiso", "pedidos.consultar") ? (await api.Todos<PedidoDto>("pedidos")).ToDictionary(x => x.Id) : []
+    });
 
     public async Task<IActionResult> Revisar(Guid id) => View(await Completar(new RevisarFormViewModel { Id = id }));
 
@@ -391,12 +386,10 @@ public class RecepcionesController(RepartoApi api) : GestionControllerBase
     private async Task<RevisarFormViewModel> Completar(RevisarFormViewModel m)
     {
         m.Detalle = await api.Get<RecepcionDetalleDto>($"recepciones/{m.Id}");
-        if (User.HasClaim("permiso", "entregas.administrar"))
-        {
-            m.Entrega = (await api.Todos<EntregaDto>("entregas")).FirstOrDefault(x => x.Id == m.Detalle.Recepcion.EntregaId);
-            if (m.Entrega is not null)
-                m.VersionActual = m.Entrega.Version;
-        }
+        // Se relee en cada carga: si la entrega cambió mientras se revisaba, la API responde VERSION_CONFLICTO.
+        m.Entrega = m.Detalle.Entrega;
+        if (m.Entrega is not null)
+            m.VersionActual = m.Entrega.Version;
         if (m.Entrega is not null && User.HasClaim("permiso", "pedidos.consultar"))
             m.Pedido = await api.Get<PedidoDto>($"pedidos/{m.Entrega.PedidoId}");
         return m;

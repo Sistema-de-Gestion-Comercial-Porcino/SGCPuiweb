@@ -126,6 +126,20 @@ public class RecepcionDto
     public string Estado { get; set; } = "";
     public string MotivoConflicto { get; set; } = "";
     public string Resolucion { get; set; } = "";
+    // Solo en GET recepciones/conflictos (API v4.1.1): estado actual de la entrega, para revisar sin entregas.administrar.
+    public int? VersionEntrega { get; set; }
+    public string? EstadoEntrega { get; set; }
+    public Guid? PedidoId { get; set; }
+    public string? Pedido { get; set; }
+}
+
+/// <summary>Versión y estado actuales de la entrega, tal como los devuelve GET recepciones/{id}.</summary>
+public class EntregaActualDto
+{
+    public Guid Id { get; set; }
+    public int Version { get; set; }
+    public string Estado { get; set; } = "";
+    public Guid PedidoId { get; set; }
 }
 
 public class EvidenciaResumenDto
@@ -138,6 +152,7 @@ public class EvidenciaResumenDto
 public class RecepcionDetalleDto
 {
     public RecepcionDto Recepcion { get; set; } = new();
+    public EntregaActualDto? Entrega { get; set; }
     public List<EvidenciaResumenDto> Evidencias { get; set; } = [];
 }
 

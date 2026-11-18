@@ -30,8 +30,8 @@
 <p class="hint" id="generando" hidden role="status">Generando el archivo… puede tardar unos segundos. No hace falta volver a tocar el botón.</p>
 @if(tabla.Filas.Count==0){<p class="muted">No hay filas con estos filtros.</p>}else{<div class="table-wrap">
 <table>
-<thead><tr>@foreach(var c in tabla.Columnas){<th>@Reportes.Columna(c)</th>}</tr></thead>
-<tbody>@foreach(var fila in tabla.Filas){<tr>@for(var i=0;i<fila.Count&&i<tabla.Columnas.Count;i++){<td class="@(i==0||tabla.Columnas[i].EndsWith("Bs")?"nowrap":"")">@Reportes.Celda(tabla.Columnas[i],fila[i])</td>}</tr>}</tbody>
+<thead><tr>@foreach(var c in tabla.Columnas){<th>@(Reportes.EsColumnaEntrega(tabla,c)?"Constancia":Reportes.Columna(c))</th>}</tr></thead>
+<tbody>@foreach(var fila in tabla.Filas){<tr>@for(var i=0;i<fila.Count&&i<tabla.Columnas.Count;i++){var enlace=Reportes.Constancia(tabla,fila,i);<td class="@(i==0||tabla.Columnas[i].EndsWith("Bs")||enlace is not null?"nowrap":"")">@if(enlace is not null){if(enlace.Length>0){<a href="@enlace">Descargar</a>}else{<span class="muted">—</span>}}else{@Reportes.Celda(tabla.Columnas[i],fila[i])}</td>}</tr>}</tbody>
 </table>
 </div>}
 </section>}

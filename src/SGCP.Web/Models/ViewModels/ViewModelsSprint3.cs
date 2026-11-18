@@ -226,9 +226,7 @@ public class RecepcionFormViewModel
 public class ConflictosViewModel
 {
     public Pagina<RecepcionDto> Datos { get; set; } = new();
-    public Dictionary<Guid, EntregaDto> Entregas { get; set; } = [];
     public Dictionary<Guid, PedidoDto> Pedidos { get; set; } = [];
-    public bool PuedeVerEntregas { get; set; }
 }
 
 public class RevisarFormViewModel
@@ -239,6 +237,6 @@ public class RevisarFormViewModel
     [Required(ErrorMessage = "Escribe el motivo de la revisión."), MaxLength(1000)]
     public string Motivo { get; set; } = "";
     public RecepcionDetalleDto? Detalle { get; set; }
-    public EntregaDto? Entrega { get; set; }
+    public EntregaActualDto? Entrega { get; set; }
     public PedidoDto? Pedido { get; set; }
 }
