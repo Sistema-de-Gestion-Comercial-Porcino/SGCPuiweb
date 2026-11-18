@@ -136,6 +136,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v4.2.1 | 2026-11-17 | 4 | Corrección: el Sprint 4 se integra con `main` (no había entrado porque el PR #3 se fusionó a la rama del Sprint 3) y el menú «Reportes» se adapta al rediseño visual | Angel Sebastian Eguez Mur |
 | v4.2.0 | 2026-11-14 | 4 | Reportes por perfil con filtros y descarga PDF/Excel, «Mis reportes» del comprador, constancia de entrega y leyenda fiscal con registro sin proveedor | Angel Sebastian Eguez Mur |
 | v3.2.1 | 2026-11-14 | 3 | Corrección: las tablas de saldos, rutas y entregas entran en una ventana angosta sin cortar columnas ni partir importes | Angel Sebastian Eguez Mur |
 | v3.2.0 | 2026-11-14 | 3 | Pantallas de saldos y pagos, condición de pago, señas, transportes, rutas, entregas, recepción en el local y revisión de conflictos; deuda y entrega en secciones separadas | Angel Sebastian Eguez Mur |

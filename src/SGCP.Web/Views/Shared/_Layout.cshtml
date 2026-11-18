@@ -1,49 +1,157 @@
-@{ var actual = ViewContext.RouteData.Values["controller"]?.ToString(); var acceso = User.Identity?.IsAuthenticated == true; var cuenta = actual == "Cuenta"; }
-<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>@ViewData["Title"] · SGCP</title><link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/></head>
-<body class="@(acceso && !cuenta ? "gestion" : "acceso")"><a class="skip" href="#contenido">Saltar al contenido</a>
-@if(acceso && !cuenta){
-<aside class="sidebar" id="navegacion"><a href="/" class="brand"><span class="brand-mark">S</span><span>SGCP<small>Gestión comercial porcino</small></span></a>
-<p class="nav-label">ESPACIO DE TRABAJO</p>
-<nav aria-label="Principal">
-<a class="@(actual=="Inicio"?"active":"")" href="/"><span class="nav-icon">◫</span>Resumen</a>
-@foreach(var item in new[]{("Usuarios","Usuarios","usuarios.consultar"),("Clientes","Clientes","clientes.consultar"),("Productos","Productos","catalogo.consultar"),("Precios","Gestión de costos","costos.consultar"),("Cotizaciones","Cotizaciones","cotizaciones.consultar"),("Pedidos","Pedidos","pedidos.consultar")}){if(User.HasClaim("permiso",item.Item3)){<a class="@(actual==item.Item1||actual=="Clasificaciones"&&item.Item1=="Productos"?"active":"")" href="/@item.Item1"><span class="nav-icon">◇</span>@item.Item2</a>}}
-@{/* Sprint 2: cada ítem se muestra según el permiso. Producción no ve pesajes ni entradas; almacén no ve precios. */
-var operacion=new List<(string Ruta,string Nombre,bool Ver,string Controlador)>{("/Sanidad","Sanidad",User.HasClaim("permiso","produccion.consultar"),"Sanidad"),("/Produccion","Producción",User.HasClaim("permiso","produccion.consultar"),"Produccion"),("/Almacen/Existencias","Existencias",User.HasClaim("permiso","inventario.consultar"),"Almacen"),("/Almacen/Pesajes","Pesajes y entradas",User.HasClaim("permiso","inventario.administrar"),"Almacen"),("/Frio","Control de frío",User.HasClaim("permiso","frio.administrar")&&User.HasClaim("permiso","inventario.consultar"),"Frio")}.Where(x=>x.Ver).ToList();
-var accionActual=ViewContext.RouteData.Values["action"]?.ToString();}
-@if(operacion.Count>0){<p class="nav-label">PRODUCCIÓN E INVENTARIO</p>@foreach(var item in operacion){var activo=actual==item.Controlador&&(item.Controlador!="Almacen"||(item.Ruta=="/Almacen/Existencias")==(accionActual=="Existencias"));<a class="@(activo?"active":"")" href="@item.Ruta"><span class="nav-icon">◇</span>@item.Nombre</a>}}
-@{/* Sprint 3: cobranza (estado de la deuda) y reparto (estado de la entrega) son secciones separadas a propósito. */
-var cobranza=new List<(string Ruta,string Nombre,bool Ver,string Controlador)>{("/Cobranza","Saldos y pagos",User.HasClaim("permiso","saldos.consultar"),"Cobranza")}.Where(x=>x.Ver).ToList();
-var reparto=new List<(string Ruta,string Nombre,bool Ver,string Controlador)>{("/Entregas","Entregas",User.HasClaim("permiso","entregas.administrar"),"Entregas"),("/Rutas","Rutas",User.HasClaim("permiso","entregas.administrar"),"Rutas"),("/Transportes","Transportes",User.HasClaim("permiso","entregas.administrar"),"Transportes"),("/Recepciones/Conflictos","Conflictos de recepción",User.HasClaim("permiso","entregas.revisar"),"Recepciones")}.Where(x=>x.Ver).ToList();}
-@if(cobranza.Count>0){<p class="nav-label">COBRANZA</p>@foreach(var item in cobranza){<a class="@(actual==item.Controlador?"active":"")" href="@item.Ruta"><span class="nav-icon">◇</span>@item.Nombre</a>}}
-@if(reparto.Count>0){<p class="nav-label">TRANSPORTE Y ENTREGAS</p>@foreach(var item in reparto){<a class="@(actual==item.Controlador?"active":"")" href="@item.Ruta"><span class="nav-icon">◇</span>@item.Nombre</a>}}
-@if(User.HasClaim("permiso","reportes.consultar")){<p class="nav-label">CONSULTAS</p><a class="@(actual=="Reportes"?"active":"")" href="/Reportes"><span class="nav-icon">◇</span>@(User.IsInRole("COMPRADOR")?"Mis reportes":"Reportes")</a>}
-</nav><div class="sidebar-foot"><span class="status-dot"></span> Operación con conexión<small>Santa Cruz de la Sierra · Bolivia</small></div></aside>
-<div class="shade" id="sombra" hidden>
-</div>
-<div class="workspace">
-<header class="topbar"><button type="button" class="menu-toggle" aria-label="Abrir navegación" aria-controls="navegacion" aria-expanded="false">☰</button><span class="workspace-name">@(User.IsInRole("COMPRADOR")?"Portal del comprador":"Gestión del negocio")</span>
-<div class="account"><span class="avatar">@(User.Identity?.Name?.FirstOrDefault())</span><span>@User.Identity?.Name<small>@string.Join(" · ",User.FindAll("rol").Select(x=>x.Value.Replace('_',' ')))</small></span>
-<form asp-controller="Cuenta" asp-action="Salir" method="post"><button class="text-button" type="submit">Salir</button>
-</form>
-</div>
-</header>
-<main id="contenido" tabindex="-1"><partial name="_Mensajes"/>@RenderBody()</main>
-<footer class="footer"><span>SGCP · Gestión comercial y clientes</span><span>Importes en bolivianos · Hora de Bolivia</span>
-</footer>
-</div>
-}else{
-<div class="auth-shell">
-<aside class="auth-brand"><a href="/" class="brand"><span class="brand-mark">S</span><span>SGCP<small>Gestión comercial porcino</small></span></a>
-<div class="auth-story"><span class="eyebrow">DEL ACUERDO AL PEDIDO</span>
-<h1>Tu operación,<br/>en buen orden.</h1>
-<p>Clientes, productos y acuerdos comerciales en un mismo lugar.</p>
-<div class="story-steps"><span><b>01</b> Organiza tu catálogo</span><span><b>02</b> Conserva cada acuerdo</span><span><b>03</b> Sigue tus pedidos</span>
-</div>
-</div><small>Santa Cruz de la Sierra · Bolivia</small>
-</aside>
-<main id="contenido" class="auth-main">
-<div class="auth-form"><partial name="_Mensajes"/>@RenderBody()</div>
-</main>
-</div>
+@{
+    var actual = ViewContext.RouteData.Values["controller"]?.ToString();
+    var acceso = User.Identity?.IsAuthenticated == true;
+    var cuenta = actual == "Cuenta";
+    var accionActual = ViewContext.RouteData.Values["action"]?.ToString();
 }
-<script src="~/js/site.js" asp-append-version="true" defer></script>@await RenderSectionAsync("Scripts",required:false)</body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123f34" />
+    <title>@ViewData["Title"] · SGCP</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="@(acceso && !cuenta ? "gestion" : "acceso")">
+<a class="skip" href="#contenido">Saltar al contenido</a>
+@if (acceso && !cuenta)
+{
+    <aside class="sidebar" id="navegacion">
+        <a href="/" class="brand" aria-label="SGCP, ir al resumen">
+            <span class="brand-mark" aria-hidden="true">S</span>
+            <span>SGCP<small>Gestión comercial porcino</small></span>
+        </a>
+        <nav aria-label="Principal">
+            <p class="nav-label">ESPACIO DE TRABAJO</p>
+            <a class="@(actual == "Inicio" ? "active" : "")" href="/">
+                <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#home"></use></svg><span>Resumen</span>
+            </a>
+            @foreach (var item in new[]
+            {
+                (Controlador:"Usuarios", Nombre:"Usuarios", Permiso:"usuarios.consultar", Icono:"users"),
+                (Controlador:"Clientes", Nombre:"Clientes", Permiso:"clientes.consultar", Icono:"client"),
+                (Controlador:"Productos", Nombre:"Productos", Permiso:"catalogo.consultar", Icono:"box"),
+                (Controlador:"Precios", Nombre:"Gestión de costos", Permiso:"costos.consultar", Icono:"coins"),
+                (Controlador:"Cotizaciones", Nombre:"Cotizaciones", Permiso:"cotizaciones.consultar", Icono:"document"),
+                (Controlador:"Pedidos", Nombre:"Pedidos", Permiso:"pedidos.consultar", Icono:"cart")
+            })
+            {
+                if (User.HasClaim("permiso", item.Permiso))
+                {
+                    <a class="@(actual == item.Controlador || actual == "Clasificaciones" && item.Controlador == "Productos" ? "active" : "")" href="/@item.Controlador">
+                        <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#@item.Icono"></use></svg><span>@item.Nombre</span>
+                    </a>
+                }
+            }
+            @{
+                /* Sprint 2: cada ítem se muestra según el permiso. Producción no ve pesajes ni entradas; almacén no ve precios. */
+                var operacion = new List<(string Ruta, string Nombre, bool Ver, string Controlador, string Icono)>
+                {
+                    ("/Sanidad", "Sanidad", User.HasClaim("permiso", "produccion.consultar"), "Sanidad", "shield"),
+                    ("/Produccion", "Producción", User.HasClaim("permiso", "produccion.consultar"), "Produccion", "factory"),
+                    ("/Almacen/Existencias", "Existencias", User.HasClaim("permiso", "inventario.consultar"), "Almacen", "layers"),
+                    ("/Almacen/Pesajes", "Pesajes y entradas", User.HasClaim("permiso", "inventario.administrar"), "Almacen", "scale"),
+                    ("/Frio", "Control de frío", User.HasClaim("permiso", "frio.administrar") && User.HasClaim("permiso", "inventario.consultar"), "Frio", "snow")
+                }.Where(x => x.Ver).ToList();
+            }
+            @if (operacion.Count > 0)
+            {
+                <p class="nav-label">PRODUCCIÓN E INVENTARIO</p>
+                @foreach (var item in operacion)
+                {
+                    var activo = actual == item.Controlador && (item.Controlador != "Almacen" || (item.Ruta == "/Almacen/Existencias") == (accionActual == "Existencias"));
+                    <a class="@(activo ? "active" : "")" href="@item.Ruta">
+                        <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#@item.Icono"></use></svg><span>@item.Nombre</span>
+                    </a>
+                }
+            }
+            @{
+                /* Sprint 3: cobranza y entrega conservan sus ciclos independientes. */
+                var cobranza = new List<(string Ruta, string Nombre, bool Ver, string Controlador, string Icono)>
+                {
+                    ("/Cobranza", "Saldos y pagos", User.HasClaim("permiso", "saldos.consultar"), "Cobranza", "wallet")
+                }.Where(x => x.Ver).ToList();
+                var reparto = new List<(string Ruta, string Nombre, bool Ver, string Controlador, string Icono)>
+                {
+                    ("/Entregas", "Entregas", User.HasClaim("permiso", "entregas.administrar"), "Entregas", "truck"),
+                    ("/Rutas", "Rutas", User.HasClaim("permiso", "entregas.administrar"), "Rutas", "route"),
+                    ("/Transportes", "Transportes", User.HasClaim("permiso", "entregas.administrar"), "Transportes", "transport"),
+                    ("/Recepciones/Conflictos", "Conflictos de recepción", User.HasClaim("permiso", "entregas.revisar"), "Recepciones", "alert")
+                }.Where(x => x.Ver).ToList();
+            }
+            @if (cobranza.Count > 0)
+            {
+                <p class="nav-label">COBRANZA</p>
+                @foreach (var item in cobranza)
+                {
+                    <a class="@(actual == item.Controlador ? "active" : "")" href="@item.Ruta">
+                        <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#@item.Icono"></use></svg><span>@item.Nombre</span>
+                    </a>
+                }
+            }
+            @if (reparto.Count > 0)
+            {
+                <p class="nav-label">TRANSPORTE Y ENTREGAS</p>
+                @foreach (var item in reparto)
+                {
+                    <a class="@(actual == item.Controlador ? "active" : "")" href="@item.Ruta">
+                        <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#@item.Icono"></use></svg><span>@item.Nombre</span>
+                    </a>
+                }
+            }
+            @if (User.HasClaim("permiso", "reportes.consultar"))
+            {
+                /* Sprint 4: reportes por perfil; el comprador ve solo los suyos. */
+                <p class="nav-label">CONSULTAS</p>
+                <a class="@(actual == "Reportes" ? "active" : "")" href="/Reportes">
+                    <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#report"></use></svg><span>@(User.IsInRole("COMPRADOR") ? "Mis reportes" : "Reportes")</span>
+                </a>
+            }
+        </nav>
+        <div class="sidebar-foot">
+            <span><i class="status-dot"></i>Operación con conexión</span>
+            <small>Santa Cruz de la Sierra · Bolivia</small>
+        </div>
+    </aside>
+    <div class="shade" id="sombra" hidden></div>
+    <div class="workspace">
+        <header class="topbar">
+            <button type="button" class="menu-toggle" aria-label="Abrir navegación" aria-controls="navegacion" aria-expanded="false">
+                <svg class="icon" aria-hidden="true"><use href="/icons.svg#menu"></use></svg>
+            </button>
+            <span class="workspace-name">@(User.IsInRole("COMPRADOR") ? "Portal del comprador" : "Gestión del negocio")</span>
+            <div class="account">
+                <span class="avatar" aria-hidden="true">@(User.Identity?.Name?.FirstOrDefault())</span>
+                <span class="account-copy">@User.Identity?.Name<small>@string.Join(" · ", User.FindAll("rol").Select(x => x.Value.Replace('_', ' ')))</small></span>
+                <form asp-controller="Cuenta" asp-action="Salir" method="post">
+                    <button class="text-button logout-button" type="submit"><svg class="icon" aria-hidden="true"><use href="/icons.svg#logout"></use></svg>Salir</button>
+                </form>
+            </div>
+        </header>
+        <main id="contenido" tabindex="-1"><partial name="_Mensajes" />@RenderBody()</main>
+        <footer class="footer"><span>SGCP · Gestión comercial y clientes</span><span>Importes en bolivianos · Hora de Bolivia</span></footer>
+    </div>
+}
+else
+{
+    <div class="auth-shell">
+        <aside class="auth-brand">
+            <a href="/" class="brand"><span class="brand-mark">S</span><span>SGCP<small>Gestión comercial porcino</small></span></a>
+            <div class="auth-story">
+                <span class="eyebrow">DEL ACUERDO AL PEDIDO</span>
+                <h1>Tu operación,<br />en buen orden.</h1>
+                <p>Clientes, productos y acuerdos comerciales en un mismo lugar.</p>
+                <div class="story-steps"><span><b>01</b>Organiza tu catálogo</span><span><b>02</b>Conserva cada acuerdo</span><span><b>03</b>Sigue tus pedidos</span></div>
+            </div>
+            <small>Santa Cruz de la Sierra · Bolivia</small>
+        </aside>
+        <main id="contenido" class="auth-main">
+            <div class="auth-form"><partial name="_Mensajes" />@RenderBody()</div>
+        </main>
+    </div>
+}
+<script src="~/js/site.js" asp-append-version="true" defer></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
