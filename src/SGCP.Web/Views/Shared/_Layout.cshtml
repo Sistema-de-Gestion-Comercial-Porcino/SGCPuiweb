@@ -100,12 +100,13 @@
                     </a>
                 }
             }
-            @if (!User.IsInRole("COMPRADOR"))
+            @if (User.HasClaim("permiso", "reportes.consultar"))
             {
-                <p class="nav-label">PRÓXIMAS ETAPAS</p>
-                <span class="nav-disabled" aria-disabled="true">
-                    <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#report"></use></svg><span>Reportes</span><small>Pendiente</small>
-                </span>
+                /* Sprint 4: reportes por perfil; el comprador ve solo los suyos. */
+                <p class="nav-label">CONSULTAS</p>
+                <a class="@(actual == "Reportes" ? "active" : "")" href="/Reportes">
+                    <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#report"></use></svg><span>@(User.IsInRole("COMPRADOR") ? "Mis reportes" : "Reportes")</span>
+                </a>
             }
         </nav>
         <div class="sidebar-foot">

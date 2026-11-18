@@ -562,3 +562,5 @@ output#margen-preview, output#peso-neto { display: block; padding-top: 10px; fon
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+/* Sprint 4: en ventana angosta los botones de descarga bajan de linea en vez de salirse. */
+.section-heading.wrap { flex-wrap: wrap; }

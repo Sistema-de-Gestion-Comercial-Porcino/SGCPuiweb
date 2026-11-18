@@ -22,12 +22,37 @@ public class PedidosController(PedidosApi api) : GestionControllerBase
                             pagina,
                             tamanoPagina))
             });
-    public async Task<IActionResult> Detalle(Guid id) => View(new FichaViewModel<PedidoDto>
+    public async Task<IActionResult> Detalle(Guid id)
     {
-        Datos = await api.Get<PedidoDto>("pedidos/" + id),
-        // RF-20: los cargos de producto y de servicio se muestran por separado, nunca sumados en una línea.
-        Cargos = User.HasClaim("permiso", "cargos.administrar") ? await api.Todos<CargoDto>($"cargos?pedidoId={id}") : []
-    });
+        var m = new FichaViewModel<PedidoDto>
+        {
+            Datos = await api.Get<PedidoDto>("pedidos/" + id),
+            // RF-20: los cargos de producto y de servicio se muestran por separado, nunca sumados en una línea.
+            Cargos = User.HasClaim("permiso", "cargos.administrar") ? await api.Todos<CargoDto>($"cargos?pedidoId={id}") : []
+        };
+        if (User.HasClaim("permiso", "fiscal.administrar"))
+        {
+            try
+            { m.Fiscal = await api.Get<ComprobanteFiscalDto>($"pedidos/{id}/registro-fiscal"); }
+            catch (ApiException e) when (e.Estado == 404) { }
+        }
+        return View(m);
+    }
+
+    /// <summary>
+    /// RF-11 condicional. No hay proveedor fiscal confirmado (Decisiones.md, 11/11/2026): se registra la operación
+    /// SIN_PROVEEDOR con una referencia única, sin número fiscal. Repetirlo devuelve el mismo registro.
+    /// </summary>
+    [HttpPost, Authorize(Policy = "fiscal.administrar")]
+    public async Task<IActionResult> RegistroFiscal(Guid id)
+    {
+        ComprobanteFiscalDto? r = null;
+        if (await Intentar(async () => r = await api.Post<ComprobanteFiscalDto>($"pedidos/{id}/registro-fiscal")))
+            Correcto($"Operación registrada sin comprobante fiscal. Referencia {r?.ReferenciaUnica}: la venta sigue su curso.");
+        else
+            TempData["Error"] = string.Join(" ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+        return RedirectToAction(nameof(Detalle), new { id });
+    }
     [Authorize(Policy = "cargos.administrar")]
     public async Task<IActionResult> Servicio(Guid id)
     {

@@ -165,6 +165,8 @@ public class FichaViewModel<T>
     public List<PrecioDto> Precios { get; set; } = []
     ;
     public List<CargoDto> Cargos { get; set; } = [];
+    /// <summary>RF-11: registro de la operación sin comprobante (no hay proveedor fiscal). Null si todavía no se registró.</summary>
+    public ComprobanteFiscalDto? Fiscal { get; set; }
 }
 public class ResumenViewModel { public ResumenDto Datos { get; set; } = new(); }
 public static class Hora

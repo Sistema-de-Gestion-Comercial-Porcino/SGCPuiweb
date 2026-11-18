@@ -22,6 +22,9 @@
 @if(e.Estado=="PREPARADA"){<form method="post" asp-action="Despachar"><input type="hidden" name="id" value="@e.Id"/><button class="button secondary small" type="submit">Despachar</button></form>}
 @if(e.Estado is "PREPARADA" or "DESPACHADA"){<a class="text-link" asp-action="Reasignar" asp-route-id="@e.Id">Reasignar</a>}
 @if(e.Estado=="DESPACHADA"&&e.ResponsableId==Model.UsuarioId){<a class="text-link" asp-action="Recepcion" asp-route-id="@e.Id">Registrar recepción</a>}
+@if(e.Estado=="ENTREGADA"&&User.HasClaim("permiso","saldos.consultar")){<a class="text-link" asp-action="Constancia" asp-route-id="@e.Id">Constancia (PDF)</a>}
+@if(e.Estado=="OBSERVADA"){<small>Sin constancia: la recepción tuvo observaciones y queda para resolución.</small>}
+@if(e.Estado=="DESPACHADA"){<small>Constancia disponible cuando se confirme una recepción conforme.</small>}
 </td>
 </tr>}</tbody>
 </table>
