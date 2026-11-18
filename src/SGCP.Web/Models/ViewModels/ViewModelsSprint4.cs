@@ -113,6 +113,22 @@ public static class Reportes
     /// <summary>La API manda fechas en UTC y lo indica en el nombre de la columna; la pantalla las muestra en hora de Bolivia.</summary>
     public static string Columna(string c) => c.EndsWith(" UTC") ? c[..^4] + " (Bolivia)" : c;
 
+    /// <summary>En el reporte de entregas la API agrega la columna «Entrega» con el id, para pedir la constancia (API v4.1.1).</summary>
+    public static bool EsColumnaEntrega(TablaReporteDto tabla, string columna) => tabla.Titulo == "Entregas" && columna == "Entrega";
+
+    /// <summary>
+    /// null: la celda se muestra como dato. "": columna de constancia sin constancia (la entrega no está ENTREGADA).
+    /// Otro valor: enlace de descarga. La API vuelve a validar el permiso, el cliente del comprador y la recepción conforme.
+    /// </summary>
+    public static string? Constancia(TablaReporteDto tabla, List<JsonElement> fila, int i)
+    {
+        if (!EsColumnaEntrega(tabla, tabla.Columnas[i]))
+            return null;
+        var estado = tabla.Columnas.IndexOf("Estado");
+        var entregada = estado >= 0 && estado < fila.Count && fila[estado].ValueKind == JsonValueKind.String && fila[estado].GetString() == "ENTREGADA";
+        return entregada && fila[i].ValueKind == JsonValueKind.String && Guid.TryParse(fila[i].GetString(), out var id) ? "/Constancias/Entrega/" + id : "";
+    }
+
     public static string Celda(string columna, JsonElement valor)
     {
         switch (valor.ValueKind)

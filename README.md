@@ -62,7 +62,7 @@ Pantallas de cobranza, transporte y entregas (S3-P2), contra la API de P1 sin to
 
 Verificado el 14 de noviembre de 2026 con `LANG=es_BO.UTF-8`, contra la API local y MySQL 8.0: 38 comprobaciones por HTTP. Un pago escrito `10.25` resta exactamente Bs 10,25; una seña no se aplica dos veces; descartar un conflicto no cambia la entrega; registrar la recepción no cambia el saldo; y reenviar el mismo formulario de recepción no crea una segunda fila.
 
-Límite conocido de la API: el perfil Ventas puede ver los conflictos, pero `GET entregas` le está prohibido y la revisión pide la versión actual de la entrega. La pantalla lo explica y la revisión la hace Administración.
+Ventas también revisa conflictos: desde la API v4.1.1, `GET recepciones/conflictos` y `GET recepciones/{id}` traen la versión y el estado actuales de la entrega, así que la web ya no necesita `GET entregas` (que Ventas no tiene).
 
 ## Sprint 4
 
@@ -76,7 +76,7 @@ Reportes, portal del comprador, constancia y leyenda fiscal (S4-P2), contra la A
 
 Verificado el 14 de noviembre de 2026 con `LANG=es_BO.UTF-8`: 21 comprobaciones por HTTP que cubren C4-01 a C4-08 de `Criterios_Sprint4.md`. Entre ellas, dos compradores con pedidos propios (cada uno ve y exporta solo su fila, sin costo ni margen, y el cambio de cliente en la URL se rechaza), el Excel con las mismas filas que la pantalla, y la referencia fiscal que no cambia al registrar dos veces.
 
-Límite conocido de la API: la constancia se pide por identificador de entrega, y ni Ventas ni el comprador pueden listar entregas. Desde la web la descarga Administración en `/Entregas`.
+Ventas y el comprador también descargan la constancia (API v4.1.1): Ventas desde la ficha del pedido (`GET pedidos/{id}/constancia`), y ambos desde el reporte de entregas, cuya columna «Constancia» enlaza solo las entregas ENTREGADAS. La API vuelve a validar el permiso y el cliente del comprador.
 
 ## Seguridad y validación
 
@@ -136,6 +136,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v4.2.3 | 2026-11-17 | 4 | Corrección: con la API v4.1.1, Ventas revisa conflictos de recepción y descarga la constancia desde el pedido; el comprador la descarga desde «Mis reportes» | Angel Sebastian Eguez Mur |
 | v4.2.2 | 2026-11-17 | 4 | Corrección: en ventana angosta los botones «Descargar PDF / Excel» de reportes bajan de línea en vez de salirse de la pantalla | Angel Sebastian Eguez Mur |
 | v4.2.1 | 2026-11-17 | 4 | Corrección: el Sprint 4 se integra con `main` (no había entrado porque el PR #3 se fusionó a la rama del Sprint 3) y el menú «Reportes» se adapta al rediseño visual | Angel Sebastian Eguez Mur |
 | v4.2.0 | 2026-11-14 | 4 | Reportes por perfil con filtros y descarga PDF/Excel, «Mis reportes» del comprador, constancia de entrega y leyenda fiscal con registro sin proveedor | Angel Sebastian Eguez Mur |

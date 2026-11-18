@@ -11,17 +11,16 @@
 @if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">✓</span><h3>Sin conflictos pendientes</h3><p>Todas las capturas sincronizadas se aplicaron o ya fueron revisadas.</p></div>}else{<div class="table-wrap">
 <table>
 <thead><tr><th>Entrega</th><th>Receptor</th><th>Peso</th><th>Fecha real</th><th>Llegó al servidor</th><th>Versión capturada</th><th>Motivo</th><th></th></tr></thead>
-<tbody>@foreach(var r in Model.Datos.Elementos){var e=Model.Entregas.GetValueOrDefault(r.EntregaId);var p=e is null?null:Model.Pedidos.GetValueOrDefault(e.PedidoId);<tr>
-<td>@(p is null?"Entrega":p.Codigo)<small>@p?.Cliente</small></td>
+<tbody>@foreach(var r in Model.Datos.Elementos){var p=r.PedidoId is null?null:Model.Pedidos.GetValueOrDefault(r.PedidoId.Value);<tr>
+<td>@(r.Pedido??"Entrega")<small>@p?.Cliente</small></td>
 <td>@r.Receptor<small>@(r.Conforme?"Conforme":"Con observaciones")</small></td>
 <td>@r.PesoRecibido.ToString("0.###") @r.Unidad</td>
 <td>@Hora.Mostrar(r.FechaReal)</td>
 <td>@Hora.Mostrar(r.FechaSincronizacion)</td>
-<td>v@(r.VersionBase)@if(e is not null){<small>actual v@(e.Version) · @Textos.Entrega(e.Estado)</small>}</td>
+<td>v@(r.VersionBase)@if(r.VersionEntrega is not null){<small>actual v@(r.VersionEntrega) · @Textos.Entrega(r.EstadoEntrega??"")</small>}</td>
 <td>@r.MotivoConflicto</td>
 <td><a class="button secondary small" asp-action="Revisar" asp-route-id="@r.Id">Revisar</a></td>
 </tr>}</tbody>
 </table>
 </div>}
 <partial name="_Paginacion"/></section>
-@if(!Model.PuedeVerEntregas){<p class="hint">Tu perfil puede ver los conflictos, pero la API no le entrega la versión actual de la entrega, que es necesaria para aplicar o descartar. Pide a administración que haga la revisión.</p>}
