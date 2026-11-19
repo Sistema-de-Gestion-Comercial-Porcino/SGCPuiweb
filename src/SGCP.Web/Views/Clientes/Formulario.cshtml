@@ -16,7 +16,8 @@
 </div>
 <div class="field"><label asp-for="Telefono">Teléfono</label><input asp-for="Telefono" type="tel" required/><span asp-validation-for="Telefono" class="validation"></span>
 </div>
-<div class="field"><label asp-for="IdentificacionFiscal">Identificación fiscal</label><input asp-for="IdentificacionFiscal" type="text" /><span asp-validation-for="IdentificacionFiscal" class="validation"></span>
+<div class="field"><label asp-for="TipoDocumento">Tipo de documento</label><select asp-for="TipoDocumento"><option value="SIN_ESPECIFICAR">Sin especificar</option><option value="CI">CI</option><option value="NIT">NIT</option><option value="OTRO">Otro</option></select></div>
+<div class="field"><label asp-for="IdentificacionFiscal">Número de documento (CI/NIT)</label><input asp-for="IdentificacionFiscal" type="text" maxlength="40" /><span asp-validation-for="IdentificacionFiscal" class="validation"></span>
 </div>
 <div class="field"><label asp-for="Direccion">Dirección</label><input asp-for="Direccion" type="text" /><span asp-validation-for="Direccion" class="validation"></span>
 </div>

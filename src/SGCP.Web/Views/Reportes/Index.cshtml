@@ -17,7 +17,7 @@
 <div class="field"><label for="hasta">Hasta</label><input id="hasta" name="hasta" type="date" value="@f.Hasta?.ToString("yyyy-MM-dd")"/></div>
 @if(Reportes.AdmiteProducto(tipo)&&Model.Productos.Count>0){<div class="field"><label for="productoId">Producto</label><select id="productoId" name="productoId"><option value="">Todos</option>@foreach(var p in Model.Productos){<option value="@p.Id" selected="@(p.Id==f.ProductoId)">@p.Nombre</option>}</select></div>
 <div class="field"><label for="clasificacionId">Corte o derivado</label><select id="clasificacionId" name="clasificacionId"><option value="">Todos</option>@foreach(var c in Model.Clasificaciones){<option value="@c.Id" selected="@(c.Id==f.ClasificacionId)">@c.Nombre</option>}</select></div>}
-@if(Reportes.AdmiteCliente(tipo)&&Model.Clientes.Count>0){<div class="field"><label for="clienteId">Cliente</label><select id="clienteId" name="clienteId"><option value="">Todos</option>@foreach(var c in Model.Clientes){<option value="@c.Id" selected="@(c.Id==f.ClienteId)">@c.Nombre</option>}</select></div>}
+@if(Reportes.AdmiteCliente(tipo)&&Model.Clientes.Count>0){<div class="field"><label for="clienteId">Cliente</label><select id="clienteId" name="clienteId"><option value="">Todos</option>@foreach(var c in Model.Clientes){<option value="@c.Id" selected="@(c.Id==f.ClienteId)">@c.Nombre · @(string.IsNullOrWhiteSpace(c.IdentificacionFiscal)?"Sin documento":c.IdentificacionFiscal)</option>}</select></div>}
 @if(Reportes.Estados(tipo).Length>0){<div class="field"><label for="estado">Estado</label><select id="estado" name="estado"><option value="">Todos</option>@foreach(var e in Reportes.Estados(tipo)){<option value="@e" selected="@(e==f.Estado)">@e.Replace('_',' ')</option>}</select></div>}
 <div class="form-actions wide"><a class="button secondary" href="/Reportes?tipo=@tipo">Quitar filtros</a><button class="button" type="submit">Consultar</button></div>
 </form>
@@ -30,8 +30,8 @@
 <p class="hint" id="generando" hidden role="status">Generando el archivo… puede tardar unos segundos. No hace falta volver a tocar el botón.</p>
 @if(tabla.Filas.Count==0){<p class="muted">No hay filas con estos filtros.</p>}else{<div class="table-wrap">
 <table>
-<thead><tr>@foreach(var c in tabla.Columnas){<th>@(Reportes.EsColumnaEntrega(tabla,c)?"Constancia":Reportes.Columna(c))</th>}</tr></thead>
-<tbody>@foreach(var fila in tabla.Filas){<tr>@for(var i=0;i<fila.Count&&i<tabla.Columnas.Count;i++){var enlace=Reportes.Constancia(tabla,fila,i);<td class="@(i==0||tabla.Columnas[i].EndsWith("Bs")||enlace is not null?"nowrap":"")">@if(enlace is not null){if(enlace.Length>0){<a href="@enlace">Descargar</a>}else{<span class="muted">—</span>}}else{@Reportes.Celda(tabla.Columnas[i],fila[i])}</td>}</tr>}</tbody>
+<thead><tr>@foreach(var c in tabla.Columnas){<th>@Reportes.Columna(c)</th>}@if(tabla.Constancias is not null){<th>Constancia</th>}</tr></thead>
+<tbody>@for(var n=0;n<tabla.Filas.Count;n++){var fila=tabla.Filas[n];<tr>@for(var i=0;i<fila.Count&&i<tabla.Columnas.Count;i++){<td class="@(i==0||tabla.Columnas[i].EndsWith("Bs")?"nowrap":"")">@Reportes.Celda(tabla.Columnas[i],fila[i])</td>}@if(tabla.Constancias is not null){<td>@if(n<tabla.Constancias.Count && tabla.Constancias[n] is Guid entrega){<a href="/Constancias/Entrega/@entrega">Descargar</a>}else{<span class="muted">—</span>}</td>}</tr>}</tbody>
 </table>
 </div>}
 </section>}

@@ -57,6 +57,7 @@ public class ClienteDto
     public string Telefono { get; set; } = "";
     public string Direccion { get; set; } = "";
     public string IdentificacionFiscal { get; set; } = "";
+    public string TipoDocumento { get; set; } = "SIN_ESPECIFICAR";
     public string CondicionHabitual { get; set; } = "CONTADO";
     public bool Activo { get; set; }
     public string Observaciones { get; set; } = "";

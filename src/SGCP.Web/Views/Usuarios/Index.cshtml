@@ -33,7 +33,7 @@
 <td><span class="badge">@x.Estado</span>
 </td>
 <td>@(x.UltimoAcceso is null?"Sin accesos":Hora.Mostrar(x.UltimoAcceso.Value))</td>
-<td class="row-actions">@if(User.HasClaim("permiso","usuarios.administrar")){<a asp-action="Formulario" asp-route-id="@x.Id">Editar</a><a asp-action="Estado" asp-route-id="@x.Id" asp-route-valor="@(x.Estado=="ACTIVO"?"DESHABILITADO":"ACTIVO")">@(x.Estado=="ACTIVO"?"Desactivar":"Habilitar")</a>}</td>
+<td class="row-actions">@if(User.HasClaim("permiso","usuarios.administrar") && AccesoPerfiles.PuedeGestionar(User,x)){<a asp-action="Formulario" asp-route-id="@x.Id">Editar</a><a asp-action="Estado" asp-route-id="@x.Id" asp-route-valor="@(x.Estado=="ACTIVO"?"DESHABILITADO":"ACTIVO")">@(x.Estado=="ACTIVO"?"Desactivar":"Habilitar")</a>}else{<span class="muted">Solo consulta</span>}</td>
 </tr>}</tbody>
 </table>
 </div>}

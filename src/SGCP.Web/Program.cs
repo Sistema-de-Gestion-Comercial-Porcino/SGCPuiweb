@@ -28,7 +28,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(o =>
 {
     foreach (var permiso in new[] { "usuarios.consultar",
-        "usuarios.administrar",
+        "usuarios.administrar", "auditoria.consultar",
         "clientes.consultar",
         "clientes.administrar",
         "catalogo.consultar",

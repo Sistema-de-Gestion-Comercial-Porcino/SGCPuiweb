@@ -11,6 +11,33 @@ public class TablaReporteDto
     public string Titulo { get; set; } = "";
     public List<string> Columnas { get; set; } = [];
     public List<List<JsonElement>> Filas { get; set; } = [];
+    public List<Guid?>? Constancias { get; set; }
+    /// <summary>Permite usar la web nueva con una API anterior sin mostrar GUID ni perder constancias.</summary>
+    public void Normalizar(IReadOnlyList<ClienteDto> clientes)
+    {
+        var entrega = Titulo == "Entregas" ? Columnas.IndexOf("Entrega") : -1;
+        if (entrega >= 0)
+        {
+            var estado = Columnas.IndexOf("Estado");
+            Constancias = Filas.Select(f => estado >= 0 && estado < f.Count && f[estado].GetString() == "ENTREGADA" &&
+                entrega < f.Count && f[entrega].ValueKind == JsonValueKind.String && Guid.TryParse(f[entrega].GetString(), out var id) ? (Guid?)id : null).ToList();
+            Columnas.RemoveAt(entrega);
+            foreach (var f in Filas) if (entrega < f.Count) f.RemoveAt(entrega);
+        }
+        var identificador = Titulo == "Clientes" ? Columnas.IndexOf("Id") : -1;
+        if (identificador >= 0)
+        {
+            Columnas[identificador] = "Documento (CI/NIT)";
+            var documentos = clientes.ToDictionary(c => c.Id, c => c.IdentificacionFiscal);
+            foreach (var f in Filas)
+                if (identificador < f.Count)
+                {
+                    var documento = f[identificador].ValueKind == JsonValueKind.String && Guid.TryParse(f[identificador].GetString(), out var id) &&
+                        documentos.TryGetValue(id, out var valor) && !string.IsNullOrWhiteSpace(valor) ? valor : "Sin registrar";
+                    f[identificador] = JsonSerializer.SerializeToElement(documento);
+                }
+        }
+    }
 }
 
 public class ComprobanteFiscalDto
@@ -112,22 +139,6 @@ public static class Reportes
 
     /// <summary>La API manda fechas en UTC y lo indica en el nombre de la columna; la pantalla las muestra en hora de Bolivia.</summary>
     public static string Columna(string c) => c.EndsWith(" UTC") ? c[..^4] + " (Bolivia)" : c;
-
-    /// <summary>En el reporte de entregas la API agrega la columna «Entrega» con el id, para pedir la constancia (API v4.1.1).</summary>
-    public static bool EsColumnaEntrega(TablaReporteDto tabla, string columna) => tabla.Titulo == "Entregas" && columna == "Entrega";
-
-    /// <summary>
-    /// null: la celda se muestra como dato. "": columna de constancia sin constancia (la entrega no está ENTREGADA).
-    /// Otro valor: enlace de descarga. La API vuelve a validar el permiso, el cliente del comprador y la recepción conforme.
-    /// </summary>
-    public static string? Constancia(TablaReporteDto tabla, List<JsonElement> fila, int i)
-    {
-        if (!EsColumnaEntrega(tabla, tabla.Columnas[i]))
-            return null;
-        var estado = tabla.Columnas.IndexOf("Estado");
-        var entregada = estado >= 0 && estado < fila.Count && fila[estado].ValueKind == JsonValueKind.String && fila[estado].GetString() == "ENTREGADA";
-        return entregada && fila[i].ValueKind == JsonValueKind.String && Guid.TryParse(fila[i].GetString(), out var id) ? "/Constancias/Entrega/" + id : "";
-    }
 
     public static string Celda(string columna, JsonElement valor)
     {

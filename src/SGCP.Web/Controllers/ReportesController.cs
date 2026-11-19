@@ -34,7 +34,12 @@ public class ReportesController(ReportesApi api) : GestionControllerBase
         {
             if (!m.Disponibles.Contains(filtro.Tipo))
                 return Forbid();
-            var error = await IntentarConCodigo(async () => m.Tabla = await api.Get<TablaReporteDto>($"reportes/{filtro.Tipo}{filtro.Consulta()}"));
+            var error = await IntentarConCodigo(async () =>
+            {
+                var ruta = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString($"reportes/{filtro.Tipo}{filtro.Consulta()}", "versionVista", "2");
+                m.Tabla = await api.Get<TablaReporteDto>(ruta);
+                m.Tabla.Normalizar(m.Clientes);
+            });
             m.Error = error?.Message;
         }
         return View(m);

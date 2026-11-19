@@ -34,6 +34,7 @@ public class UsuariosController(UsuariosApi api) : GestionControllerBase
         if (id is not null)
         {
             var u = await api.Get<UsuarioDto>("usuarios/" + id);
+            if (!AccesoPerfiles.PuedeGestionar(User, u)) return Forbid();
             m = new()
             {
                 Id = id,
@@ -44,7 +45,11 @@ public class UsuariosController(UsuariosApi api) : GestionControllerBase
                 Roles = u.Roles.Select(x => x.Id).ToList()
             };
         }
-        m.Disponibles = await api.Get<List<OpcionDto>>("roles");
+        m.Disponibles = (await api.Get<List<OpcionDto>>("roles"))
+            .Where(r => r.Nombre == "COMPRADOR" ? m.Roles.Contains(r.Id) :
+                AccesoPerfiles.EsRaiz(User) ||
+                (User.FindAll("rol").Select(x => AccesoPerfiles.Nivel(x.Value)).DefaultIfEmpty(0).Max() > AccesoPerfiles.Nivel(r.Nombre) &&
+                 (r.Nombre != "FINANZAS" || User.IsInRole("PROPIETARIO")))).ToList();
         return View(m);
     }
     [HttpPost, Authorize(Policy = "usuarios.administrar")]
@@ -64,19 +69,24 @@ public class UsuariosController(UsuariosApi api) : GestionControllerBase
                 new { m.Nombre, m.Login, m.Correo, m.Telefono, m.Clave, m.Roles });
         }))
         { Correcto("Usuario guardado. Los cambios de permisos requieren iniciar sesión nuevamente."); return RedirectToAction(nameof(Index)); }
-        m.Disponibles = await api.Get<List<OpcionDto>>("roles");
+        m.Disponibles = (await api.Get<List<OpcionDto>>("roles"))
+            .Where(r => r.Nombre == "COMPRADOR" ? m.Roles.Contains(r.Id) :
+                AccesoPerfiles.EsRaiz(User) ||
+                (User.FindAll("rol").Select(x => AccesoPerfiles.Nivel(x.Value)).DefaultIfEmpty(0).Max() > AccesoPerfiles.Nivel(r.Nombre) &&
+                 (r.Nombre != "FINANZAS" || User.IsInRole("PROPIETARIO")))).ToList();
         return View(m);
     }
     [Authorize(Policy = "usuarios.administrar")]
     public async Task<IActionResult> Estado(Guid id, string valor)
     {
         var u = await api.Get<UsuarioDto>("usuarios/" + id);
+        if (!AccesoPerfiles.PuedeGestionar(User, u)) return Forbid();
         return View("Confirmacion", new ConfirmacionViewModel
         {
             Id = id,
             Valor = valor,
             Titulo = valor == "ACTIVO" ? "Habilitar usuario" : "Desactivar usuario",
-            Mensaje = u.Nombre + " · " + u.Login + ". Se cerrarán sus sesiones. Se conserva su historial y debe permanecer un administrador habilitado.",
+            Mensaje = u.Nombre + " · " + u.Login + ". Se cerrarán sus sesiones. Se conserva su historial y debe permanecer un superadmin habilitado.",
             Volver = "/Usuarios"
         });
     }
