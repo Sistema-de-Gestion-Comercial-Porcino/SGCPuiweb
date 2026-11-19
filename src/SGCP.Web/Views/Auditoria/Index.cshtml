@@ -1,0 +1,7 @@
+@model Pagina<SGCP.Web.Controllers.AuditoriaDto>
+@{ ViewData["Title"] = "Auditoría"; ViewData["Pagina"] = Model.PaginaNumero; ViewData["TotalPaginas"] = Model.TotalPaginas; ViewData["TotalRegistros"] = Model.TotalRegistros; }
+<div class="page-head"><div><h1>Auditoría</h1><p>Historial de acciones del sistema. Solo consulta.</p></div></div>
+<section class="card"><div class="table-wrap"><table>
+<thead><tr><th>Fecha (Bolivia)</th><th>Usuario</th><th>Acción</th><th>Módulo</th></tr></thead>
+<tbody>@foreach(var r in Model.Elementos){<tr><td>@Hora.Mostrar(r.Fecha)</td><td>@r.Usuario</td><td>@r.Operacion.Replace('_',' ')</td><td>@r.Entidad</td></tr>}</tbody>
+</table></div><partial name="_Paginacion" /></section>

@@ -19,7 +19,7 @@
 {
     <aside class="sidebar" id="navegacion">
         <a href="/" class="brand" aria-label="SGCP, ir al resumen">
-            <span class="brand-mark" aria-hidden="true">S</span>
+            <span class="brand-mark" aria-hidden="true"><img src="~/images/sgcp-logo.png" asp-append-version="true" alt="" /></span>
             <span>SGCP<small>Gestión comercial porcino</small></span>
         </a>
         <nav aria-label="Principal">
@@ -108,6 +108,10 @@
                     <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#report"></use></svg><span>@(User.IsInRole("COMPRADOR") ? "Mis reportes" : "Reportes")</span>
                 </a>
             }
+            @if (User.HasClaim("permiso", "auditoria.consultar"))
+            {
+                <a href="/Auditoria" class="@(actual == "Auditoria" ? "active" : "")"><svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#report"></use></svg><span>Auditoría</span></a>
+            }
         </nav>
         <div class="sidebar-foot">
             <span><i class="status-dot"></i>Operación con conexión</span>
@@ -120,7 +124,7 @@
             <button type="button" class="menu-toggle" aria-label="Abrir navegación" aria-controls="navegacion" aria-expanded="false">
                 <svg class="icon" aria-hidden="true"><use href="/icons.svg#menu"></use></svg>
             </button>
-            <span class="workspace-name">@(User.IsInRole("COMPRADOR") ? "Portal del comprador" : "Gestión del negocio")</span>
+            <span class="workspace-name">@AccesoPerfiles.Espacio(User)</span>
             <div class="account">
                 <span class="avatar" aria-hidden="true">@(User.Identity?.Name?.FirstOrDefault())</span>
                 <span class="account-copy">@User.Identity?.Name<small>@string.Join(" · ", User.FindAll("rol").Select(x => x.Value.Replace('_', ' ')))</small></span>
@@ -137,7 +141,7 @@ else
 {
     <div class="auth-shell">
         <aside class="auth-brand">
-            <a href="/" class="brand"><span class="brand-mark">S</span><span>SGCP<small>Gestión comercial porcino</small></span></a>
+            <a href="/" class="brand"><span class="brand-mark"><img src="~/images/sgcp-logo.png" asp-append-version="true" alt="Logo SGCP" /></span><span>SGCP<small>Gestión comercial porcino</small></span></a>
             <div class="auth-story">
                 <span class="eyebrow">DEL ACUERDO AL PEDIDO</span>
                 <h1>Tu operación,<br />en buen orden.</h1>

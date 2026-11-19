@@ -9,7 +9,7 @@
         <h1>Todo a la vista</h1>
         <p>@Hora.Local(DateTime.UtcNow).ToString("dd 'de' MMMM 'de' yyyy", new CultureInfo("es-BO")) · Chanchería</p>
     </div>
-    <span class="tag">@(User.IsInRole("COMPRADOR") ? "Mi cuenta" : "Sprint 1 · Comercial")</span>
+    @if (User.IsInRole("COMPRADOR")) { <span class="tag">Mi cuenta</span> }
     <div class="trace-stamp" aria-hidden="true"><span>TRAZABILIDAD</span><svg class="stamp-icon"><use href="/icons.svg#pig"></use></svg><b>SGCP</b><i>SCZ · BOLIVIA</i></div>
 </div>
 

@@ -15,7 +15,7 @@
 <dd>@(string.IsNullOrEmpty(c.Direccion)?"Sin registrar":c.Direccion)</dd>
 </div>
 <div>
-<dt>Identificación fiscal</dt>
+<dt>Documento @(c.TipoDocumento == "SIN_ESPECIFICAR" ? "(CI/NIT)" : c.TipoDocumento)</dt>
 <dd>@(string.IsNullOrEmpty(c.IdentificacionFiscal)?"Sin registrar":c.IdentificacionFiscal)</dd>
 </div>
 <div>

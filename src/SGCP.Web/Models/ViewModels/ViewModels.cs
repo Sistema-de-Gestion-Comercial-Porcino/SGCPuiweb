@@ -60,6 +60,8 @@ public class UsuarioFormViewModel
 }
 public class ClienteFormViewModel
 {
+    [RegularExpression("CI|NIT|OTRO|SIN_ESPECIFICAR")]
+    public string TipoDocumento { get; set; } = "SIN_ESPECIFICAR";
     public Guid? Id { get; set; }
     [Required,
         MaxLength(120)]
