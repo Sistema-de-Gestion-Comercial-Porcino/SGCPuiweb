@@ -31,6 +31,10 @@ Abre `http://localhost:5080`. La configuración `Api:UrlBase` apunta a `http://l
 - Pedido confirmado desde cotización aceptada, importe, margen interno conservado y cancelación con motivo.
 - Portal del comprador limitado a su catálogo, cotizaciones y pedidos.
 
+**CU05 · Iniciar una compra:** el comprador entra a **Cotizaciones → Solicitar cotización**, selecciona productos y cantidades y envía la solicitud. Puede modificarla mientras esté pendiente de revisión. Ventas abre el borrador, completa precios y vigencia y lo presenta; el comprador acepta o rechaza, y Ventas confirma el pedido según CU06. También hay acceso desde Productos y el resumen del comprador.
+
+Requiere la API con `POST cotizaciones/solicitudes`, su migración `SolicitudCotizacionComprador` y el permiso `cotizaciones.solicitar`. Actualizar ambos repositorios y volver a iniciar sesión. El formulario y la solicitud pendiente muestran precio de referencia, subtotal y total estimados con el catálogo vigente; los productos sin precio figuran «Por cotizar». Ventas prepara la oferta y la presenta; entonces aparece «Aceptar cotización» para el comprador.
+
 La interfaz sigue la organización de los mockups: barra lateral, gestión comercial, formularios y seguimiento por estado. Se diseñó para escritorio y móvil. Los módulos de otros sprints aparecen pendientes para el personal y no ejecutan operaciones ficticias.
 
 Moneda Bs; cantidades siempre con unidad; fechas mostradas en hora de Bolivia (UTC−4). Al enviar se convierten a UTC. El costo de referencia no se muestra al comprador.

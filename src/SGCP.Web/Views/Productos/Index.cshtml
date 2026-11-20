@@ -4,6 +4,7 @@
 <div><span class="eyebrow">GESTIÓN COMERCIAL</span>
 <h1>Productos</h1>
 <p>Cortes, derivados e insumos con su presentación y unidad.</p>
+@if(User.IsInRole("COMPRADOR") && User.HasClaim("permiso","cotizaciones.solicitar")){<a class="button" href="/Cotizaciones/Solicitar">Solicitar cotización</a>}
 </div>
 <div class="actions">@if(User.HasClaim("permiso","catalogo.administrar")){<a class="button" asp-action="Formulario">+ Crear registro</a>}@if(User.HasClaim("permiso","catalogo.administrar")){<a class="button secondary" href="/Clasificaciones">Clasificaciones</a>}</div>
 </div>

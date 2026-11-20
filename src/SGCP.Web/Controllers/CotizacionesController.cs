@@ -22,7 +22,57 @@ public class CotizacionesController(CotizacionesApi api) : GestionControllerBase
                             pagina,
                             tamanoPagina))
             });
-    public async Task<IActionResult> Detalle(Guid id) => View(new FichaViewModel<CotizacionDto> { Datos = await api.Get<CotizacionDto>("cotizaciones/" + id) });
+    public async Task<IActionResult> Detalle(Guid id)
+    {
+        var c = await api.Get<CotizacionDto>("cotizaciones/" + id);
+        if (c.PendienteRevision)
+        {
+            var productos = await api.Todos<ProductoDto>("productos?activo=true");
+            foreach (var d in c.Detalles)
+                d.PrecioReferencia = productos.SingleOrDefault(p => p.Id == d.ProductoId)?.PrecioVigente?.PrecioVenta;
+        }
+        return View(new FichaViewModel<CotizacionDto> { Datos = c });
+    }
+    [Authorize(Policy = "cotizaciones.solicitar"), Authorize(Roles = "COMPRADOR")]
+    public async Task<IActionResult> Solicitar(Guid? id)
+    {
+        var m = new SolicitudCotizacionViewModel();
+        if (id is not null)
+        {
+            var c = await api.Get<CotizacionDto>("cotizaciones/" + id);
+            if (!c.PendienteRevision)
+            {
+                TempData["Error"] = "Ventas ya preparó esta cotización. Revisa la propuesta y registra tu respuesta.";
+                return RedirectToAction(nameof(Detalle), new { id });
+            }
+            m.Id = id;
+            m.Detalles = c.Detalles.Select(x => new DetalleSolicitudViewModel { ProductoId = x.ProductoId, Cantidad = x.Cantidad }).ToList();
+        }
+        m.Productos = await api.Todos<ProductoDto>("productos?activo=true");
+        return View(m);
+    }
+
+    [HttpPost, Authorize(Policy = "cotizaciones.solicitar"), Authorize(Roles = "COMPRADOR")]
+    public async Task<IActionResult> Solicitar(SolicitudCotizacionViewModel m)
+    {
+        Guid id = Guid.Empty;
+        if (ModelState.IsValid && await Intentar(async () =>
+        {
+            var cuerpo = new { detalles = m.Detalles.Select(x => new { x.ProductoId, x.Cantidad }) };
+            var r = m.Id is null ? await api.Post<CreadoDto>("cotizaciones/solicitudes", cuerpo)
+                : await api.Put<CreadoDto>($"cotizaciones/{m.Id}/solicitud", cuerpo);
+            id = r.Id;
+        }))
+        {
+            Correcto("Solicitud enviada a Ventas. Podrás aceptar la cotización cuando te presenten los precios y condiciones.");
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+        m.Productos = await api.Todos<ProductoDto>("productos?activo=true");
+        m.Detalles ??= [];
+        if (m.Detalles.Count == 0) m.Detalles.Add(new());
+        return View(m);
+    }
+
     private async Task Cargar(CotizacionFormViewModel m) { m.Clientes = await api.Todos<ClienteDto>("clientes?activo=true"); m.Productos = await api.Todos<ProductoDto>("productos?activo=true"); }
     [Authorize(Policy = "cotizaciones.administrar")]
     public async Task<IActionResult> Formulario(Guid? id)
@@ -36,18 +86,21 @@ public class CotizacionesController(CotizacionesApi api) : GestionControllerBase
                 Id = id,
                 ClienteId = c.ClienteId,
                 Canal = c.Canal,
-                VigenteHasta = Hora.Local(c.VigenteHasta),
+                VigenteHasta = Hora.Local(c.VigenteHasta ?? DateTime.UtcNow.AddDays(1)),
                 Detalles = c.Detalles.Select(x => new DetalleFormViewModel
                 {
                     ProductoId = x.ProductoId,
                     Cantidad = x.Cantidad,
                     Unidad = x.Unidad,
-                    PrecioUnitario = x.PrecioUnitario
+                    PrecioUnitario = x.PrecioUnitario ?? 0
                 })
                     .ToList()
             };
         }
         await Cargar(m);
+        if (id is not null)
+            foreach (var d in m.Detalles.Where(x => x.PrecioUnitario == 0))
+                d.PrecioUnitario = m.Productos.SingleOrDefault(x => x.Id == d.ProductoId)?.PrecioVigente?.PrecioVenta ?? 0;
         return View(m);
     }
     [HttpPost, Authorize(Policy = "cotizaciones.administrar")]
@@ -82,7 +135,7 @@ public class CotizacionesController(CotizacionesApi api) : GestionControllerBase
             Id = id,
             Valor = valor,
             Accion = "Responder",
-            Titulo = valor == "aceptar" ? "Registrar aceptación" : "Registrar rechazo o cambios",
+            Titulo = valor == "aceptar" ? (User.IsInRole("COMPRADOR") ? "Aceptar cotización" : "Registrar aceptación") : "Registrar rechazo o cambios",
             Mensaje = c.Codigo + " · " + c.Cliente + ". La respuesta se conservará en el historial. Rechazar no crea un pedido.",
             MotivoRequerido = valor != "aceptar",
             Volver = "/Cotizaciones/Detalle/" + id

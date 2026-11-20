@@ -33,6 +33,7 @@
   costo?.addEventListener('input', actualizarMargen); precio?.addEventListener('input', actualizarMargen); actualizarMargen();
   document.querySelectorAll('form[method="post"]').forEach(form => form.addEventListener('submit', () => { const button = form.querySelector('button[type="submit"], button:not([type])'); if (button && form.checkValidity()) { setTimeout(() => { button.disabled = true; button.textContent = 'Procesando…'; }, 0); } }));
 })();
+
 // Sprint 2 · editores de filas genéricos (previsiones y resultados de producción) y neto del pesaje.
 (() => {
   function renumerar(cuerpo) {
@@ -71,4 +72,36 @@
   const tipo = document.getElementById('tipo-orden'), campoAnimal = document.getElementById('campo-animal');
   function mostrarAnimal() { if (tipo && campoAnimal) campoAnimal.hidden = tipo.value !== 'FAENEO'; }
   tipo?.addEventListener('change', mostrarAnimal); mostrarAnimal();
+})();
+// CU05: importes orientativos del catálogo, sin enviar precios ni costos en la solicitud.
+(() => {
+  const cuerpo = document.getElementById('solicitud-detalles');
+  const total = document.getElementById('total-solicitud');
+  if (!cuerpo || !total) return;
+  const moneda = n => `Bs ${n.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  function actualizar() {
+    let suma = 0, completo = true, porCotizar = false;
+    [...cuerpo.children].forEach(fila => {
+      const select = fila.querySelector('select');
+      const opcion = select.selectedOptions[0];
+      const cantidad = Number(fila.querySelector('[data-prop="Cantidad"]').value);
+      const valor = opcion?.dataset.precio;
+      const precio = valor == null || valor === '' ? null : Number(valor);
+      const elegido = Boolean(select.value);
+      fila.querySelector('[data-prop="Unidad"]').value = opcion?.dataset.unidad || '';
+      fila.querySelector('[data-precio-solicitud]').textContent = elegido ? (precio == null ? 'Por cotizar' : moneda(precio)) : 'Selecciona un producto';
+      const valido = elegido && precio != null && Number.isFinite(precio) && Number.isFinite(cantidad) && cantidad > 0;
+      const subtotal = valido ? Math.round((precio * cantidad + Number.EPSILON) * 100) / 100 : null;
+      fila.querySelector('[data-subtotal-solicitud]').textContent = subtotal == null ? (elegido && precio == null ? 'Por cotizar' : '—') : moneda(subtotal);
+      completo &&= valido;
+      porCotizar ||= elegido && precio == null;
+      suma += subtotal ?? 0;
+    });
+    total.textContent = completo ? moneda(suma) : porCotizar ? 'Hay productos por cotizar' : 'Selecciona productos y cantidades';
+  }
+  cuerpo.addEventListener('input', actualizar);
+  cuerpo.addEventListener('change', actualizar);
+  cuerpo.addEventListener('click', e => { if (e.target.closest('.remove-row')) actualizar(); });
+  document.querySelector('[data-agregar-fila="solicitud-detalles"]')?.addEventListener('click', actualizar);
+  actualizar();
 })();

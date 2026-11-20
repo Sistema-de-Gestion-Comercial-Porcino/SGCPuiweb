@@ -9,7 +9,8 @@
         <h1>Todo a la vista</h1>
         <p>@Hora.Local(DateTime.UtcNow).ToString("dd 'de' MMMM 'de' yyyy", new CultureInfo("es-BO")) · Chanchería</p>
     </div>
-    @if (User.IsInRole("COMPRADOR")) { <span class="tag">Mi cuenta</span> }
+    @if (User.IsInRole("COMPRADOR")) { <span class="tag">Mi cuenta</span>
+        @if(User.HasClaim("permiso", "cotizaciones.solicitar")){<a class="button" href="/Cotizaciones/Solicitar">Solicitar cotización</a>} }
     <div class="trace-stamp" aria-hidden="true"><span>TRAZABILIDAD</span><svg class="stamp-icon"><use href="/icons.svg#pig"></use></svg><b>SGCP</b><i>SCZ · BOLIVIA</i></div>
 </div>
 

@@ -5,7 +5,7 @@
 <h1>Cotizaciones</h1>
 <p>Primero el acuerdo. Después, el pedido.</p>
 </div>
-<div class="actions">@if(User.HasClaim("permiso","cotizaciones.administrar")){<a class="button" asp-action="Formulario">+ Crear registro</a>}</div>
+<div class="actions">@if(User.IsInRole("COMPRADOR") && User.HasClaim("permiso","cotizaciones.solicitar")){<a class="button" asp-action="Solicitar">+ Solicitar cotización</a>}else if(User.HasClaim("permiso","cotizaciones.administrar")){<a class="button" asp-action="Formulario">+ Crear registro</a>}</div>
 </div>
 <section class="card">
 <form method="get" class="filters">
@@ -14,7 +14,7 @@
 </form>
 @if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">⌕</span>
 <h3>No hay registros para mostrar</h3>
-<p>Prueba otra búsqueda o crea el primer registro si tienes permiso.</p>
+<p>@(User.IsInRole("COMPRADOR") ? "Solicita una cotización para iniciar tu compra." : "Prueba otra búsqueda o prepara una cotización para un cliente.")</p>
 </div>}else{<div class="table-wrap">
 <table>
 <thead>
@@ -33,7 +33,7 @@
 <td>@x.Cliente</td>
 <td>@Hora.Mostrar(x.Fecha)</td>
 <td>@Hora.Mostrar(x.VigenteHasta)</td>
-<td><span class="badge">@x.Estado</span>
+<td><span class="badge">@(x.PendienteRevision ? "PENDIENTE DE REVISIÓN" : x.Estado)</span>
 </td>
 <td><a asp-action="Detalle" asp-route-id="@x.Id">Abrir →</a>
 </td>

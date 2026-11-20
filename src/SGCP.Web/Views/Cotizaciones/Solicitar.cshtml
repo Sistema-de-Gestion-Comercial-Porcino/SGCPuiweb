@@ -1,0 +1,43 @@
+@model SolicitudCotizacionViewModel
+@{ ViewData["Title"] = Model.Id is null ? "Solicitar cotización" : "Modificar solicitud"; }
+<div class="page-head">
+    <div><span class="eyebrow">MI COMPRA</span><h1>@ViewData["Title"]</h1>
+        <p>Selecciona productos y cantidades. Ventas revisará tu solicitud y te presentará la cotización para que puedas aceptarla.</p></div>
+</div>
+<section class="card">
+    <form method="post">
+        <div asp-validation-summary="All" class="validation" role="alert"></div>
+        <input asp-for="Id" type="hidden" />
+        @if (Model.Productos.Count == 0)
+        { <div class="notice">No hay productos disponibles para solicitar en este momento.</div> }
+        <div class="section-heading"><h2>Productos solicitados</h2>
+            <button type="button" class="button secondary small" data-agregar-fila="solicitud-detalles">+ Agregar producto</button></div>
+        <div class="table-wrap"><table class="detail-editor">
+            <thead><tr><th>Producto</th><th>Cantidad</th><th>Unidad</th><th>Precio de referencia</th><th>Subtotal estimado</th><th></th></tr></thead>
+            <tbody id="solicitud-detalles" data-filas="Detalles">
+                @for (var i = 0; i < Model.Detalles.Count; i++)
+                {
+                    var d = Model.Detalles[i];
+                    <tr>
+                        <td><select name="Detalles[@i].ProductoId" data-prop="ProductoId" aria-label="Producto" required>
+                            <option value="">Seleccionar producto…</option>
+                            @foreach (var p in Model.Productos)
+                            { <option value="@p.Id" data-unidad="@p.UnidadVenta" data-precio="@p.PrecioVigente?.PrecioVenta.ToString(CultureInfo.InvariantCulture)" selected="@(d.ProductoId == p.Id)">@p.Nombre · @p.Presentacion</option> }
+                        </select></td>
+                        <td><input name="Detalles[@i].Cantidad" data-prop="Cantidad" type="number"
+                            value="@d.Cantidad.ToString(CultureInfo.InvariantCulture)" min="0.001" max="999999.999" step="0.001" aria-label="Cantidad" required /></td>
+                        <td><input data-prop="Unidad" value="@Model.Productos.FirstOrDefault(p => p.Id == d.ProductoId)?.UnidadVenta" aria-label="Unidad de venta" readonly /></td>
+                        <td><output data-precio-solicitud>Selecciona un producto</output></td>
+                        <td><output data-subtotal-solicitud>—</output></td>
+                        <td><button type="button" class="remove-row" aria-label="Quitar producto">×</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table></div>
+        <div class="total-row"><span>Total estimado</span><strong><output id="total-solicitud">Selecciona productos y cantidades</output></strong></div>
+        <p class="hint">Los importes usan los precios vigentes del catálogo como referencia. Ventas confirmará los precios y la vigencia antes de que aceptes. Los productos sin precio se muestran «Por cotizar».</p>
+        <p class="hint">Después de enviar: Ventas presenta la cotización → tú la aceptas → Ventas confirma el pedido. La solicitud no reserva productos.</p>
+        <div class="form-actions"><a class="button secondary" href="/Cotizaciones">Cancelar</a>
+            <button type="submit" class="button" disabled="@(Model.Productos.Count == 0)">Enviar solicitud</button></div>
+    </form>
+</section>
