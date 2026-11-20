@@ -173,6 +173,7 @@ public class FichaViewModel<T>
 public class ResumenViewModel { public ResumenDto Datos { get; set; } = new(); }
 public static class Hora
 {
+    public static string Mostrar(DateTime? utc) => utc is DateTime fecha ? Mostrar(fecha) : "Pendiente de revisión";
     public static DateTime Local(DateTime utc) => DateTime.SpecifyKind(utc,
         DateTimeKind.Utc).AddHours(-4); public static DateTime Utc(DateTime local) => DateTime.SpecifyKind(local.AddHours(4),
         DateTimeKind.Utc); public static string Mostrar(DateTime utc) => Local(utc).ToString("dd/MM/yyyy HH:mm");

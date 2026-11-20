@@ -101,8 +101,11 @@ public class DetalleCotizacionDto
     public string Producto { get; set; } = "";
     public decimal Cantidad { get; set; }
     public string Unidad { get; set; } = "kg";
-    public decimal PrecioUnitario { get; set; }
-    public decimal Subtotal { get; set; }
+    public decimal? PrecioUnitario { get; set; }
+    public decimal? Subtotal { get; set; }
+    public decimal? PrecioReferencia { get; set; }
+    public decimal? SubtotalReferencia => PrecioReferencia is decimal precio
+        ? decimal.Round(Cantidad * precio, 2, MidpointRounding.AwayFromZero) : null;
 }
 public class CotizacionDto
 {
@@ -111,7 +114,8 @@ public class CotizacionDto
     public int Version { get; set; }
     public string Estado { get; set; } = "BORRADOR";
     public DateTime Fecha { get; set; }
-    public DateTime VigenteHasta { get; set; }
+    public DateTime? VigenteHasta { get; set; }
+    public bool PendienteRevision => Estado == "BORRADOR" && VigenteHasta is null;
     public string Canal { get; set; } = "LOCAL";
     public Guid ClienteId { get; set; }
     public string Cliente { get; set; } = "";
@@ -119,7 +123,9 @@ public class CotizacionDto
     public Guid? CotizacionOrigenId { get; set; }
     public Guid? PedidoId { get; set; }
     public CotizacionDto? VersionPosterior { get; set; }
-    public decimal Total { get; set; }
+    public decimal? Total { get; set; }
+    public decimal? TotalReferencia => Detalles.Count > 0 && Detalles.All(x => x.SubtotalReferencia.HasValue)
+        ? Detalles.Sum(x => x.SubtotalReferencia ?? 0) : null;
     public List<DetalleCotizacionDto> Detalles { get; set; } = []
     ;
 }

@@ -85,7 +85,7 @@ public class PedidosController(PedidosApi api) : GestionControllerBase
             CotizacionId = cotizacionId,
             Codigo = c.Codigo,
             Cliente = c.Cliente,
-            Total = c.Total
+            Total = c.Total ?? 0
         });
     }
     [HttpPost, Authorize(Policy = "pedidos.administrar")]

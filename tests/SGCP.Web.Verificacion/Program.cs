@@ -27,4 +27,13 @@ Check(actual.Constancias![0]==entregaId && actual.Columnas.Count==2, "Contrato n
 ClaimsPrincipal Actor(params string[] roles) => new(new ClaimsIdentity(roles.Select(r=>new Claim("rol",r)),"test","name","rol"));
 Check(AccesoPerfiles.PuedeGestionar(Actor("ADMINISTRACION"),new UsuarioDto {Roles=[new(){Nombre="VENTAS"}]}), "Web nueva conserva gestión al consumir la API anterior");
 Check(!AccesoPerfiles.PuedeGestionar(Actor("ADMINISTRADOR"),new UsuarioDto {Roles=[new(){Nombre="PROPIETARIO"}]}), "Administrador no puede gestionar propietario");
+var jsonWeb = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+var oferta = JsonSerializer.Deserialize<CotizacionDto>("""{"estado":"PRESENTADA","vigenteHasta":"2026-11-21T12:00:00Z","total":12.50,"detalles":[{"precioUnitario":5,"subtotal":12.50}]}""", jsonWeb)!;
+Check(!oferta.PendienteRevision && oferta.Total == 12.50m && oferta.Detalles[0].PrecioUnitario == 5m, "Contrato anterior de cotización preparada conserva sus importes");
+var solicitud = JsonSerializer.Deserialize<CotizacionDto>("""{"estado":"BORRADOR","vigenteHasta":null,"total":null,"detalles":[{"precioUnitario":null,"subtotal":null}]}""", jsonWeb)!;
+Check(solicitud.PendienteRevision && solicitud.Total is null && solicitud.Detalles[0].PrecioUnitario is null, "Solicitud sin preparar admite fechas e importes pendientes");
+solicitud.Detalles = [new() { Cantidad = 2.5m, PrecioReferencia = 5m }];
+Check(solicitud.TotalReferencia == 12.50m && solicitud.Total is null, "Precio de catálogo muestra estimación sin convertirla en oferta aceptable");
+solicitud.Detalles.Add(new() { Cantidad = 1m });
+Check(solicitud.TotalReferencia is null, "Producto sin precio no se suma como si fuera gratuito");
 Console.WriteLine($"RESULTADO WEB: {numero} comprobaciones de compatibilidad correctas.");

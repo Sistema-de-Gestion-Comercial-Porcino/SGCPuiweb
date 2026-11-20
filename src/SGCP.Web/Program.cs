@@ -36,6 +36,7 @@ builder.Services.AddAuthorization(o =>
         "costos.consultar",
         "costos.administrar",
         "cotizaciones.consultar",
+        "cotizaciones.solicitar",
         "cotizaciones.administrar",
         "cotizaciones.responder",
         "pedidos.consultar",
