@@ -36,4 +36,23 @@ solicitud.Detalles = [new() { Cantidad = 2.5m, PrecioReferencia = 5m }];
 Check(solicitud.TotalReferencia == 12.50m && solicitud.Total is null, "Precio de catálogo muestra estimación sin convertirla en oferta aceptable");
 solicitud.Detalles.Add(new() { Cantidad = 1m });
 Check(solicitud.TotalReferencia is null, "Producto sin precio no se suma como si fuera gratuito");
+// Sprint 5 · P1 · reservas, incidencias y movimientos
+var detA = new DetalleOperativoDto { Id = Guid.NewGuid(), Producto = "Lomo de cerdo", CantidadConfirmada = 5m, Unidad = "kg" };
+var detB = new DetalleOperativoDto { Id = Guid.NewGuid(), Producto = "Costilla de cerdo", CantidadConfirmada = 2.5m, Unidad = "kg" };
+var pedidoOp = new PedidoOperativoDto { Id = Guid.NewGuid(), Codigo = "PED-001", Detalles = [detA, detB] };
+var reservas = new List<ReservaDto> {
+    new() { DetallePedidoId = detA.Id, Cantidad = 2m, Estado = "ACTIVA" },
+    new() { DetallePedidoId = detA.Id, Cantidad = 3m, Estado = "LIBERADA" },
+    new() { DetallePedidoId = detB.Id, Cantidad = 2.5m, Estado = "ACTIVA" } };
+var cola = PedidoPorPreparar.Armar([pedidoOp], reservas);
+Check(cola[0].Detalles[0].Reservado == 2m && cola[0].Detalles[0].Falta == 3m, "Una reserva liberada no cuenta como reservada");
+Check(cola[0].Detalles[1].Completo && !cola[0].Completo, "El pedido queda completo solo cuando todos sus productos están reservados");
+var sobre = PedidoPorPreparar.Armar([pedidoOp], [new() { DetallePedidoId = detB.Id, Cantidad = 9m, Estado = "ACTIVA" }]);
+Check(sobre[0].Detalles[1].Falta == 0m, "Lo que falta reservar nunca es negativo");
+var rechazado = new AnimalDto { Id = Guid.NewGuid(), Identificacion = "CERDO-002" };
+var vistaInc = new IncidenciasViewModel { Animales = new() { [rechazado.Id] = rechazado } };
+Check(vistaInc.Origen(new IncidenciaDto { AnimalId = rechazado.Id }) == "Animal CERDO-002", "La incidencia muestra el animal por su identificación, no por su GUID");
+var incApi = JsonSerializer.Deserialize<IncidenciaDto>("""{"id":"098e7092-907e-4956-9d67-6ed5f294e43d","loteId":null,"animalId":"deaf9920-0ddc-4593-9eef-67fad8531710","motivo":"Fiebre al ingreso","resuelta":false,"resolucion":"","resueltaEn":null}""", jsonWeb)!;
+Check(incApi.AnimalId is not null && incApi.LoteId is null && !incApi.Resuelta && incApi.ResueltaEn is null, "Contrato de GET incidencias");
+Check(MovimientosViewModel.Tipo("ANULACION_ENTRADA") == "Anulación de entrada" && MovimientosViewModel.Tipo("OTRO") == "OTRO", "Tipos de movimiento legibles, sin perder los desconocidos");
 Console.WriteLine($"RESULTADO WEB: {numero} comprobaciones de compatibilidad correctas.");

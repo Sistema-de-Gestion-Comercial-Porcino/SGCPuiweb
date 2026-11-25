@@ -1,0 +1,30 @@
+@model MovimientosViewModel
+@{var e=Model.Existencia;ViewData["Title"]="Movimientos de "+e.Lote;ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+<div class="page-head">
+<div><span class="eyebrow">ALMACÉN · TRAZABILIDAD</span>
+<h1>@e.Producto · lote @e.Lote</h1>
+<p>Cada cambio de la cantidad física, con su responsable. Las reservas no cambian la cantidad física: se ven en Reservada.</p>
+</div>
+<div class="actions"><a class="button secondary" asp-action="Existencias">Volver a Existencias</a></div>
+</div>
+<section class="card">
+<dl class="facts">
+<div><dt>Física apta</dt><dd>@e.CantidadFisica.ToString("0.###") @e.Unidad</dd></div>
+<div><dt>Reservada</dt><dd>@e.Reservada.ToString("0.###") @e.Unidad</dd></div>
+<div><dt>Disponible</dt><dd class="strong">@e.Disponible.ToString("0.###") @e.Unidad</dd></div>
+<div><dt>Estado</dt><dd><span class="badge @(e.Estado=="APTO"?"":"danger")">@e.Estado</span></dd></div>
+</dl>
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><h3>Sin movimientos</h3><p>Todavía no hubo entradas, consumos ni despachos de este lote.</p></div>}else{
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fecha</th><th>Movimiento</th><th>Cantidad</th><th>Responsable</th><th>Motivo</th></tr></thead>
+<tbody>@foreach(var m in Model.Datos.Elementos){<tr>
+<td>@Hora.Mostrar(m.Fecha)</td>
+<td>@MovimientosViewModel.Tipo(m.Tipo)</td>
+<td class="strong">@(m.Cantidad>0?"+":"")@m.Cantidad.ToString("0.###") @e.Unidad</td>
+<td>@SGCP.Web.Services.Nombres.Responsable(Model.Nombres,m.ResponsableId)</td>
+<td>@(string.IsNullOrWhiteSpace(m.Motivo)?"—":m.Motivo)</td>
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>

@@ -566,3 +566,10 @@ output#margen-preview, output#peso-neto { display: block; padding-top: 10px; fon
 }
 /* Sprint 4: en ventana angosta los botones de descarga bajan de linea en vez de salirse. */
 .section-heading.wrap { flex-wrap: wrap; }
+
+/* Sprint 5 · P1 · pedidos por preparar y reservas */
+.pedido-preparar { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 18px; }
+.pedido-preparar:first-of-type { border-top: 0; margin-top: 8px; padding-top: 0; }
+ul.plain { list-style: none; margin: 0; padding: 0; }
+ul.plain li + li { margin-top: 8px; }
+ul.plain small { display: block; }

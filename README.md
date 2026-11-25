@@ -140,6 +140,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v5.1.0 | 2026-11-25 | 5 | Pantallas de Almacén «Pedidos por preparar» (reservar y liberar con motivo; desbloquea preparar la entrega desde la web), «Movimientos» por existencia e «Incidencias» con resolver; el detalle del pedido enlaza a las reservas | Dario Haziel Tambo Parra |
 | v4.2.3 | 2026-11-17 | 4 | Corrección: con la API v4.1.1, Ventas revisa conflictos de recepción y descarga la constancia desde el pedido; el comprador la descarga desde «Mis reportes» | Angel Sebastian Eguez Mur |
 | v4.2.2 | 2026-11-17 | 4 | Corrección: en ventana angosta los botones «Descargar PDF / Excel» de reportes bajan de línea en vez de salirse de la pantalla | Angel Sebastian Eguez Mur |
 | v4.2.1 | 2026-11-17 | 4 | Corrección: el Sprint 4 se integra con `main` (no había entrado porque el PR #3 se fusionó a la rama del Sprint 3) y el menú «Reportes» se adapta al rediseño visual | Angel Sebastian Eguez Mur |

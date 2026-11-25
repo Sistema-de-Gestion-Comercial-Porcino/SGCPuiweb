@@ -5,7 +5,7 @@
 <h1>Existencias</h1>
 <p>Stock físico por producto y lote. Disponible = física apta − reservada.</p>
 </div>
-<div class="actions">@if(User.HasClaim("permiso","inventario.administrar")){<a class="button secondary" asp-action="Pesajes">Pesajes</a><a class="button secondary" asp-action="Entradas">Entradas físicas</a>}</div>
+<div class="actions">@if(User.HasClaim("permiso","inventario.administrar")){<a class="button secondary" asp-action="Pedidos">Pedidos por preparar</a><a class="button secondary" asp-action="Pesajes">Pesajes</a><a class="button secondary" asp-action="Entradas">Entradas físicas</a>}</div>
 </div>
 <section class="card">
 <form method="get" class="filters">
@@ -16,7 +16,7 @@
 <p>El stock solo aparece cuando almacén confirma la entrada física de un lote pesado. Las órdenes planificadas no suman aquí.</p>
 </div>}else{<div class="table-wrap">
 <table>
-<thead><tr><th>Producto</th><th>Lote</th><th>Ubicación</th><th>Física apta</th><th>Reservada</th><th>Disponible</th><th>Estado</th></tr></thead>
+<thead><tr><th>Producto</th><th>Lote</th><th>Ubicación</th><th>Física apta</th><th>Reservada</th><th>Disponible</th><th>Estado</th><th>Historial</th></tr></thead>
 <tbody>@foreach(var x in Model.Datos.Elementos){var vencido=x.Vencimiento<=DateTime.UtcNow;var apto=x.Estado=="APTO"&&!vencido;<tr>
 <td class="strong">@x.Producto</td>
 <td>@x.Lote<small>Vence @Hora.Mostrar(x.Vencimiento)</small></td>
@@ -25,6 +25,7 @@
 <td>@x.Reservada.ToString("0.###") @x.Unidad</td>
 <td class="strong">@x.Disponible.ToString("0.###") @x.Unidad<small>@(apto?x.CantidadFisica.ToString("0.###")+" − "+x.Reservada.ToString("0.###"):"No disponible")</small></td>
 <td><span class="badge @(apto?"":"danger")">@(vencido?"VENCIDO":x.Estado)</span></td>
+<td><a class="text-link" asp-action="Movimientos" asp-route-id="@x.Id">Movimientos</a></td>
 </tr>}</tbody>
 </table>
 </div>}

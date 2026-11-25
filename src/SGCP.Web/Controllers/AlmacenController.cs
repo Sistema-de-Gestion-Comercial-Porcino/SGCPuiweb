@@ -109,6 +109,114 @@ public class AlmacenController(InventarioApi api) : GestionControllerBase
         return RedirectToAction(nameof(Entradas));
     }
 
+    // ---------- Sprint 5 · P1 · Reservas (CU09 «Reservar o liberar») ----------
+    // Sin reserva completa la API no deja preparar ni despachar la entrega (PEDIDO_INCOMPLETO).
+
+    /// <summary>Cola de pedidos confirmados que todavía no salieron, con lo reservado y lo que falta por detalle.</summary>
+    [Authorize(Policy = "inventario.administrar")]
+    public async Task<IActionResult> Pedidos(bool soloPendientes = true)
+    {
+        var pedidos = PedidoPorPreparar.Armar(
+            (await api.Todos<PedidoOperativoDto>("pedidos-operativos")).OrderBy(x => x.FechaComprometida),
+            await api.Todos<ReservaDto>("reservas"));
+        return View(new PedidosPorPrepararViewModel
+        {
+            Pedidos = soloPendientes ? pedidos.Where(x => !x.Completo).ToList() : pedidos,
+            Existencias = (await api.Todos<ExistenciaDto>("existencias")).ToDictionary(x => x.Id),
+            Nombres = await Nombres.Usuarios(api, User),
+            SoloPendientes = soloPendientes
+        });
+    }
+
+    [Authorize(Policy = "inventario.administrar")]
+    public async Task<IActionResult> Reservar(Guid pedidoId, Guid detalleId)
+    {
+        var m = await Completar(new ReservaFormViewModel { PedidoId = pedidoId, DetallePedidoId = detalleId });
+        if (m is null)
+            return NotFound();
+        m.Cantidad = Math.Min(m.Falta, m.Existencias.FirstOrDefault()?.Disponible ?? m.Falta);
+        return View(m);
+    }
+
+    [HttpPost, Authorize(Policy = "inventario.administrar")]
+    public async Task<IActionResult> Reservar(ReservaFormViewModel m)
+    {
+        if (ModelState.IsValid && await Intentar(async () => await api.Post<CreadoDto>("reservas", new
+        {
+            m.DetallePedidoId,
+            ExistenciaId = m.ExistenciaId!.Value,
+            m.Cantidad
+        })))
+        {
+            Correcto($"Reservados {m.Cantidad:0.###} {m.Unidad} de {m.Producto} para {m.Pedido}. Ya no figuran como disponibles en Existencias.");
+            return Redirect($"/Almacen/Pedidos#pedido-{m.PedidoId}");
+        }
+        var completo = await Completar(m);
+        return completo is null ? NotFound() : View(completo);
+    }
+
+    [Authorize(Policy = "inventario.administrar")]
+    public IActionResult Liberar(Guid id, Guid pedidoId) => View("Confirmacion", new ConfirmacionViewModel
+    {
+        Id = id,
+        Valor = pedidoId.ToString(),
+        Accion = "Liberar",
+        Titulo = "Liberar reserva",
+        Mensaje = "La cantidad vuelve a estar disponible y el pedido queda pendiente de preparación. La reserva se conserva en el historial con su motivo.",
+        MotivoRequerido = true,
+        Volver = $"/Almacen/Pedidos#pedido-{pedidoId}"
+    });
+
+    [HttpPost, Authorize(Policy = "inventario.administrar")]
+    public async Task<IActionResult> Liberar(ConfirmacionViewModel m)
+    {
+        if (string.IsNullOrWhiteSpace(m.Motivo))
+            ModelState.AddModelError(nameof(m.Motivo), "Registra el motivo.");
+        if (!ModelState.IsValid || !await Intentar(async () => await api.Post<object>($"reservas/{m.Id}/liberar", new { m.Motivo })))
+            return View("Confirmacion", m);
+        Correcto("Reserva liberada; la cantidad volvió a estar disponible.");
+        return Redirect($"/Almacen/Pedidos?soloPendientes=true#pedido-{m.Valor}");
+    }
+
+    private async Task<ReservaFormViewModel?> Completar(ReservaFormViewModel m)
+    {
+        var pedido = (await api.Todos<PedidoOperativoDto>("pedidos-operativos")).FirstOrDefault(x => x.Id == m.PedidoId);
+        var detalle = pedido?.Detalles.FirstOrDefault(x => x.Id == m.DetallePedidoId);
+        if (pedido is null || detalle is null)
+            return null;
+        m.Pedido = pedido.Codigo;
+        m.Cliente = pedido.Cliente;
+        m.Producto = detalle.Producto;
+        m.Unidad = detalle.Unidad;
+        m.Confirmada = detalle.CantidadConfirmada;
+        var reservas = (await api.Todos<ReservaDto>($"reservas?detallePedidoId={detalle.Id}")).Where(x => x.Estado != "LIBERADA").ToList();
+        m.Reservado = reservas.Sum(x => x.Cantidad);
+        // La API admite una sola reserva activa por detalle y existencia (IX_Reservas_DetalleActivo_ExistenciaId):
+        // un lote que ya tiene reserva activa para este producto no se ofrece de nuevo.
+        var conReserva = reservas.Where(x => x.Estado == "ACTIVA").Select(x => x.ExistenciaId).ToHashSet();
+        var aptas = (await api.Todos<ExistenciaDto>($"existencias?productoId={detalle.ProductoId}"))
+            .Where(x => x.Estado == "APTO" && x.Disponible > 0 && x.Vencimiento > DateTime.UtcNow)
+            .OrderBy(x => x.Vencimiento).ToList();
+        m.LotesYaReservados = aptas.Where(x => conReserva.Contains(x.Id)).Select(x => x.Lote).ToList();
+        m.Existencias = aptas.Where(x => !conReserva.Contains(x.Id)).ToList();
+        return m;
+    }
+
+    // ---------- Sprint 5 · P1 · Movimientos de stock (RNF-06) ----------
+
+    public async Task<IActionResult> Movimientos(Guid id, int pagina = 1, int tamanoPagina = 20)
+    {
+        var existencia = (await api.Todos<ExistenciaDto>("existencias")).FirstOrDefault(x => x.Id == id);
+        if (existencia is null)
+            return NotFound();
+        return View(new MovimientosViewModel
+        {
+            Existencia = existencia,
+            Datos = await api.Get<Pagina<MovimientoStockDto>>($"movimientos-stock?existenciaId={id}&pagina={pagina}&tamanoPagina={tamanoPagina}"),
+            Nombres = await Nombres.Usuarios(api, User)
+        });
+    }
+
     // ENTRADA_YA_REGISTRADA: en lugar de un error rojo sin datos, se dice cuándo y quién la registró.
     private async Task<string> YaRegistrada(Guid pesajeId)
     {

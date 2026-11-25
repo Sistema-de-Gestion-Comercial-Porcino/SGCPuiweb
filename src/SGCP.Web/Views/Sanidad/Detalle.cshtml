@@ -7,7 +7,7 @@
 </div>
 <div class="actions">@if(User.HasClaim("permiso","produccion.administrar")&&a.Activo&&a.Estado!="FAENADO"){<a class="button" asp-action="Control" asp-route-id="@a.Id">Registrar control</a>}<a class="button secondary" asp-action="Index">Volver al listado</a></div>
 </div>
-@if(rechazado){<div class="notice danger" role="alert"><b>Animal rechazado en el control sanitario.</b> No se puede crear una orden de faeneo sobre él.@if(ultimo is not null){<br/><span>Motivo registrado el @Hora.Mostrar(ultimo.Fecha): @ultimo.Observacion</span>}</div>}
+@if(rechazado){<div class="notice danger" role="alert"><b>Animal rechazado en el control sanitario.</b> No se puede crear una orden de faeneo sobre él. <a class="text-link" href="/Incidencias?estado=todas">Ver la incidencia</a>@if(ultimo is not null){<br/><span>Motivo registrado el @Hora.Mostrar(ultimo.Fecha): @ultimo.Observacion</span>}</div>}
 else if(a.Estado=="PENDIENTE"){<div class="notice">Pendiente de control sanitario. Hasta aprobarlo no se puede faenar.</div>}
 <section class="card">
 <dl class="facts">
