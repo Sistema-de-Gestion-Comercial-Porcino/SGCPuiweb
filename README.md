@@ -47,6 +47,8 @@ Pantallas de producción e inventario (S2-P2), contra la API de P1 sin tocar la 
 - **Producción** (`/Produccion`): órdenes de faeneo y fabricación con responsable y tiempos estimado y real, previsiones que no suman disponibilidad, insumos consumidos con referencia única y resultados con **varios productos en lotes distintos**.
 - **Pesajes y entradas** (`/Almacen/Pesajes`, `/Almacen/Entradas`): dos pantallas separadas. El pesaje guarda bruto, tara y neto **sin cambiar el stock**; la entrada física suma stock una sola vez por lote y producto, y si ya existe dice cuándo y quién la registró (`ENTRADA_YA_REGISTRADA`).
 - **Existencias** (`/Almacen/Existencias`): física apta, reservada y disponible (física − reservada), sin cantidades previstas.
+- **Recibir lote externo** (`/Almacen/RecibirLote`, `inventario.administrar`): lote comprado a otro proveedor con referencia y procedencia (CU09). Nace APTO y sin cantidad: se pesa y se le da entrada física como a cualquier lote.
+- **Rechazar lote** (Existencias, `produccion.administrar`): bloqueo de calidad sin pasar por frío. Lo consumido no vuelve, los derivados se bloquean, las reservas activas se liberan y queda una incidencia.
 - **Control de frío** (`/Frio`): registro manual de temperatura en °C con evaluación humana; el sistema no mide ni evalúa por umbral.
 - **Cargos** (detalle del pedido): cargo por productos y cargo por servicio de faeneo o corte en líneas separadas; el servicio solo se registra cuando se acordó y se prestó.
 - **Menú por permiso**: producción no ve pesajes ni entradas; almacén no ve precios de venta. Reportes sigue pendiente.
@@ -140,6 +142,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v5.2.1 | 2026-11-25 | 5 | Rechazar lote y recibir lote externo (S-2): «Rechazar lote» en Existencias solo para Producción, con confirmación que explica bloqueo, derivados y reservas liberadas, y la incidencia en Incidencias; «Recibir lote externo» (CU09) con referencia y procedencia, que abre el pesaje del lote recibido. Corrección de decimales: la coma ya no se toma como separador de miles («6,2» era 62); una coma decimal se acepta y las mezclas ambiguas se rechazan | Angel Sebastian Eguez Mur |
 | v5.1.0 | 2026-11-25 | 5 | Pantallas de Almacén «Pedidos por preparar» (reservar y liberar con motivo; desbloquea preparar la entrega desde la web), «Movimientos» por existencia e «Incidencias» con resolver; el detalle del pedido enlaza a las reservas | Dario Haziel Tambo Parra |
 | v4.2.3 | 2026-11-17 | 4 | Corrección: con la API v4.1.1, Ventas revisa conflictos de recepción y descarga la constancia desde el pedido; el comprador la descarga desde «Mis reportes» | Angel Sebastian Eguez Mur |
 | v4.2.2 | 2026-11-17 | 4 | Corrección: en ventana angosta los botones «Descargar PDF / Excel» de reportes bajan de línea en vez de salirse de la pantalla | Angel Sebastian Eguez Mur |

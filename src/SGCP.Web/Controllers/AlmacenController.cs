@@ -217,6 +217,77 @@ public class AlmacenController(InventarioApi api) : GestionControllerBase
         });
     }
 
+    // ---------- Sprint 5 · P2 · S-2 · Rechazar lote y recibir lote externo ----------
+
+    /// <summary>Rechazo de calidad sin pasar por frío. Lo decide Producción (POST lotes/{id}/rechazar, produccion.administrar).</summary>
+    [Authorize(Policy = "produccion.administrar")]
+    public async Task<IActionResult> RechazarLote(Guid id)
+    {
+        var lote = (await api.Todos<LoteDto>("lotes")).FirstOrDefault(x => x.Id == id);
+        if (lote is null)
+            return NotFound();
+        if (lote.Estado != "APTO")
+        {
+            TempData["Error"] = $"El lote {lote.Codigo} ya está {lote.Estado.ToLowerInvariant()}: no se vuelve a rechazar.";
+            return RedirectToAction(nameof(Existencias));
+        }
+        return View("Confirmacion", new ConfirmacionViewModel
+        {
+            Id = id,
+            Valor = lote.Codigo,
+            Accion = nameof(RechazarLote),
+            Titulo = $"Rechazar lote {lote.Codigo}",
+            Mensaje = "El lote quedará bloqueado. Lo ya consumido no se devuelve y los derivados que lo usaron también se bloquean. " +
+                "Sus reservas activas se liberan y esos pedidos quedan bloqueados en preparación. Queda una incidencia con este motivo.",
+            MotivoRequerido = true,
+            Volver = "/Almacen/Existencias"
+        });
+    }
+
+    [HttpPost, Authorize(Policy = "produccion.administrar")]
+    public async Task<IActionResult> RechazarLote(ConfirmacionViewModel m)
+    {
+        if (string.IsNullOrWhiteSpace(m.Motivo))
+            ModelState.AddModelError(nameof(m.Motivo), "Registra el motivo del rechazo.");
+        if (!ModelState.IsValid || !await Intentar(async () => await api.Post<object>($"lotes/{m.Id}/rechazar", new { Motivo = m.Motivo.Trim() })))
+            return View("Confirmacion", m);
+        Correcto($"Lote {m.Valor} rechazado y bloqueado. La incidencia quedó registrada en Incidencias.");
+        return RedirectToAction(nameof(Existencias));
+    }
+
+    [Authorize(Policy = "inventario.administrar")]
+    public async Task<IActionResult> RecibirLote() => View(await Completar(new LoteExternoFormViewModel
+    {
+        FechaProduccion = Hora.Local(DateTime.UtcNow).Date
+    }));
+
+    [HttpPost, Authorize(Policy = "inventario.administrar")]
+    public async Task<IActionResult> RecibirLote(LoteExternoFormViewModel m)
+    {
+        CreadoDto? creado = null;
+        if (ModelState.IsValid && await Intentar(async () => creado = await api.Post<CreadoDto>("lotes/externos", new
+        {
+            m.ProductoId,
+            Codigo = m.Codigo.Trim(),
+            Referencia = m.Referencia.Trim(),
+            Procedencia = m.Procedencia.Trim(),
+            FechaProduccion = m.ProduccionUtc(),
+            Vencimiento = m.VencimientoUtc()
+        })))
+        {
+            // El lote nace sin cantidad: el siguiente paso es pesarlo, así que se abre el pesaje con el lote elegido.
+            Correcto($"Lote {m.Codigo.Trim()} recibido. Todavía no suma stock: pésalo y confirma su entrada física.");
+            return RedirectToAction(nameof(Pesar), new { loteId = creado!.Id });
+        }
+        return View(await Completar(m));
+    }
+
+    private async Task<LoteExternoFormViewModel> Completar(LoteExternoFormViewModel m)
+    {
+        m.Productos = (await api.Todos<ProductoDto>("productos")).Where(x => x.Activo).OrderBy(x => x.Nombre).ToList();
+        return m;
+    }
+
     // ENTRADA_YA_REGISTRADA: en lugar de un error rojo sin datos, se dice cuándo y quién la registró.
     private async Task<string> YaRegistrada(Guid pesajeId)
     {
