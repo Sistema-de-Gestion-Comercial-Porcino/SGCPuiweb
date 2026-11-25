@@ -55,4 +55,9 @@ Check(vistaInc.Origen(new IncidenciaDto { AnimalId = rechazado.Id }) == "Animal 
 var incApi = JsonSerializer.Deserialize<IncidenciaDto>("""{"id":"098e7092-907e-4956-9d67-6ed5f294e43d","loteId":null,"animalId":"deaf9920-0ddc-4593-9eef-67fad8531710","motivo":"Fiebre al ingreso","resuelta":false,"resolucion":"","resueltaEn":null}""", jsonWeb)!;
 Check(incApi.AnimalId is not null && incApi.LoteId is null && !incApi.Resuelta && incApi.ResueltaEn is null, "Contrato de GET incidencias");
 Check(MovimientosViewModel.Tipo("ANULACION_ENTRADA") == "Anulación de entrada" && MovimientosViewModel.Tipo("OTRO") == "OTRO", "Tipos de movimiento legibles, sin perder los desconocidos");
+// Sprint 5 · P2 · decimales: la coma nunca es separador de miles («6,2» no puede volverse 62)
+Check(SGCP.Web.Models.EnlaceDecimalInvariante.Leer("6.2") == 6.2m && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("6,2") == 6.2m
+    && SGCP.Web.Models.EnlaceDecimalInvariante.Leer(" 10.25 ") == 10.25m && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("-3,5") == -3.5m, "Decimal con punto o con una coma decimal");
+Check(SGCP.Web.Models.EnlaceDecimalInvariante.Leer("1.000,5") is null && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("1,000,5") is null
+    && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("1,000.5") is null && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("abc") is null, "Separadores de miles o mezclas ambiguas se rechazan en lugar de multiplicar el número");
 Console.WriteLine($"RESULTADO WEB: {numero} comprobaciones de compatibilidad correctas.");
