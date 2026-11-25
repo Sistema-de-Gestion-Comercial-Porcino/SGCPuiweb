@@ -140,6 +140,7 @@ Más reciente arriba.
 
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
+| v5.2.2 | 2026-11-25 | 5 | Anular cargo de servicio (S-3, RF-20): botón «Anular» con motivo en los cargos de servicio vigentes del pedido; el cargo queda visible, tachado y marcado «Anulado» con su motivo, y deja de sumar al saldo; la web muestra el rechazo de la API cuando el cargo tiene pagos | Angel Sebastian Eguez Mur |
 | v5.1.0 | 2026-11-25 | 5 | Pantallas de Almacén «Pedidos por preparar» (reservar y liberar con motivo; desbloquea preparar la entrega desde la web), «Movimientos» por existencia e «Incidencias» con resolver; el detalle del pedido enlaza a las reservas | Dario Haziel Tambo Parra |
 | v4.2.3 | 2026-11-17 | 4 | Corrección: con la API v4.1.1, Ventas revisa conflictos de recepción y descarga la constancia desde el pedido; el comprador la descarga desde «Mis reportes» | Angel Sebastian Eguez Mur |
 | v4.2.2 | 2026-11-17 | 4 | Corrección: en ventana angosta los botones «Descargar PDF / Excel» de reportes bajan de línea en vez de salirse de la pantalla | Angel Sebastian Eguez Mur |
