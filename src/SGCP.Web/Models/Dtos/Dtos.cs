@@ -325,3 +325,57 @@ public class CargoDto
     public bool Anulado { get; set; }
     public string MotivoAnulacion { get; set; } = "";
 }
+
+// Sprint 5 · P1. Contratos de GET pedidos-operativos, reservas, incidencias y movimientos-stock.
+public class PedidoOperativoDto
+{
+    public Guid Id { get; set; }
+    public string Codigo { get; set; } = "";
+    public DateTime FechaComprometida { get; set; }
+    public string EstadoPreparacion { get; set; } = "";
+    public string Cliente { get; set; } = "";
+    public List<DetalleOperativoDto> Detalles { get; set; } = [];
+}
+public class DetalleOperativoDto
+{
+    public Guid Id { get; set; }
+    public Guid ProductoId { get; set; }
+    public string Producto { get; set; } = "";
+    public decimal CantidadConfirmada { get; set; }
+    public string Unidad { get; set; } = "";
+    public string Estado { get; set; } = "";
+}
+public class ReservaDto
+{
+    public Guid Id { get; set; }
+    public Guid DetallePedidoId { get; set; }
+    public Guid ExistenciaId { get; set; }
+    public Guid ResponsableId { get; set; }
+    public decimal Cantidad { get; set; }
+    public string Estado { get; set; } = "";
+    public DateTime Fecha { get; set; }
+    public string MotivoLiberacion { get; set; } = "";
+}
+public class IncidenciaDto
+{
+    public Guid Id { get; set; }
+    public Guid? LoteId { get; set; }
+    public Guid? AnimalId { get; set; }
+    public Guid ResponsableId { get; set; }
+    public string Motivo { get; set; } = "";
+    public DateTime Fecha { get; set; }
+    public bool Resuelta { get; set; }
+    public string Resolucion { get; set; } = "";
+    public DateTime? ResueltaEn { get; set; }
+}
+public class MovimientoStockDto
+{
+    public Guid Id { get; set; }
+    public Guid ExistenciaId { get; set; }
+    public Guid ResponsableId { get; set; }
+    public Guid ReferenciaId { get; set; }
+    public string Tipo { get; set; } = "";
+    public decimal Cantidad { get; set; }
+    public DateTime Fecha { get; set; }
+    public string Motivo { get; set; } = "";
+}

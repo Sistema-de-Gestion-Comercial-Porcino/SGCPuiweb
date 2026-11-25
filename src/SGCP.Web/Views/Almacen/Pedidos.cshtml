@@ -1,0 +1,45 @@
+@model PedidosPorPrepararViewModel
+@{ViewData["Title"]="Pedidos por preparar";}
+<div class="page-head">
+<div><span class="eyebrow">ALMACÉN · RESERVAS</span>
+<h1>Pedidos por preparar</h1>
+<p>Pedidos confirmados que todavía no salieron. Cada producto se reserva desde una existencia física apta; sin la reserva completa no se puede preparar la entrega.</p>
+</div>
+<div class="actions"><a class="button secondary" asp-action="Existencias">Existencias</a></div>
+</div>
+<div class="notice" role="note"><b>Solo se reserva stock que entró físicamente.</b> Las cantidades previstas de una orden de producción no aparecen aquí: no son existencia.</div>
+<section class="card">
+<form method="get" class="filters">
+<label><input type="radio" name="soloPendientes" value="true" checked="@Model.SoloPendientes" onchange="this.form.submit()"/> Con reserva pendiente</label>
+<label><input type="radio" name="soloPendientes" value="false" checked="@(!Model.SoloPendientes)" onchange="this.form.submit()"/> Todos</label>
+<noscript><button class="button secondary small">Filtrar</button></noscript>
+</form>
+@if(Model.Pedidos.Count==0){<div class="empty"><span class="empty-mark">✓</span>
+<h3>@(Model.SoloPendientes?"No hay pedidos con reserva pendiente":"No hay pedidos por preparar")</h3>
+<p>Los pedidos aparecen aquí cuando Ventas los confirma y desaparecen cuando su entrega sale.</p>
+</div>}
+@foreach(var p in Model.Pedidos){
+<article class="pedido-preparar" id="pedido-@p.Pedido.Id">
+<div class="section-heading"><h2>@p.Pedido.Codigo · @p.Pedido.Cliente</h2><span class="badge @(p.Completo?"":"muted-badge")">@(p.Completo?"RESERVA COMPLETA":"FALTA RESERVAR")</span></div>
+<p class="hint">Comprometido para @Hora.Mostrar(p.Pedido.FechaComprometida) · Preparación: @p.Pedido.EstadoPreparacion
+@if(p.Completo&&User.HasClaim("permiso","entregas.administrar")){<text> · </text><a class="text-link" href="/Entregas/Preparar?pedidoId=@p.Pedido.Id">Preparar entrega</a>}</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Producto</th><th>Confirmado</th><th>Reservado</th><th>Falta</th><th>Reservas</th><th>Acción</th></tr></thead>
+<tbody>@foreach(var d in p.Detalles){<tr>
+<td class="strong">@d.Detalle.Producto</td>
+<td>@d.Detalle.CantidadConfirmada.ToString("0.###") @d.Detalle.Unidad</td>
+<td>@d.Reservado.ToString("0.###") @d.Detalle.Unidad</td>
+<td class="strong">@d.Falta.ToString("0.###") @d.Detalle.Unidad</td>
+<td>@if(d.Reservas.Count==0){<span class="muted">Sin reservas</span>}else{<ul class="plain">@foreach(var r in d.Reservas){var ex=Model.Existencias.TryGetValue(r.ExistenciaId,out var e)?e:null;<li>
+@r.Cantidad.ToString("0.###") @d.Detalle.Unidad · lote @(ex?.Lote??"—")@(ex is null||string.IsNullOrWhiteSpace(ex.Ubicacion)?"":" · "+ex.Ubicacion)
+<span class="badge @(r.Estado=="ACTIVA"?"":"muted-badge")">@r.Estado</span>
+<small>@SGCP.Web.Services.Nombres.Responsable(Model.Nombres,r.ResponsableId) · @Hora.Mostrar(r.Fecha)@(string.IsNullOrWhiteSpace(r.MotivoLiberacion)?"":" · Motivo: "+r.MotivoLiberacion)</small>
+@if(r.Estado=="ACTIVA"){<a class="text-link danger-text" asp-action="Liberar" asp-route-id="@r.Id" asp-route-pedidoId="@p.Pedido.Id">Liberar</a>}
+</li>}</ul>}</td>
+<td>@if(!d.Completo){<a class="button small" asp-action="Reservar" asp-route-pedidoId="@p.Pedido.Id" asp-route-detalleId="@d.Detalle.Id">Reservar</a>}else{<span class="muted">Completo</span>}</td>
+</tr>}</tbody>
+</table>
+</div>
+</article>}
+</section>

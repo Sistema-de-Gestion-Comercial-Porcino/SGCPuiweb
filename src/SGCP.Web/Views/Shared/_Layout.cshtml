@@ -52,6 +52,8 @@
                     ("/Produccion", "Producción", User.HasClaim("permiso", "produccion.consultar"), "Produccion", "factory"),
                     ("/Almacen/Existencias", "Existencias", User.HasClaim("permiso", "inventario.consultar"), "Almacen", "layers"),
                     ("/Almacen/Pesajes", "Pesajes y entradas", User.HasClaim("permiso", "inventario.administrar"), "Almacen", "scale"),
+                    ("/Almacen/Pedidos", "Pedidos por preparar", User.HasClaim("permiso", "inventario.administrar") && User.HasClaim("permiso", "operacion.consultar"), "Almacen", "cart"),
+                    ("/Incidencias", "Incidencias", User.HasClaim("permiso", "inventario.consultar"), "Incidencias", "alert"),
                     ("/Frio", "Control de frío", User.HasClaim("permiso", "frio.administrar") && User.HasClaim("permiso", "inventario.consultar"), "Frio", "snow")
                 }.Where(x => x.Ver).ToList();
             }
@@ -60,7 +62,8 @@
                 <p class="nav-label">PRODUCCIÓN E INVENTARIO</p>
                 @foreach (var item in operacion)
                 {
-                    var activo = actual == item.Controlador && (item.Controlador != "Almacen" || (item.Ruta == "/Almacen/Existencias") == (accionActual == "Existencias"));
+                    var grupoAlmacen = accionActual switch { "Existencias" or "Movimientos" => "Existencias", "Pedidos" or "Reservar" or "Liberar" => "Pedidos", _ => "Pesajes" };
+                    var activo = actual == item.Controlador && (item.Controlador != "Almacen" || item.Ruta == "/Almacen/" + grupoAlmacen);
                     <a class="@(activo ? "active" : "")" href="@item.Ruta">
                         <svg class="nav-icon" aria-hidden="true"><use href="/icons.svg#@item.Icono"></use></svg><span>@item.Nombre</span>
                     </a>

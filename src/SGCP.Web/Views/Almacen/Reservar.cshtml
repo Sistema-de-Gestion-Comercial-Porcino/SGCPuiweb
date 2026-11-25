@@ -1,0 +1,28 @@
+@model ReservaFormViewModel
+@{ViewData["Title"]="Reservar stock";}
+<div class="page-head">
+<div><span class="eyebrow">ALMACÉN · RESERVAS</span>
+<h1>Reservar @Model.Producto</h1>
+<p>@Model.Pedido · @Model.Cliente</p>
+</div>
+</div>
+<section class="card form-card">
+<dl class="facts">
+<div><dt>Confirmado</dt><dd>@Model.Confirmada.ToString("0.###") @Model.Unidad</dd></div>
+<div><dt>Ya reservado</dt><dd>@Model.Reservado.ToString("0.###") @Model.Unidad</dd></div>
+<div><dt>Falta reservar</dt><dd class="strong">@Model.Falta.ToString("0.###") @Model.Unidad</dd></div>
+</dl>
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<input asp-for="PedidoId" type="hidden"/><input asp-for="DetallePedidoId" type="hidden"/>
+<input asp-for="Pedido" type="hidden"/><input asp-for="Cliente" type="hidden"/><input asp-for="Producto" type="hidden"/><input asp-for="Unidad" type="hidden"/>
+@if(Model.LotesYaReservados.Count>0){<div class="notice" role="note">El lote @string.Join(", ",Model.LotesYaReservados) ya tiene una reserva activa para este producto. Para reservar más de ese mismo lote, libera su reserva y vuelve a reservar la cantidad total.</div>}
+@if(Model.Existencias.Count==0&&Model.LotesYaReservados.Count==0){<div class="notice danger">No hay existencia física apta de @Model.Producto con disponible. Primero tiene que entrar stock al almacén: pesaje y entrada física. Una previsión de producción no se puede reservar.</div>}
+<div class="form-grid">
+<div class="field wide"><label asp-for="ExistenciaId">Existencia (lote · ubicación · disponible)</label><select asp-for="ExistenciaId" required><option value="">Seleccionar…</option>@foreach(var e in Model.Existencias){<option value="@e.Id">Lote @e.Lote · @(string.IsNullOrWhiteSpace(e.Ubicacion)?"sin ubicación":e.Ubicacion) · @e.Disponible.ToString("0.###") @e.Unidad disponibles · vence @Hora.Mostrar(e.Vencimiento)</option>}</select><span asp-validation-for="ExistenciaId" class="validation"></span></div>
+<div class="field"><label asp-for="Cantidad">Cantidad a reservar (@Model.Unidad)</label><input asp-for="Cantidad" type="number" min="0.001" max="@Model.Falta.ToString("0.###",System.Globalization.CultureInfo.InvariantCulture)" step="0.001" required/><span asp-validation-for="Cantidad" class="validation"></span></div>
+</div>
+<p class="hint">Se reserva desde un solo lote por vez. Si un lote no alcanza, reserva lo que tiene y vuelve a reservar el resto desde otro.</p>
+<div class="form-actions"><a class="button secondary" href="/Almacen/Pedidos#pedido-@Model.PedidoId">Cancelar</a><button class="button" type="submit" disabled="@(Model.Existencias.Count==0)">Reservar</button></div>
+</form>
+</section>

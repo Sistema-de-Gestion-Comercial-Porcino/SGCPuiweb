@@ -1,0 +1,30 @@
+@model IncidenciasViewModel
+@{ViewData["Title"]="Incidencias";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;var puede=User.HasClaim("permiso","produccion.administrar");}
+<div class="page-head">
+<div><span class="eyebrow">PRODUCCIÓN · RF-18</span>
+<h1>Incidencias</h1>
+<p>Se abren solas al rechazar un animal en sanidad, un lote por calidad o frío, o un derivado que consumió un insumo rechazado.</p>
+</div>
+</div>
+<div class="notice" role="note"><b>Resolver no rehabilita.</b> Registra qué se decidió; el animal o el lote sigue bloqueado y no se puede faenar, reservar ni despachar.</div>
+<section class="card">
+<form method="get" class="filters">
+<label class="sr-only" for="estado">Estado</label><select id="estado" name="estado">@foreach(var (v,t) in new[]{("pendientes","Pendientes"),("resueltas","Resueltas"),("todas","Todas")}){<option value="@v" selected="@(Model.Estado==v)">@t</option>}</select>
+<button class="button secondary small">Filtrar</button>
+</form>
+@if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">✓</span>
+<h3>@(Model.Estado=="pendientes"?"No hay incidencias pendientes":"No hay incidencias")</h3>
+</div>}else{<div class="table-wrap">
+<table>
+<thead><tr><th>Fecha</th><th>Origen</th><th>Motivo</th><th>Registró</th><th>Estado</th>@if(puede){<th>Acción</th>}</tr></thead>
+<tbody>@foreach(var i in Model.Datos.Elementos){<tr>
+<td>@Hora.Mostrar(i.Fecha)</td>
+<td class="strong">@if(i.AnimalId is Guid a&&Model.Animales.ContainsKey(a)){<a href="/Sanidad/Detalle/@a">@Model.Origen(i)</a>}else{@Model.Origen(i)}</td>
+<td>@i.Motivo</td>
+<td>@SGCP.Web.Services.Nombres.Responsable(Model.Nombres,i.ResponsableId)</td>
+<td>@if(i.Resuelta){<span class="badge">RESUELTA</span><small>@(i.ResueltaEn is null?"":Hora.Mostrar(i.ResueltaEn.Value)) · @i.Resolucion</small>}else{<span class="badge danger">PENDIENTE</span>}</td>
+@if(puede){<td>@if(!i.Resuelta){<a class="button small secondary" asp-action="Resolver" asp-route-id="@i.Id">Resolver</a>}</td>}
+</tr>}</tbody>
+</table>
+</div>}
+<partial name="_Paginacion"/></section>
