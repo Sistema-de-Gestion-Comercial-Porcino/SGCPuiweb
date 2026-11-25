@@ -168,3 +168,16 @@ public class SincronizacionDto
 {
     public List<ResultadoSincronizacionDto> Resultados { get; set; } = [];
 }
+
+/// <summary>GET mis-entregas: entregas despachadas a domicilio del responsable autenticado, con su pedido y cliente.</summary>
+public class MisEntregasDto
+{
+    public List<EntregaAsignadaDto> Entregas { get; set; } = [];
+}
+public class EntregaAsignadaDto
+{
+    public Guid Id { get; set; }
+    public string Pedido { get; set; } = "";
+    public string Cliente { get; set; } = "";
+    public DateTime FechaPrevista { get; set; }
+}
