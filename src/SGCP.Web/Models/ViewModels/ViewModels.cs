@@ -326,13 +326,19 @@ public class FrioListaViewModel
 {
     public Pagina<ControlFrioDto> Datos { get; set; } = new();
     public Dictionary<Guid, LoteDto> Lotes { get; set; } = [];
+    /// <summary>Texto de cada entrega controlada: «PED-013 · cliente» si se conoce el pedido, si no la fecha prevista.</summary>
+    public Dictionary<Guid, string> Entregas { get; set; } = [];
     public Dictionary<Guid, ProductoDto> Productos { get; set; } = [];
     public Dictionary<Guid, string> Nombres { get; set; } = [];
 }
-public class FrioFormViewModel
+/// <summary>RF-17 · el control se hace sobre un lote en cámara o sobre una entrega en transporte, nunca sobre los dos.</summary>
+public class FrioFormViewModel : IValidatableObject
 {
-    [Required(ErrorMessage = "Selecciona el lote controlado.")]
+    public const string ObjetivoLote = "LOTE";
+    public const string ObjetivoEntrega = "ENTREGA";
+    public string Objetivo { get; set; } = ObjetivoLote;
     public Guid? LoteId { get; set; }
+    public Guid? EntregaId { get; set; }
     [Range(typeof(decimal), "-100", "100",
         ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true,
         ErrorMessage = "Registra una temperatura entre -100 y 100 °C.")]
@@ -346,6 +352,26 @@ public class FrioFormViewModel
     public string Observacion { get; set; } = "";
     public List<LoteDto> Lotes { get; set; } = [];
     public Dictionary<Guid, ProductoDto> Productos { get; set; } = [];
+    /// <summary>Entregas despachadas que el usuario puede controlar, con su texto para la lista.</summary>
+    public List<KeyValuePair<Guid, string>> Entregas { get; set; } = [];
+    public bool PuedeLotes { get; set; }
+    public bool PuedeEntregas { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Objetivo == ObjetivoEntrega)
+        {
+            if (EntregaId is null)
+                yield return new ValidationResult("Selecciona la entrega controlada.", [nameof(EntregaId)]);
+        }
+        else if (Objetivo == ObjetivoLote)
+        {
+            if (LoteId is null)
+                yield return new ValidationResult("Selecciona el lote controlado.", [nameof(LoteId)]);
+        }
+        else
+            yield return new ValidationResult("Indica si controlas un lote o una entrega.", [nameof(Objetivo)]);
+    }
 }
 public class ServicioFormViewModel
 {

@@ -47,7 +47,7 @@ Pantallas de producción e inventario (S2-P2), contra la API de P1 sin tocar la 
 - **Producción** (`/Produccion`): órdenes de faeneo y fabricación con responsable y tiempos estimado y real, previsiones que no suman disponibilidad, insumos consumidos con referencia única y resultados con **varios productos en lotes distintos**.
 - **Pesajes y entradas** (`/Almacen/Pesajes`, `/Almacen/Entradas`): dos pantallas separadas. El pesaje guarda bruto, tara y neto **sin cambiar el stock**; la entrada física suma stock una sola vez por lote y producto, y si ya existe dice cuándo y quién la registró (`ENTRADA_YA_REGISTRADA`).
 - **Existencias** (`/Almacen/Existencias`): física apta, reservada y disponible (física − reservada), sin cantidades previstas.
-- **Control de frío** (`/Frio`): registro manual de temperatura en °C con evaluación humana; el sistema no mide ni evalúa por umbral.
+- **Control de frío** (`/Frio`): registro manual de temperatura en °C con evaluación humana; el sistema no mide ni evalúa por umbral. Desde v5.2.0 el control se hace sobre un **lote en cámara** (Almacén) o sobre una **entrega en transporte** (Entrega), nunca sobre los dos. El perfil ENTREGA ve la pantalla y solo elige entre sus entregas despachadas. Un «Rechazado» sobre una entrega bloquea los lotes reservados para ese pedido, y la pantalla lo avisa.
 - **Cargos** (detalle del pedido): cargo por productos y cargo por servicio de faeneo o corte en líneas separadas; el servicio solo se registra cuando se acordó y se prestó.
 - **Menú por permiso**: producción no ve pesajes ni entradas; almacén no ve precios de venta. Reportes sigue pendiente.
 
@@ -141,6 +141,7 @@ Más reciente arriba.
 | Versión | Fecha | Sprint | Cambio | Autor |
 |---|---|---|---|---|
 | v5.2.2 | 2026-11-25 | 5 | Anular cargo de servicio (S-3, RF-20): botón «Anular» con motivo en los cargos de servicio vigentes del pedido; el cargo queda visible, tachado y marcado «Anulado» con su motivo, y deja de sumar al saldo; la web muestra el rechazo de la API cuando el cargo tiene pagos | Angel Sebastian Eguez Mur |
+| v5.2.0 | 2026-11-25 | 5 | Control de frío con contexto de entrega (S-1): elegir lote en cámara o entrega en transporte, acceso para el perfil ENTREGA sin pedir la lista de lotes, columna «Contexto» con el código del pedido y aviso de que un rechazo en transporte bloquea los lotes reservados | Angel Sebastian Eguez Mur |
 | v5.1.0 | 2026-11-25 | 5 | Pantallas de Almacén «Pedidos por preparar» (reservar y liberar con motivo; desbloquea preparar la entrega desde la web), «Movimientos» por existencia e «Incidencias» con resolver; el detalle del pedido enlaza a las reservas | Dario Haziel Tambo Parra |
 | v4.2.3 | 2026-11-17 | 4 | Corrección: con la API v4.1.1, Ventas revisa conflictos de recepción y descarga la constancia desde el pedido; el comprador la descarga desde «Mis reportes» | Angel Sebastian Eguez Mur |
 | v4.2.2 | 2026-11-17 | 4 | Corrección: en ventana angosta los botones «Descargar PDF / Excel» de reportes bajan de línea en vez de salirse de la pantalla | Angel Sebastian Eguez Mur |
