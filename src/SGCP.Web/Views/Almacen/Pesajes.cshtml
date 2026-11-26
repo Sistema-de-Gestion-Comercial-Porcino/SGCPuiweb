@@ -5,7 +5,7 @@
 <h1>Pesajes</h1>
 <p>Registrar el peso no da de alta la existencia. El stock sube recién con la entrada física.</p>
 </div>
-<div class="actions"><a class="button" asp-action="Pesar">+ Registrar pesaje</a><a class="button secondary" asp-action="Entradas">Entradas físicas</a></div>
+<div class="actions wrap"><a class="button" asp-action="Pesar">+ Registrar pesaje</a><a class="button secondary" asp-action="RecibirLote">Recibir lote externo</a><a class="button secondary" asp-action="Entradas">Entradas físicas</a></div>
 </div>
 <section class="card">
 @if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">⌕</span><h3>Sin pesajes</h3><p>Los lotes confirmados en producción esperan su pesaje.</p></div>}else{<div class="table-wrap">
