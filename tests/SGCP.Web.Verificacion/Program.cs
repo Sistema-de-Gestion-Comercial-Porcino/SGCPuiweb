@@ -69,3 +69,4 @@ Check(SGCP.Web.Models.EnlaceDecimalInvariante.Leer("6.2") == 6.2m && SGCP.Web.Mo
 Check(SGCP.Web.Models.EnlaceDecimalInvariante.Leer("1.000,5") is null && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("1,000,5") is null
     && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("1,000.5") is null && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("abc") is null, "Separadores de miles o mezclas ambiguas se rechazan en lugar de multiplicar el número");
 Console.WriteLine($"RESULTADO WEB: {numero} comprobaciones de compatibilidad correctas.");
+if (args.Contains("--seguimientos")) await SeguimientosIntegracion.Ejecutar();

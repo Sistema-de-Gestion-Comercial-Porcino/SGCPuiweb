@@ -1,0 +1,13 @@
+@model GestionCobroViewModel
+@{ViewData["Title"] = "Registrar gestión"; var s = Model.Seguimiento!;}
+<div class="page-head"><div><span class="eyebrow">COBRANZA · SEGUIMIENTO</span><h1>Registrar gestión de cobro</h1><p>@s.Cliente · @s.Pedido</p></div>
+<a class="button secondary" asp-action="Index" asp-route-clienteId="@Model.ClienteId">Volver al seguimiento</a></div>
+<div class="notice">Saldo actual: <b>Bs @Model.Saldo.ToString("N2")</b>. Con deuda pendiente debes acordar la próxima gestión. Si el saldo ya está cubierto, registrar la gestión cierra el seguimiento.</div>
+@if(s.Estado != "PENDIENTE"){<section class="card"><p>Este seguimiento ya no está pendiente y no admite otra gestión.</p></section>}
+else{<section class="card form-card">
+@if(s.FechaGestion is DateTime ultima){<p><b>Última gestión · @Hora.Mostrar(ultima)</b><br/>@s.Resultado</p>}
+<form asp-action="Gestion" method="post"><div asp-validation-summary="All" class="validation" role="alert"></div>
+<input asp-for="Id" type="hidden"/><input asp-for="ClienteId" type="hidden"/>
+<div class="field"><label asp-for="Resultado">Resultado de la gestión</label><textarea asp-for="Resultado" rows="4" maxlength="500" required></textarea><span asp-validation-for="Resultado" class="validation"></span></div>
+<div class="field"><label asp-for="ProximaFecha">Próxima gestión · Bolivia</label><input asp-for="ProximaFecha" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required="@(Model.Saldo > 0)"/><span asp-validation-for="ProximaFecha" class="validation"></span><small class="hint">Obligatoria mientras quede saldo pendiente.</small></div>
+<div class="form-actions"><button class="button" type="submit">Guardar gestión</button></div></form></section>}

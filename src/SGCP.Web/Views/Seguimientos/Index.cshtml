@@ -1,0 +1,34 @@
+@model SeguimientosViewModel
+@{
+    ViewData["Title"] = "Seguimiento de cobros";
+    ViewData["Pagina"] = Model.Datos.PaginaNumero;
+    ViewData["TotalPaginas"] = Model.Datos.TotalPaginas;
+    ViewData["TotalRegistros"] = Model.Datos.TotalRegistros;
+    var puedeRegistrar = User.HasClaim("permiso", "pagos.administrar");
+}
+<div class="page-head"><div><span class="eyebrow">COBRANZA · SEGUIMIENTO</span>
+<h1>Seguimiento de cobros</h1><p>Próximas gestiones y resultados de los créditos acordados.</p></div>
+<a class="button secondary" asp-controller="Cobranza" asp-action="Index" asp-route-clienteId="@Model.ClienteId">Saldos y pagos</a></div>
+<div class="notice">Una gestión o promesa de pago no cancela deuda. Para cerrar, el pedido debe quedar sin saldo pendiente. Las entregas conservan su propio estado.</div>
+<section class="card">
+<form method="get" class="filters">
+<div class="field"><label asp-for="ClienteId">Cliente</label><select asp-for="ClienteId"><option value="">Todos los clientes</option>@foreach (var c in Model.Clientes){<option value="@c.Id">@c.Nombre</option>}</select></div>
+<div class="field"><label asp-for="Estado">Estado</label><select asp-for="Estado"><option value="">Todos los estados</option><option value="PENDIENTE">Pendiente</option><option value="REALIZADO">Realizado</option><option value="CERRADO">Cerrado</option></select></div>
+<button class="button secondary" type="submit">Filtrar</button><a class="button secondary" asp-action="Index">Limpiar</a>
+</form>
+@if(Model.Datos.Elementos.Count == 0){<div class="empty"><h3>No hay seguimientos para estos filtros</h3><p>Para abrir uno, entra en la condición de pago a crédito de un pedido desde Saldos y pagos.</p></div>}
+else{<div class="table-wrap"><table><thead><tr><th>Cliente y pedido</th><th>Vencimiento</th><th>Próxima gestión</th><th>Última gestión</th><th>Estado</th>@if(puedeRegistrar){<th>Acciones</th>}</tr></thead><tbody>
+@foreach(var s in Model.Datos.Elementos){<tr>
+<td>@s.Cliente<small><a asp-controller="Pedidos" asp-action="Detalle" asp-route-id="@s.PedidoId">@s.Pedido</a></small></td>
+<td class="nowrap">@(s.Vencimiento is DateTime vence ? Hora.Mostrar(vence) : "Sin vencimiento registrado")</td>
+<td class="nowrap">@Hora.Mostrar(s.ProximaFecha)</td>
+<td>@if(s.FechaGestion is DateTime gestion){<span>@s.Resultado</span><small>@Hora.Mostrar(gestion)</small>}else{<span class="muted">Sin gestiones registradas</span>}</td>
+<td><span class="badge @(s.Estado == "CERRADO" ? "muted-badge" : "")">@(s.Estado == "PENDIENTE" ? "Pendiente" : s.Estado == "CERRADO" ? "Cerrado" : "Realizado")</span></td>
+@if(puedeRegistrar){<td>@if(s.Estado != "CERRADO"){
+@if(s.Estado == "PENDIENTE"){<a class="button secondary small" asp-action="Gestion" asp-route-id="@s.Id" asp-route-clienteId="@s.ClienteId">Registrar gestión</a>}
+<form asp-action="Cerrar" method="post"><input type="hidden" name="id" value="@s.Id"/><input type="hidden" name="clienteId" value="@s.ClienteId"/><button class="button secondary small" type="submit">Cerrar seguimiento</button></form>
+}else{<span class="muted">Finalizado</span>}</td>}
+</tr>}
+</tbody></table></div>}
+<partial name="_Paginacion"/>
+</section>

@@ -1,0 +1,9 @@
+@model NuevoSeguimientoViewModel
+@{ViewData["Title"] = "Crear seguimiento";}
+<div class="page-head"><div><span class="eyebrow">COBRANZA · SEGUIMIENTO</span><h1>Crear seguimiento</h1><p>@Model.Pedido?.Cliente · @Model.Pedido?.Codigo</p></div>
+<a class="button secondary" asp-controller="Cobranza" asp-action="Condicion" asp-route-pedidoId="@Model.PedidoId">Volver a la condición</a></div>
+<section class="card form-card"><h2>Crédito acordado</h2><p>Vencimiento: @Hora.Mostrar(Model.Condicion?.Vencimiento). Solo se puede abrir si el pedido conserva saldo.</p>
+<form asp-action="Crear" method="post"><div asp-validation-summary="All" class="validation" role="alert"></div>
+<input asp-for="PedidoId" type="hidden"/><input asp-for="CondicionPagoId" type="hidden"/>
+<div class="field"><label asp-for="ProximaFecha">Próxima gestión · Bolivia</label><input asp-for="ProximaFecha" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/><span asp-validation-for="ProximaFecha" class="validation"></span></div>
+<div class="form-actions"><button class="button" type="submit">Crear seguimiento</button></div></form></section>
