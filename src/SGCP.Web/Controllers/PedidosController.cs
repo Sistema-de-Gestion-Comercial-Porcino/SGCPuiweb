@@ -102,6 +102,47 @@ public class PedidosController(PedidosApi api) : GestionControllerBase
         { Correcto("Pedido confirmado. Precio y costo históricos conservados."); return RedirectToAction(nameof(Detalle), new { id }); }
         return View(m);
     }
+    /// <summary>
+    /// RF-20 · corrección de un cargo de servicio mal registrado. El cargo no se borra: queda en la tabla como anulado,
+    /// con su motivo, y deja de sumar al saldo. La API rechaza anular un cargo con pagos aplicados (CARGO_CON_PAGOS).
+    /// </summary>
+    [Authorize(Policy = "cargos.administrar")]
+    public async Task<IActionResult> AnularCargo(Guid id, Guid pedidoId)
+    {
+        var cargo = (await api.Todos<CargoDto>($"cargos?pedidoId={pedidoId}")).FirstOrDefault(x => x.Id == id);
+        if (cargo is null)
+            return NotFound();
+        if (cargo.Tipo != "SERVICIO" || cargo.Anulado)
+        {
+            TempData["Error"] = cargo.Anulado ? "Ese cargo ya está anulado." : "Desde aquí solo se anulan cargos de servicio; el cargo de producto sigue al pedido.";
+            return RedirectToAction(nameof(Detalle), new { id = pedidoId });
+        }
+        return View("Confirmacion", new ConfirmacionViewModel
+        {
+            Id = id,
+            Valor = pedidoId.ToString(),
+            Accion = nameof(AnularCargo),
+            Titulo = $"Anular cargo: {cargo.Concepto} · Bs {cargo.Importe:N2}",
+            Mensaje = "El cargo no se borra: queda en la tabla marcado como anulado, con el motivo, y deja de sumar al saldo del cliente. " +
+                "Si ya tiene pagos aplicados no se puede anular.",
+            MotivoRequerido = true,
+            Volver = "/Pedidos/Detalle/" + pedidoId
+        });
+    }
+
+    [HttpPost, Authorize(Policy = "cargos.administrar")]
+    public async Task<IActionResult> AnularCargo(ConfirmacionViewModel m)
+    {
+        if (string.IsNullOrWhiteSpace(m.Motivo))
+            ModelState.AddModelError(nameof(m.Motivo), "Registra el motivo de la anulación.");
+        if (!Guid.TryParse(m.Valor, out var pedidoId))
+            return BadRequest();
+        if (!ModelState.IsValid || !await Intentar(async () => await api.Post<object>($"cargos/{m.Id}/anular", new { Motivo = m.Motivo.Trim() })))
+            return View("Confirmacion", m);
+        Correcto("Cargo anulado. Sigue visible en el pedido y ya no suma al saldo del cliente.");
+        return RedirectToAction(nameof(Detalle), new { id = pedidoId });
+    }
+
     [Authorize(Policy = "pedidos.administrar")]
     public async Task<IActionResult> Cancelar(Guid id)
     {

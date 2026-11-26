@@ -65,10 +65,10 @@
 <p class="muted">El producto y el servicio de faeneo o corte se cobran por separado. El servicio solo aparece cuando se acordó y se prestó.</p>
 <h3>Cargo por productos</h3>
 @if(productos.Count==0){<p class="muted">Sin cargos de producto.</p>}else{<div class="table-wrap"><table><thead><tr><th>Concepto</th><th>Importe</th><th>Estado</th></tr></thead>
-<tbody>@foreach(var c in productos){<tr><td>@c.Concepto</td><td>Bs @c.Importe.ToString("N2")</td><td>@(c.Anulado?"Anulado":"Vigente")</td></tr>}</tbody></table></div>
+<tbody>@foreach(var c in productos){<tr><td>@c.Concepto</td><td>Bs @c.Importe.ToString("N2")</td><td>@if(c.Anulado){<span class="badge danger">Anulado</span><small>@c.MotivoAnulacion</small>}else{<span>Vigente</span>}</td></tr>}</tbody></table></div>
 <div class="total-row"><span>Subtotal productos</span><strong>Bs @productos.Where(x=>!x.Anulado).Sum(x=>x.Importe).ToString("N2")</strong></div>}
 <h3>Cargo por servicio</h3>
-@if(servicios.Count==0){<p class="muted">Este pedido no tiene servicios de faeneo o corte acordados y prestados.</p>}else{<div class="table-wrap"><table><thead><tr><th>Concepto</th><th>Acuerdo</th><th>Prestado</th><th>Importe</th><th>Estado</th></tr></thead>
-<tbody>@foreach(var c in servicios){<tr><td>@c.Concepto</td><td>@c.AcuerdoServicio</td><td>@(c.PrestadoEn is null?"—":Hora.Mostrar(c.PrestadoEn.Value))</td><td>Bs @c.Importe.ToString("N2")</td><td>@(c.Anulado?"Anulado":"Vigente")</td></tr>}</tbody></table></div>
+@if(servicios.Count==0){<p class="muted">Este pedido no tiene servicios de faeneo o corte acordados y prestados.</p>}else{<div class="table-wrap"><table><thead><tr><th>Concepto</th><th>Acuerdo</th><th>Prestado</th><th>Importe</th><th>Estado</th><th></th></tr></thead>
+<tbody>@foreach(var c in servicios){<tr class="@(c.Anulado?"muted":"")"><td>@c.Concepto</td><td>@c.AcuerdoServicio</td><td>@(c.PrestadoEn is null?"—":Hora.Mostrar(c.PrestadoEn.Value))</td><td>@if(c.Anulado){<s>Bs @c.Importe.ToString("N2")</s>}else{<span>Bs @c.Importe.ToString("N2")</span>}</td><td>@if(c.Anulado){<span class="badge danger">Anulado</span><small>@c.MotivoAnulacion</small>}else{<span>Vigente</span>}</td><td>@if(!c.Anulado){<a class="text-link danger-text" asp-action="AnularCargo" asp-route-id="@c.Id" asp-route-pedidoId="@p.Id">Anular</a>}</td></tr>}</tbody></table></div>
 <div class="total-row"><span>Subtotal servicios</span><strong>Bs @servicios.Where(x=>!x.Anulado).Sum(x=>x.Importe).ToString("N2")</strong></div>}
 </section>}
