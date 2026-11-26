@@ -54,7 +54,7 @@
                     ("/Almacen/Pesajes", "Pesajes y entradas", User.HasClaim("permiso", "inventario.administrar"), "Almacen", "scale"),
                     ("/Almacen/Pedidos", "Pedidos por preparar", User.HasClaim("permiso", "inventario.administrar") && User.HasClaim("permiso", "operacion.consultar"), "Almacen", "cart"),
                     ("/Incidencias", "Incidencias", User.HasClaim("permiso", "inventario.consultar"), "Incidencias", "alert"),
-                    ("/Frio", "Control de frío", User.HasClaim("permiso", "frio.administrar") && User.HasClaim("permiso", "inventario.consultar"), "Frio", "snow")
+                    ("/Frio", "Control de frío", User.HasClaim("permiso", "frio.administrar"), "Frio", "snow")
                 }.Where(x => x.Ver).ToList();
             }
             @if (operacion.Count > 0)

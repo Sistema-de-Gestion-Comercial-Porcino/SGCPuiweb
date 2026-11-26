@@ -55,6 +55,14 @@ Check(vistaInc.Origen(new IncidenciaDto { AnimalId = rechazado.Id }) == "Animal 
 var incApi = JsonSerializer.Deserialize<IncidenciaDto>("""{"id":"098e7092-907e-4956-9d67-6ed5f294e43d","loteId":null,"animalId":"deaf9920-0ddc-4593-9eef-67fad8531710","motivo":"Fiebre al ingreso","resuelta":false,"resolucion":"","resueltaEn":null}""", jsonWeb)!;
 Check(incApi.AnimalId is not null && incApi.LoteId is null && !incApi.Resuelta && incApi.ResueltaEn is null, "Contrato de GET incidencias");
 Check(MovimientosViewModel.Tipo("ANULACION_ENTRADA") == "Anulación de entrada" && MovimientosViewModel.Tipo("OTRO") == "OTRO", "Tipos de movimiento legibles, sin perder los desconocidos");
+// Sprint 5 · P2 · S-1 · frío sobre un lote o sobre una entrega
+List<System.ComponentModel.DataAnnotations.ValidationResult> ErroresFrio(FrioFormViewModel m) => m.Validate(new(m)).ToList();
+Check(ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoEntrega }).Any(x => x.MemberNames.Contains(nameof(FrioFormViewModel.EntregaId)))
+    && !ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoEntrega, EntregaId = Guid.NewGuid() }).Any(), "Frío en transporte exige la entrega y no pide lote");
+Check(ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoLote }).Any(x => x.MemberNames.Contains(nameof(FrioFormViewModel.LoteId)))
+    && ErroresFrio(new() { Objetivo = "OTRO", LoteId = Guid.NewGuid() }).Any(), "Frío en cámara exige el lote y no se acepta otro tipo de control");
+var frioApi = JsonSerializer.Deserialize<MisEntregasDto>("""{"entregas":[{"id":"098e7092-907e-4956-9d67-6ed5f294e43d","version":1,"pedidoId":"deaf9920-0ddc-4593-9eef-67fad8531710","pedido":"PED-018","rutaId":null,"fechaPrevista":"2026-11-25T23:18:13Z","estado":"DESPACHADA","cliente":"Restaurante S5","direccion":"Av. Cañoto 456","telefono":"70011122"}],"detalles":[]}""", jsonWeb)!;
+Check(frioApi.Entregas.Single().Pedido == "PED-018" && frioApi.Entregas[0].Cliente == "Restaurante S5", "Contrato de GET mis-entregas para nombrar la entrega controlada");
 // Sprint 5 · P2 · decimales: la coma nunca es separador de miles («6,2» no puede volverse 62)
 Check(SGCP.Web.Models.EnlaceDecimalInvariante.Leer("6.2") == 6.2m && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("6,2") == 6.2m
     && SGCP.Web.Models.EnlaceDecimalInvariante.Leer(" 10.25 ") == 10.25m && SGCP.Web.Models.EnlaceDecimalInvariante.Leer("-3,5") == -3.5m, "Decimal con punto o con una coma decimal");

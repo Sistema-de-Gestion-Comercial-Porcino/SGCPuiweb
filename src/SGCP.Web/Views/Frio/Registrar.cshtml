@@ -1,7 +1,7 @@
 @model FrioFormViewModel
-@{ViewData["Title"]="Registrar control de frío";}
+@{ViewData["Title"]="Registrar control de frío";var ambos=Model.PuedeLotes&&Model.PuedeEntregas;var esEntrega=Model.Objetivo==FrioFormViewModel.ObjetivoEntrega;}
 <div class="page-head">
-<div><span class="eyebrow">CONTROL DE FRÍO</span>
+<div><span class="eyebrow">CONTROL DE FRÍO · RF-17</span>
 <h1>Registrar control de frío</h1>
 <p>Anota la temperatura que leíste y tu evaluación. El responsable queda registrado con tu cuenta.</p>
 </div>
@@ -11,13 +11,27 @@
 <form method="post">
 <div asp-validation-summary="All" class="validation" role="alert"></div>
 <div class="form-grid">
-<div class="field wide"><label asp-for="LoteId">Lote controlado</label><select asp-for="LoteId" required><option value="">Seleccionar lote…</option>@foreach(var l in Model.Lotes){<option value="@l.Id">@l.Codigo · @(Model.Productos.TryGetValue(l.ProductoId,out var p)?p.Nombre:"Producto")</option>}</select><span asp-validation-for="LoteId" class="validation"></span></div>
+@if(ambos){<fieldset class="field wide"><legend>¿Qué se controla?</legend>
+<label class="checkbox"><input type="radio" name="Objetivo" value="@FrioFormViewModel.ObjetivoLote" checked="@(!esEntrega)" data-objetivo/> Lote en cámara</label>
+<label class="checkbox"><input type="radio" name="Objetivo" value="@FrioFormViewModel.ObjetivoEntrega" checked="@esEntrega" data-objetivo/> Entrega en transporte</label>
+</fieldset>}else{<input type="hidden" name="Objetivo" value="@(Model.PuedeEntregas?FrioFormViewModel.ObjetivoEntrega:FrioFormViewModel.ObjetivoLote)"/>}
+@if(Model.PuedeLotes){<div class="field wide" data-para="@FrioFormViewModel.ObjetivoLote" hidden="@esEntrega"><label asp-for="LoteId">Lote controlado</label><select asp-for="LoteId"><option value="">Seleccionar lote…</option>@foreach(var l in Model.Lotes){<option value="@l.Id">@l.Codigo · @(Model.Productos.TryGetValue(l.ProductoId,out var p)?p.Nombre:"Producto")@(l.Estado=="APTO"?"":" · "+l.Estado)</option>}</select><span asp-validation-for="LoteId" class="validation"></span></div>}
+@if(Model.PuedeEntregas){<div class="field wide" data-para="@FrioFormViewModel.ObjetivoEntrega" hidden="@(!esEntrega&&ambos)"><label asp-for="EntregaId">Entrega controlada</label>
+@if(Model.Entregas.Count==0){<p class="muted">No tienes entregas despachadas en este momento. El control de frío en transporte se registra mientras la entrega está en camino.</p>}else{<select asp-for="EntregaId"><option value="">Seleccionar entrega…</option>@foreach(var e in Model.Entregas){<option value="@e.Key">@e.Value</option>}</select>}
+<span asp-validation-for="EntregaId" class="validation"></span>
+<small class="hint">Si la evalúas como <b>Rechazado</b>, los lotes reservados para ese pedido quedan bloqueados.</small></div>}
 <div class="field"><label asp-for="Temperatura">Temperatura · °C</label><input asp-for="Temperatura" type="number" min="-100" max="100" step="0.01" required/><span asp-validation-for="Temperatura" class="validation"></span></div>
 <div class="field"><label asp-for="Evaluacion">Evaluación del responsable</label><select asp-for="Evaluacion" required><option value="">Seleccionar…</option><option value="APTO">Apto</option><option value="OBSERVADO">Observado</option><option value="RECHAZADO">Rechazado</option></select><span asp-validation-for="Evaluacion" class="validation"></span></div>
-<div class="field"><label asp-for="Ubicacion">Ubicación</label><input asp-for="Ubicacion" maxlength="180" placeholder="Cámara 1, mostrador…" required/><span asp-validation-for="Ubicacion" class="validation"></span></div>
+<div class="field"><label asp-for="Ubicacion">Ubicación</label><input asp-for="Ubicacion" maxlength="180" placeholder="@(Model.PuedeEntregas&&!Model.PuedeLotes?"Vehículo, caja térmica…":"Cámara 1, mostrador, vehículo…")" required/><span asp-validation-for="Ubicacion" class="validation"></span></div>
 <div class="field"><label asp-for="Fecha">Fecha de la lectura · Bolivia</label><input asp-for="Fecha" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
 <div class="field wide"><label asp-for="Observacion">Observación</label><textarea asp-for="Observacion" rows="2" maxlength="1000" required></textarea><span asp-validation-for="Observacion" class="validation"></span></div>
 </div>
 <div class="form-actions"><a class="button secondary" asp-action="Index">Cancelar</a><button class="button" type="submit">Registrar control</button></div>
 </form>
 </section>
+@section Scripts{<script>
+// Muestra solo la lista que corresponde a lo que se controla. Sin JavaScript se ven las dos y el servidor usa la elegida.
+document.querySelectorAll('input[data-objetivo]').forEach(function(r){r.addEventListener('change',function(){
+  document.querySelectorAll('[data-para]').forEach(function(z){z.hidden=z.getAttribute('data-para')!==r.value;});
+});});
+</script>}
