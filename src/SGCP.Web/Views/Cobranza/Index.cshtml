@@ -5,6 +5,7 @@
 <h1>Saldos y pagos</h1>
 <p>Estado de la deuda por cliente. El saldo se calcula en el servidor: cargos menos pagos aplicados.</p>
 </div>
+<a class="button secondary" asp-controller="Seguimientos" asp-action="Index" asp-route-clienteId="@Model.ClienteId">Seguimiento de cobros</a>
 </div>
 <div class="notice" role="note">Esta pantalla muestra solo la <b>deuda</b>. El estado de cada entrega está en <b>Transporte y entregas</b>: que una entrega llegue no cancela la deuda, y pagar no marca una entrega como recibida.</div>
 <section class="card">

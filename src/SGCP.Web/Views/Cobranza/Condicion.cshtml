@@ -25,13 +25,14 @@
 <p class="muted">Sustituir un acuerdo conserva el anterior. Después del despacho no se sustituye.</p>
 @if(Model.Historial.Count==0){<p class="muted">Todavía no hay condición acordada para este pedido.</p>}else{<div class="table-wrap">
 <table>
-<thead><tr><th>Acordada</th><th>Modalidad</th><th>Importe autorizado</th><th>Vencimiento</th><th>Estado</th></tr></thead>
+<thead><tr><th>Acordada</th><th>Modalidad</th><th>Importe autorizado</th><th>Vencimiento</th><th>Estado</th><th>Seguimiento</th></tr></thead>
 <tbody>@foreach(var c in Model.Historial){<tr>
 <td>@Hora.Mostrar(c.FechaAcuerdo)</td>
 <td>@Textos.Condicion(c.Modalidad)</td>
 <td>@(c.Modalidad=="CONTADO"?"—":"Bs "+c.ImporteAutorizado.ToString("N2"))</td>
 <td>@(c.Vencimiento is null?"—":Hora.Mostrar(c.Vencimiento.Value))</td>
 <td><span class="badge @(c.Activa?"":"muted-badge")">@(c.Activa?"Vigente":"Sustituida")</span></td>
+<td>@if(c.Modalidad == "CREDITO_ACORDADO"){<a class="button secondary small" asp-controller="Seguimientos" asp-action="Crear" asp-route-pedidoId="@Model.PedidoId" asp-route-condicionPagoId="@c.Id">Crear seguimiento</a>}</td>
 </tr>}</tbody>
 </table>
 </div>}

@@ -73,7 +73,8 @@
                 /* Sprint 3: cobranza y entrega conservan sus ciclos independientes. */
                 var cobranza = new List<(string Ruta, string Nombre, bool Ver, string Controlador, string Icono)>
                 {
-                    ("/Cobranza", "Saldos y pagos", User.HasClaim("permiso", "saldos.consultar"), "Cobranza", "wallet")
+                    ("/Cobranza", "Saldos y pagos", User.HasClaim("permiso", "saldos.consultar"), "Cobranza", "wallet"),
+                    ("/Seguimientos", "Seguimiento", User.HasClaim("permiso", "saldos.consultar"), "Seguimientos", "wallet")
                 }.Where(x => x.Ver).ToList();
                 var reparto = new List<(string Ruta, string Nombre, bool Ver, string Controlador, string Icono)>
                 {
