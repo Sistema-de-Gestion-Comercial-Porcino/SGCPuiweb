@@ -5,7 +5,7 @@
 <h1>Existencias</h1>
 <p>Stock físico por producto y lote. Disponible = física apta − reservada.</p>
 </div>
-<div class="actions">@if(User.HasClaim("permiso","inventario.administrar")){<a class="button secondary" asp-action="Pedidos">Pedidos por preparar</a><a class="button secondary" asp-action="Pesajes">Pesajes</a><a class="button secondary" asp-action="Entradas">Entradas físicas</a>}</div>
+<div class="actions wrap">@if(User.HasClaim("permiso","inventario.administrar")){<a class="button" asp-action="RecibirLote">+ Recibir lote externo</a><a class="button secondary" asp-action="Pedidos">Pedidos por preparar</a><a class="button secondary" asp-action="Pesajes">Pesajes</a><a class="button secondary" asp-action="Entradas">Entradas físicas</a>}</div>
 </div>
 <section class="card">
 <form method="get" class="filters">
@@ -25,9 +25,9 @@
 <td>@x.Reservada.ToString("0.###") @x.Unidad</td>
 <td class="strong">@x.Disponible.ToString("0.###") @x.Unidad<small>@(apto?x.CantidadFisica.ToString("0.###")+" − "+x.Reservada.ToString("0.###"):"No disponible")</small></td>
 <td><span class="badge @(apto?"":"danger")">@(vencido?"VENCIDO":x.Estado)</span></td>
-<td><a class="text-link" asp-action="Movimientos" asp-route-id="@x.Id">Movimientos</a></td>
+<td><a class="text-link" asp-action="Movimientos" asp-route-id="@x.Id">Movimientos</a>@if(x.Estado=="APTO"&&User.HasClaim("permiso","produccion.administrar")){<br/><a class="text-link danger-text" asp-action="RechazarLote" asp-route-id="@x.LoteId">Rechazar lote</a>}</td>
 </tr>}</tbody>
 </table>
 </div>}
-<p class="hint">No se muestran cantidades previstas ni planificadas: solo lo que físicamente entró al almacén. Un lote bloqueado o vencido tiene disponible 0.</p>
+<p class="hint">No se muestran cantidades previstas ni planificadas: solo lo que físicamente entró al almacén. Un lote bloqueado o vencido tiene disponible 0.@if(User.HasClaim("permiso","produccion.administrar")){<span> Rechazar un lote lo bloquea por calidad sin pasar por el control de frío, y deja una incidencia.</span>}</p>
 <partial name="_Paginacion"/></section>

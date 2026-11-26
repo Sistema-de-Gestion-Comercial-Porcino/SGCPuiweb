@@ -1,0 +1,23 @@
+@model LoteExternoFormViewModel
+@{ViewData["Title"]="Recibir lote externo";}
+<div class="page-head">
+<div><span class="eyebrow">ALMACÉN · CU09 RECIBIR PRODUCTOS</span>
+<h1>Recibir lote externo</h1>
+<p>Registra un lote comprado a otro proveedor con su referencia y procedencia, para mantener la trazabilidad.</p>
+</div><a class="button secondary" asp-action="Existencias">Volver a existencias</a>
+</div>
+<div class="notice" role="note">Recibir el lote <b>no suma stock</b>. Después se <b>pesa</b> y se confirma su <b>entrada física</b>, igual que un lote de producción propia: recién ahí aparece en Existencias.</div>
+<section class="card form-card">
+<form method="post">
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+<div class="form-grid">
+<div class="field wide"><label asp-for="ProductoId">Producto recibido</label><select asp-for="ProductoId" required><option value="">Seleccionar producto…</option>@foreach(var p in Model.Productos){<option value="@p.Id">@p.Nombre · @p.UnidadVenta</option>}</select><span asp-validation-for="ProductoId" class="validation"></span></div>
+<div class="field"><label asp-for="Codigo">Código del lote</label><input asp-for="Codigo" maxlength="80" placeholder="L-EXT-001" required/><span asp-validation-for="Codigo" class="validation"></span></div>
+<div class="field"><label asp-for="Referencia">Referencia del proveedor</label><input asp-for="Referencia" maxlength="180" placeholder="Guía, factura o remito" required/><span asp-validation-for="Referencia" class="validation"></span></div>
+<div class="field wide"><label asp-for="Procedencia">Procedencia</label><input asp-for="Procedencia" maxlength="500" placeholder="Proveedor y lugar de origen" required/><span asp-validation-for="Procedencia" class="validation"></span></div>
+<div class="field"><label asp-for="FechaProduccion">Fecha de producción</label><input asp-for="FechaProduccion" type="date" asp-format="{0:yyyy-MM-dd}" required/><span asp-validation-for="FechaProduccion" class="validation"></span></div>
+<div class="field"><label asp-for="Vencimiento">Fecha de vencimiento</label><input asp-for="Vencimiento" type="date" asp-format="{0:yyyy-MM-dd}" required/><span asp-validation-for="Vencimiento" class="validation"></span></div>
+</div>
+<div class="form-actions"><a class="button secondary" asp-action="Existencias">Cancelar</a><button class="button" type="submit">Recibir lote</button></div>
+</form>
+</section>
