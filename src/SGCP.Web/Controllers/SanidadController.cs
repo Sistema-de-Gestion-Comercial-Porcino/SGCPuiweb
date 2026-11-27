@@ -9,11 +9,20 @@ namespace SGCP.Web.Controllers;
 [Authorize(Policy = "produccion.consultar")]
 public class SanidadController(SanidadApi api) : GestionControllerBase
 {
-    public async Task<IActionResult> Index(int pagina = 1, int tamanoPagina = 20) =>
-        View(new ListaViewModel<AnimalDto>
+    public async Task<IActionResult> Index(string? busqueda, string? estado, int pagina = 1, int tamanoPagina = 20)
+    {
+        if (tamanoPagina is not (10 or 20 or 50 or 100)) tamanoPagina = 20;
+        if (estado is not (null or "" or "PENDIENTE" or "APTO" or "BLOQUEADO" or "FAENADO")) estado = null;
+        var ruta = $"animales?pagina={pagina}&tamanoPagina={tamanoPagina}"
+            + (string.IsNullOrWhiteSpace(busqueda) ? "" : "&busqueda=" + Uri.EscapeDataString(busqueda.Trim()))
+            + (string.IsNullOrEmpty(estado) ? "" : "&estado=" + estado);
+        return View(new ListaViewModel<AnimalDto>
         {
-            Datos = await api.Get<Pagina<AnimalDto>>($"animales?pagina={pagina}&tamanoPagina={tamanoPagina}")
+            Datos = await api.Get<Pagina<AnimalDto>>(ruta),
+            Busqueda = busqueda?.Trim() ?? "",
+            Filtro = estado ?? ""
         });
+    }
 
     public async Task<IActionResult> Detalle(Guid id)
     {
@@ -70,7 +79,14 @@ public class SanidadController(SanidadApi api) : GestionControllerBase
         var a = await Buscar(id);
         if (a is null)
             return NotFound();
-        return View(new ControlSanitarioFormViewModel { AnimalId = id, Animal = a.Identificacion + " · " + a.Procedencia });
+        if (a.Estado is "BLOQUEADO" or "FAENADO")
+        {
+            TempData["Error"] = a.Estado == "BLOQUEADO"
+                ? "Este animal ya fue rechazado: no admite otro control y su incidencia ya está registrada."
+                : "Este animal ya fue faenado: no admite otro control sanitario.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+        return View(new ControlSanitarioFormViewModel { AnimalId = id, Animal = a.Identificacion + " · " + a.Procedencia, EstadoActual = a.Estado });
     }
 
     [HttpPost, Authorize(Policy = "produccion.administrar")]

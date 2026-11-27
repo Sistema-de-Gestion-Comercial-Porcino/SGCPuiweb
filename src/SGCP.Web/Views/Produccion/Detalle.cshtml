@@ -19,7 +19,7 @@
 @if(o.Estado=="PLANIFICADA"){<form asp-action="Iniciar" asp-route-id="@o.Id" method="post"><button class="button" type="submit">Iniciar orden</button></form>}
 @if(o.Estado=="EN_PROCESO"&&o.Tipo=="FABRICACION"){<a class="button secondary" asp-action="Consumo" asp-route-id="@o.Id">Registrar insumo consumido</a>}
 @if(o.Estado=="EN_PROCESO"){<a class="button" asp-action="Confirmar" asp-route-id="@o.Id">Registrar resultados</a>}
-@if(o.Estado=="PLANIFICADA"||o.Estado=="EN_PROCESO"){<a class="button secondary danger-text" asp-action="Anular" asp-route-id="@o.Id">Anular</a>}
+@if((o.Estado=="PLANIFICADA"||o.Estado=="EN_PROCESO")&&Model.Detalle.Insumos.Count==0){<a class="button secondary danger-text" asp-action="Anular" asp-route-id="@o.Id">Anular</a>}
 </div>}
 </section>
 <section class="card">

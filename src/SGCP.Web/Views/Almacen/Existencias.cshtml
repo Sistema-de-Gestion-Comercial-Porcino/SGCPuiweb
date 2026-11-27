@@ -1,5 +1,5 @@
 @model ListaViewModel<ExistenciaDto>
-@{ViewData["Title"]="Existencias";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
+@{var nombres=ViewData["Nombres"] as Dictionary<Guid,string>??new();ViewData["Title"]="Existencias";ViewData["Pagina"]=Model.Datos.PaginaNumero;ViewData["TotalPaginas"]=Model.Datos.TotalPaginas;ViewData["TotalRegistros"]=Model.Datos.TotalRegistros;}
 <div class="page-head">
 <div><span class="eyebrow">ALMACÉN</span>
 <h1>Existencias</h1>
@@ -19,8 +19,8 @@
 <thead><tr><th>Producto</th><th>Lote</th><th>Ubicación</th><th>Física apta</th><th>Reservada</th><th>Disponible</th><th>Estado</th><th>Historial</th></tr></thead>
 <tbody>@foreach(var x in Model.Datos.Elementos){var vencido=x.Vencimiento<=DateTime.UtcNow;var apto=x.Estado=="APTO"&&!vencido;<tr>
 <td class="strong">@x.Producto</td>
-<td>@x.Lote<small>Vence @Hora.Mostrar(x.Vencimiento)</small></td>
-<td>@x.Ubicacion</td>
+<td>@x.Lote<small>Vence @Hora.Mostrar(x.Vencimiento)</small>@if(!string.IsNullOrWhiteSpace(x.Procedencia)||x.Orden is not null){<small>Origen: @(string.IsNullOrWhiteSpace(x.Procedencia)?"":x.Procedencia)@(x.Orden is null?"":(string.IsNullOrWhiteSpace(x.Procedencia)?"":" · ")+"orden "+x.Orden)</small>}</td>
+<td>@x.Ubicacion@if(x.Ingreso is not null){<small>Ingresó @(x.IngresoResponsableId is Guid r?SGCP.Web.Services.Nombres.Responsable(nombres,r):"") · @Hora.Mostrar(x.Ingreso.Value)</small>}</td>
 <td>@x.CantidadFisica.ToString("0.###") @x.Unidad</td>
 <td>@x.Reservada.ToString("0.###") @x.Unidad</td>
 <td class="strong">@x.Disponible.ToString("0.###") @x.Unidad<small>@(apto?x.CantidadFisica.ToString("0.###")+" − "+x.Reservada.ToString("0.###"):"No disponible")</small></td>

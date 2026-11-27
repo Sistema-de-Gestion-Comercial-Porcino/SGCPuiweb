@@ -127,15 +127,18 @@ public class RutasController(RepartoApi api) : GestionControllerBase
 /// RF-07 · entregas. Esta pantalla muestra solo el estado de la entrega, nunca el saldo:
 /// entrega y deuda son independientes (criterio del Sprint 3).
 /// </summary>
-[Authorize(Policy = "entregas.administrar")]
+[Authorize(Policy = "entregas.atender")]
 public class EntregasController(RepartoApi api) : GestionControllerBase
 {
+    /// <summary>Reparto y administración gestionan rutas y entregas a domicilio; Ventas solo atiende retiros en el local.</summary>
+    private bool Administra => User.HasClaim("permiso", "entregas.administrar");
+
     public async Task<IActionResult> Index(int pagina = 1, int tamanoPagina = 20) => View(new EntregasViewModel
     {
         Datos = await api.Get<Pagina<EntregaDto>>($"entregas?pagina={pagina}&tamanoPagina={tamanoPagina}"),
         Pedidos = await Pedidos(),
         Responsables = (await api.Get<List<ResponsableDto>>("responsables-entrega")).ToDictionary(x => x.Id, x => x.Nombre),
-        Rutas = (await api.Todos<RutaDto>("rutas")).ToDictionary(x => x.Id),
+        Rutas = await Rutas(),
         UsuarioId = Guid.TryParse(User.FindFirstValue("sub"), out var id) ? id : null
     });
 
@@ -145,6 +148,8 @@ public class EntregasController(RepartoApi api) : GestionControllerBase
     [HttpPost, Authorize(Policy = "pedidos.consultar")]
     public async Task<IActionResult> Preparar(EntregaFormViewModel m)
     {
+        if (!Administra && m.Modalidad != "RETIRO_LOCAL")
+            ModelState.AddModelError(nameof(m.Modalidad), "Desde Ventas solo se prepara el retiro en el local; la entrega a domicilio la prepara Reparto o Administración.");
         var domicilio = m.Modalidad == "DOMICILIO";
         if (domicilio && m.RutaId is null)
             ModelState.AddModelError(nameof(m.RutaId), "La entrega a domicilio necesita una ruta.");
@@ -167,6 +172,7 @@ public class EntregasController(RepartoApi api) : GestionControllerBase
             {
                 "PEDIDO_INCOMPLETO" => "Reserva toda la cantidad confirmada de cada producto antes de preparar la entrega.",
                 "RUTA_INVALIDA" => "La ruta debe estar planificada y ser del mismo responsable.",
+                "RESPONSABLE_INVALIDO" => error.Message,
                 _ => error.Message
             });
         return View(await Completar(m));
@@ -189,6 +195,7 @@ public class EntregasController(RepartoApi api) : GestionControllerBase
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize(Policy = "entregas.administrar"), Authorize(Policy = "entregas.revisar")]
     public async Task<IActionResult> Reasignar(Guid id)
     {
         var e = (await api.Todos<EntregaDto>("entregas")).FirstOrDefault(x => x.Id == id);
@@ -205,7 +212,7 @@ public class EntregasController(RepartoApi api) : GestionControllerBase
         }));
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Policy = "entregas.administrar"), Authorize(Policy = "entregas.revisar")]
     public async Task<IActionResult> Reasignar(ReasignarFormViewModel m)
     {
         if (ModelState.IsValid && await Intentar(async () => await api.Post<object>($"entregas/{m.Id}/reasignar", new
@@ -324,10 +331,16 @@ public class EntregasController(RepartoApi api) : GestionControllerBase
         m.Pedidos = (await api.Todos<PedidoDto>("pedidos"))
             .Where(x => x.EstadoComercial == "CONFIRMADO" && (!conEntrega.Contains(x.Id) || x.Id == m.PedidoId))
             .OrderBy(x => x.FechaComprometida).ToList();
-        m.Responsables = await api.Get<List<ResponsableDto>>("responsables-entrega");
-        m.Rutas = (await api.Todos<RutaDto>("rutas")).Where(x => x.Estado == "PLANIFICADA").OrderBy(x => x.Fecha).ToList();
+        if (!Administra)
+            m.Modalidad = "RETIRO_LOCAL";
+        m.PuedeDomicilio = Administra;
+        m.Responsables = await api.Get<List<ResponsableDto>>("responsables-entrega" + (Administra ? "" : "?modalidad=RETIRO_LOCAL"));
+        m.Rutas = (await Rutas()).Values.Where(x => x.Estado == "PLANIFICADA").OrderBy(x => x.Fecha).ToList();
         return m;
     }
+
+    private async Task<Dictionary<Guid, RutaDto>> Rutas() =>
+        Administra ? (await api.Todos<RutaDto>("rutas")).ToDictionary(x => x.Id) : [];
 
     private async Task<ReasignarFormViewModel> CompletarReasignar(ReasignarFormViewModel m)
     {

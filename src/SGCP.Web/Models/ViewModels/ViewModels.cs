@@ -210,6 +210,7 @@ public class ControlSanitarioFormViewModel
     [Required(ErrorMessage = "Registra la observación del control."), MaxLength(1000)]
     public string Observacion { get; set; } = "";
     public DateTime Fecha { get; set; } = Hora.Local(DateTime.UtcNow);
+    public string EstadoActual { get; set; } = "";
 }
 public class OrdenListaViewModel
 {
@@ -259,6 +260,7 @@ public class ConsumoFormViewModel
     public decimal Cantidad { get; set; }
     // Se genera al abrir el formulario y se conserva en los reintentos: así un doble envío no consume dos veces.
     public Guid ReferenciaUnica { get; set; } = Guid.NewGuid();
+    public bool ConfirmoIrreversible { get; set; }
     public List<ExistenciaDto> Existencias { get; set; } = [];
 }
 public class ResultadoFormViewModel
@@ -336,7 +338,12 @@ public class FrioFormViewModel : IValidatableObject
 {
     public const string ObjetivoLote = "LOTE";
     public const string ObjetivoEntrega = "ENTREGA";
+    public const string ObjetivoCamara = "CAMARA";
     public string Objetivo { get; set; } = ObjetivoLote;
+    /// <summary>Desde cuándo estuvo fuera de temperatura, según el registro de la cámara. Obligatorio al rechazar una cámara.</summary>
+    public DateTime? InicioFalla { get; set; }
+    /// <summary>Ubicaciones con existencias, para elegir la cámara.</summary>
+    public List<string> Camaras { get; set; } = [];
     public Guid? LoteId { get; set; }
     public Guid? EntregaId { get; set; }
     [Range(typeof(decimal), "-100", "100",
@@ -369,8 +376,15 @@ public class FrioFormViewModel : IValidatableObject
             if (LoteId is null)
                 yield return new ValidationResult("Selecciona el lote controlado.", [nameof(LoteId)]);
         }
+        else if (Objetivo == ObjetivoCamara)
+        {
+            if (Evaluacion == "RECHAZADO" && InicioFalla is null)
+                yield return new ValidationResult("Para rechazar la cámara indica desde qué hora estuvo fuera de temperatura (revisa antes su registro).", [nameof(InicioFalla)]);
+        }
         else
-            yield return new ValidationResult("Indica si controlas un lote o una entrega.", [nameof(Objetivo)]);
+            yield return new ValidationResult("Indica si controlas un lote, una cámara completa o una entrega.", [nameof(Objetivo)]);
+        if (InicioFalla is not null && InicioFalla > Fecha)
+            yield return new ValidationResult("El inicio de la falla debe ser anterior o igual a la hora de la lectura.", [nameof(InicioFalla)]);
     }
 }
 public class ServicioFormViewModel

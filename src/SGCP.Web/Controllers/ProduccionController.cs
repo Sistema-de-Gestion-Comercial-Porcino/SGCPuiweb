@@ -86,6 +86,8 @@ public class ProduccionController(ProduccionApi api) : GestionControllerBase
     [HttpPost, Authorize(Policy = "produccion.administrar")]
     public async Task<IActionResult> Consumo(ConsumoFormViewModel m)
     {
+        if (!m.ConfirmoIrreversible)
+            ModelState.AddModelError(nameof(m.ConfirmoIrreversible), "Confirma que el consumo es real e irreversible.");
         if (ModelState.IsValid && await Intentar(async () => await api.Post<CreadoDto>($"ordenes-produccion/{m.OrdenId}/consumos", new
         {
             m.ExistenciaId,
@@ -139,6 +141,11 @@ public class ProduccionController(ProduccionApi api) : GestionControllerBase
     public async Task<IActionResult> Anular(Guid id)
     {
         var d = await api.Get<OrdenDetalleDto>("ordenes-produccion/" + id);
+        if (d.Insumos.Count > 0)
+        {
+            TempData["Error"] = "La orden ya consumió insumos: el consumo es irreversible y la orden no se anula. Confirma el resultado con lo realmente obtenido y pésalo en almacén.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
         return View("Confirmacion", new ConfirmacionViewModel
         {
             Id = id,

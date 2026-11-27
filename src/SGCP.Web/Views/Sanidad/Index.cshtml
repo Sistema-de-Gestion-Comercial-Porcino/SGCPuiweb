@@ -9,9 +9,12 @@ string Estado(string e)=>e switch{"APTO"=>"Apto para faeneo","BLOQUEADO"=>"Recha
 <div class="actions">@if(User.HasClaim("permiso","produccion.administrar")){<a class="button" asp-action="Formulario">+ Registrar animal</a>}</div>
 </div>
 <section class="card">
+<form method="get" class="filters">
+<label class="sr-only" for="busqueda">Arete o proveedor</label><input id="busqueda" name="busqueda" value="@Model.Busqueda" placeholder="Arete (ej. CERDO-001) o proveedor"/><label class="sr-only" for="estado">Estado sanitario</label><select id="estado" name="estado"><option value="">Todos los estados</option>@foreach(var (v,t) in new[]{("PENDIENTE","Pendiente de control"),("APTO","Apto para faeneo"),("BLOQUEADO","Rechazado · bloqueado"),("FAENADO","Faenado")}){<option value="@v" selected="@(Model.Filtro==v)">@t</option>}</select><label class="sr-only" for="tamanoPagina">Registros por página</label><select id="tamanoPagina" name="tamanoPagina">@foreach(var n in new[]{10,20,50,100}){<option value="@n" selected="@(Model.Datos.TamanoPagina==n)">@n por página</option>}</select><button class="button secondary small">Filtrar</button><a asp-action="Index" class="text-link">Limpiar</a>
+</form>
 @if(Model.Datos.Elementos.Count==0){<div class="empty"><span class="empty-mark">⌕</span>
-<h3>Todavía no hay animales registrados</h3>
-<p>Registra el ingreso del animal y luego su control sanitario.</p>
+@if(Model.Busqueda!=""||Model.Filtro!=""){<h3>Ningún animal coincide con el filtro</h3><p>Revisa el arete o cambia el estado.</p>}else{<h3>Todavía no hay animales registrados</h3>
+<p>Registra el ingreso del animal y luego su control sanitario.</p>}
 </div>}else{<div class="table-wrap">
 <table>
 <thead>
@@ -30,7 +33,7 @@ string Estado(string e)=>e switch{"APTO"=>"Apto para faeneo","BLOQUEADO"=>"Recha
 <td>@x.PesoIngreso.ToString("0.###") kg</td>
 <td>@Hora.Mostrar(x.FechaIngreso)</td>
 <td><span class="badge @(x.Estado=="BLOQUEADO"?"danger":x.Estado=="APTO"?"":"muted-badge")">@Estado(x.Estado)</span></td>
-<td class="row-actions"><a asp-action="Detalle" asp-route-id="@x.Id">Ver controles</a>@if(User.HasClaim("permiso","produccion.administrar")&&x.Activo&&x.Estado!="FAENADO"){<a asp-action="Control" asp-route-id="@x.Id">Registrar control</a>}</td>
+<td class="row-actions"><a asp-action="Detalle" asp-route-id="@x.Id">Ver controles</a>@if(User.HasClaim("permiso","produccion.administrar")&&x.Activo&&x.Estado is "PENDIENTE" or "APTO"){<a asp-action="Control" asp-route-id="@x.Id">Registrar control</a>}</td>
 </tr>}</tbody>
 </table>
 </div>}

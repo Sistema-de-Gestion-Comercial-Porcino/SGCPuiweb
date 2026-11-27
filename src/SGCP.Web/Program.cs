@@ -53,6 +53,7 @@ builder.Services.AddAuthorization(o =>
         "pagos.administrar",
         "entregas.administrar",
         "entregas.revisar",
+        "entregas.atender",
         "reportes.consultar",
         "fiscal.administrar" })
         o.AddPolicy(permiso, p => p.RequireAuthenticatedUser().RequireClaim("permiso",

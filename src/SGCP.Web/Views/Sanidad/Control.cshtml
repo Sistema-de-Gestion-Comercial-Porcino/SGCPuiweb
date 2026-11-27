@@ -8,12 +8,13 @@
 </div>
 <section class="card form-card">
 <form method="post">
-<div asp-validation-summary="All" class="validation" role="alert"></div><input asp-for="AnimalId" type="hidden"/><input asp-for="Animal" type="hidden"/>
+<div asp-validation-summary="All" class="validation" role="alert"></div><input asp-for="AnimalId" type="hidden"/><input asp-for="Animal" type="hidden"/><input asp-for="EstadoActual" type="hidden"/>
+@if(Model.EstadoActual=="APTO"){<div class="notice" role="note"><b>Este animal ya está apto para faeneo.</b> Si ahora lo rechazas, explica en la observación qué le pasó (por ejemplo, una lesión o fiebre detectada después). Ese motivo queda en la incidencia como «Pasó de apto a rechazado».</div>}
 <div class="form-grid">
 <div class="field"><label asp-for="Resultado">Resultado</label><select asp-for="Resultado" required><option value="">Seleccionar…</option><option value="APROBADO">Aprobado · apto para faeneo</option><option value="RECHAZADO">Rechazado · no se faena</option></select><span asp-validation-for="Resultado" class="validation"></span></div>
 <div class="field"><label asp-for="Fecha">Fecha del control · hora de Bolivia</label><input asp-for="Fecha" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
 <div class="field wide"><label asp-for="Observacion">Observación (motivo si se rechaza)</label><textarea asp-for="Observacion" rows="3" maxlength="1000" required></textarea><span asp-validation-for="Observacion" class="validation"></span></div>
-<div class="notice wide">Un rechazo no se revierte con otro control: el animal queda bloqueado y su historial se conserva.</div>
+<div class="notice wide">Un rechazo es definitivo: el animal queda bloqueado, se abre una sola incidencia y ya no admite otro control (ni otro rechazo ni un «Aprobado»). Su historial se conserva.</div>
 </div>
 <div class="form-actions"><a class="button secondary" asp-action="Detalle" asp-route-id="@Model.AnimalId">Cancelar</a><button class="button" type="submit">Registrar control</button></div>
 </form>

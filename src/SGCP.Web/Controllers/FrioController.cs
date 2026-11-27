@@ -41,7 +41,7 @@ public class FrioController(FrioApi api) : GestionControllerBase
     [HttpPost]
     public async Task<IActionResult> Registrar(FrioFormViewModel m)
     {
-        if (m.Objetivo == FrioFormViewModel.ObjetivoLote && !PuedeLotes)
+        if (m.Objetivo is FrioFormViewModel.ObjetivoLote or FrioFormViewModel.ObjetivoCamara && !PuedeLotes)
             ModelState.AddModelError(nameof(m.Objetivo), "Tu perfil registra frío sobre entregas, no sobre lotes en cámara.");
         if (m.Objetivo == FrioFormViewModel.ObjetivoEntrega && !PuedeEntregas)
             ModelState.AddModelError(nameof(m.Objetivo), "Tu perfil registra frío sobre lotes en cámara, no sobre entregas.");
@@ -49,8 +49,10 @@ public class FrioController(FrioApi api) : GestionControllerBase
         if (ModelState.IsValid && await Intentar(async () => await api.Post<CreadoDto>("controles-frio", new
         {
             // Se manda uno u otro, nunca los dos: la API lo exige (REFERENCIA_FRIO_INVALIDA).
-            LoteId = esEntrega ? null : m.LoteId,
+            // Lote, entrega o, sin ninguno de los dos, la cámara completa indicada en Ubicación.
+            LoteId = m.Objetivo == FrioFormViewModel.ObjetivoLote ? m.LoteId : null,
             EntregaId = esEntrega ? m.EntregaId : null,
+            InicioFalla = m.InicioFalla is DateTime inicio ? Hora.Utc(inicio) : (DateTime?)null,
             m.Temperatura,
             m.Evaluacion,
             m.Ubicacion,
@@ -58,9 +60,11 @@ public class FrioController(FrioApi api) : GestionControllerBase
             m.Observacion
         })))
         {
-            Correcto(esEntrega && m.Evaluacion == "RECHAZADO"
-                ? "Control registrado. Al ser rechazado, los lotes reservados para ese pedido quedaron bloqueados."
-                : "Control de frío registrado con su responsable y evaluación.");
+            Correcto(m.Evaluacion != "RECHAZADO" ? "Control de frío registrado con su responsable y evaluación."
+                : m.Objetivo == FrioFormViewModel.ObjetivoCamara
+                    ? $"Control registrado. Los lotes que estuvieron en {m.Ubicacion} desde el inicio de la falla quedaron en revisión (bloqueados) con su incidencia; lo que salió antes no se tocó."
+                    : esEntrega ? "Control registrado. Al ser rechazado, los lotes reservados para ese pedido quedaron bloqueados."
+                    : "Control registrado. El lote quedó bloqueado con su incidencia.");
             return RedirectToAction(nameof(Index));
         }
         return View(await Completar(m));
@@ -73,6 +77,8 @@ public class FrioController(FrioApi api) : GestionControllerBase
         // Sin inventario.administrar no se pide GET lotes: la API respondería 403 y la pantalla entera fallaría.
         m.Lotes = PuedeLotes ? (await api.Todos<LoteDto>("lotes")).OrderBy(x => x.Codigo).ToList() : [];
         m.Productos = await Nombres.Productos(api);
+        m.Camaras = PuedeLotes ? (await api.Todos<ExistenciaDto>("existencias")).Select(x => x.Ubicacion.Trim())
+            .Where(x => x != "").Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x).ToList() : [];
         m.Entregas = PuedeEntregas
             ? (await Entregas()).Where(x => x.Entrega.Estado == "DESPACHADA").OrderBy(x => x.Entrega.FechaPrevista)
                 .Select(x => new KeyValuePair<Guid, string>(x.Entrega.Id, x.Texto)).ToList()

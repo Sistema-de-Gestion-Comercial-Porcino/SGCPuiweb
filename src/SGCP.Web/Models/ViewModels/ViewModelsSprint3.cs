@@ -185,6 +185,8 @@ public class EntregaFormViewModel
     public List<PedidoDto> Pedidos { get; set; } = [];
     public List<ResponsableDto> Responsables { get; set; } = [];
     public List<RutaDto> Rutas { get; set; } = [];
+    /// <summary>Falso para Ventas: solo prepara retiros en el local.</summary>
+    public bool PuedeDomicilio { get; set; } = true;
 }
 
 public class ReasignarFormViewModel

@@ -11,13 +11,19 @@
 <div asp-validation-summary="All" class="validation" role="alert"></div>
 <div class="form-grid">
 <div class="field wide"><label asp-for="PedidoId">Pedido confirmado</label><select asp-for="PedidoId" required><option value="">Seleccionar…</option>@foreach(var p in Model.Pedidos){<option value="@p.Id">@p.Codigo · @p.Cliente · comprometido @Hora.Mostrar(p.FechaComprometida)</option>}</select><span asp-validation-for="PedidoId" class="validation"></span></div>
-<div class="field"><label asp-for="Modalidad">Modalidad</label><select asp-for="Modalidad"><option value="DOMICILIO">A domicilio (con ruta, se descarga a la app)</option><option value="RETIRO_LOCAL">Retiro en el local (se registra en la web)</option></select></div>
-<div class="field"><label asp-for="ResponsableId">Responsable</label><select asp-for="ResponsableId" required><option value="">Seleccionar…</option>@foreach(var r in Model.Responsables){<option value="@r.Id">@r.Nombre</option>}</select><span asp-validation-for="ResponsableId" class="validation"></span></div>
-<div class="field"><label asp-for="RutaId">Ruta (solo a domicilio)</label><select asp-for="RutaId"><option value="">Sin ruta</option>@foreach(var r in Model.Rutas){<option value="@r.Id">@r.Codigo · @r.Zona · @Hora.Mostrar(r.Fecha)</option>}</select><span asp-validation-for="RutaId" class="validation"></span><small class="hint">La ruta debe ser del mismo responsable y estar planificada.</small></div>
+<div class="field"><label asp-for="Modalidad">Modalidad</label><select asp-for="Modalidad" id="modalidad">@if(Model.PuedeDomicilio){<option value="DOMICILIO">A domicilio (con ruta, se descarga a la app)</option>}<option value="RETIRO_LOCAL">Retiro en el local (se registra en la web)</option></select><span asp-validation-for="Modalidad" class="validation"></span></div>
+<div class="field"><label asp-for="ResponsableId">Responsable</label><select asp-for="ResponsableId" id="responsable" required><option value="">Seleccionar…</option>@foreach(var r in Model.Responsables.OrderBy(x=>x.Rol).ThenBy(x=>x.Nombre)){<option value="@r.Id" data-rol="@r.Rol">@r.Nombre · @(r.Rol=="VENTAS"?"Ventas":"Repartidor")</option>}</select><span asp-validation-for="ResponsableId" class="validation"></span><small class="hint">A domicilio responde un repartidor. En retiro en el local responde quien atiende al cliente: el vendedor, o un repartidor que esté libre en el local.</small></div>
+@if(Model.PuedeDomicilio){<div class="field"><label asp-for="RutaId">Ruta (solo a domicilio)</label><select asp-for="RutaId"><option value="">Sin ruta</option>@foreach(var r in Model.Rutas){<option value="@r.Id">@r.Codigo · @r.Zona · @Hora.Mostrar(r.Fecha)</option>}</select><span asp-validation-for="RutaId" class="validation"></span><small class="hint">La ruta debe ser del mismo responsable y estar planificada.</small></div>}
 <div class="field"><label asp-for="FechaPrevista">Fecha prevista · Bolivia</label><input asp-for="FechaPrevista" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required/></div>
-<div class="field"><label asp-for="OrdenEnRuta">Orden en la ruta</label><input asp-for="OrdenEnRuta" type="number" min="1" max="999" required/><span asp-validation-for="OrdenEnRuta" class="validation"></span></div>
+@if(Model.PuedeDomicilio){<div class="field"><label asp-for="OrdenEnRuta">Orden en la ruta</label><input asp-for="OrdenEnRuta" type="number" min="1" max="999" required/><span asp-validation-for="OrdenEnRuta" class="validation"></span></div>}else{<input asp-for="OrdenEnRuta" type="hidden"/>}
 </div>
 @if(Model.Pedidos.Count==0){<p class="hint">No hay pedidos confirmados sin entrega.</p>}
 <div class="form-actions"><a class="button secondary" asp-action="Index">Cancelar</a><button class="button" type="submit">Preparar entrega</button></div>
 </form>
 </section>
+@section Scripts{<script>
+// A domicilio solo un repartidor: se ocultan los vendedores. El servidor vuelve a validarlo.
+(function(){var m=document.getElementById('modalidad'),r=document.getElementById('responsable');if(!m||!r)return;
+function aplicar(){var dom=m.value==='DOMICILIO';Array.prototype.forEach.call(r.options,function(o){if(o.dataset.rol==='VENTAS'){o.hidden=dom;o.disabled=dom;if(dom&&o.selected)r.value='';}});}
+m.addEventListener('change',aplicar);aplicar();})();
+</script>}
