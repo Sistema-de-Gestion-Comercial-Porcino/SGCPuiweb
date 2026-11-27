@@ -2,12 +2,12 @@
 @{var a=Model.Animal;ViewData["Title"]=a.Identificacion;var rechazado=a.Estado=="BLOQUEADO";var ultimo=Model.Controles.OrderByDescending(x=>x.Fecha).FirstOrDefault();}
 <div class="page-head">
 <div><span class="eyebrow">FICHA SANITARIA</span>
-<h1>@a.Identificacion <span class="badge @(rechazado?"danger":a.Estado=="APTO"?"":"muted-badge")">@(rechazado?"RECHAZADO":a.Estado)</span></h1>
+<h1>@a.Identificacion <span class="badge @(rechazado?"danger":a.Estado=="APTO"?"":"muted-badge")">@(rechazado?"Rechazado · bloqueado":a.Estado=="APTO"?"Apto para faeneo":a.Estado=="FAENADO"?"Faenado":"Pendiente de control")</span></h1>
 <p>@a.Procedencia · Proveedor: @a.Proveedor</p>
 </div>
-<div class="actions">@if(User.HasClaim("permiso","produccion.administrar")&&a.Activo&&a.Estado!="FAENADO"){<a class="button" asp-action="Control" asp-route-id="@a.Id">Registrar control</a>}<a class="button secondary" asp-action="Index">Volver al listado</a></div>
+<div class="actions">@if(User.HasClaim("permiso","produccion.administrar")&&a.Activo&&a.Estado is "PENDIENTE" or "APTO"){<a class="button" asp-action="Control" asp-route-id="@a.Id">Registrar control</a>}<a class="button secondary" asp-action="Index">Volver al listado</a></div>
 </div>
-@if(rechazado){<div class="notice danger" role="alert"><b>Animal rechazado en el control sanitario.</b> No se puede crear una orden de faeneo sobre él. <a class="text-link" href="/Incidencias?estado=todas">Ver la incidencia</a>@if(ultimo is not null){<br/><span>Motivo registrado el @Hora.Mostrar(ultimo.Fecha): @ultimo.Observacion</span>}</div>}
+@if(rechazado){<div class="notice danger" role="alert"><b>Animal rechazado en el control sanitario.</b> No se puede crear una orden de faeneo sobre él. <a class="text-link" href="/Incidencias?estado=todas">Ver la incidencia</a>@if(ultimo is not null){var aptoAntes=Model.Controles.Any(x=>x.Resultado=="APROBADO"&&x.Fecha<ultimo.Fecha);<br/><span>@(aptoAntes?"Pasó de apto a rechazado":"Motivo del rechazo") el @Hora.Mostrar(ultimo.Fecha): @ultimo.Observacion</span>}</div>}
 else if(a.Estado=="PENDIENTE"){<div class="notice">Pendiente de control sanitario. Hasta aprobarlo no se puede faenar.</div>}
 <section class="card">
 <dl class="facts">

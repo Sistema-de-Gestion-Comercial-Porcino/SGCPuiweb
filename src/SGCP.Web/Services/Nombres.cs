@@ -8,10 +8,15 @@ public static class Nombres
     public static async Task<Dictionary<Guid, string>> Usuarios(ClienteApiBase api, ClaimsPrincipal usuario)
     {
         Dictionary<Guid, string> nombres = [];
-        if (usuario.HasClaim("permiso", "usuarios.consultar"))
+        // Solo id y nombre: cualquier perfil del personal ve quién registró algo sin ver login ni datos personales.
+        if (!usuario.IsInRole("COMPRADOR") || usuario.HasClaim("permiso", "operacion.consultar"))
         {
-            foreach (var u in await api.Todos<UsuarioDto>("usuarios"))
-                nombres[u.Id] = u.Nombre;
+            try
+            {
+                foreach (var u in await api.Get<List<NombreUsuarioDto>>("usuarios/nombres"))
+                    nombres[u.Id] = u.Nombre;
+            }
+            catch (ApiException) { }
         }
         if (Guid.TryParse(usuario.FindFirstValue("sub"), out var propio))
             nombres[propio] = usuario.Identity?.Name ?? "Tu cuenta";
@@ -22,5 +27,5 @@ public static class Nombres
         (await api.Todos<ProductoDto>("productos")).ToDictionary(x => x.Id);
 
     public static string Responsable(Dictionary<Guid, string> nombres, Guid id) =>
-        nombres.TryGetValue(id, out var nombre) ? nombre : "Cuenta " + id.ToString()[..8];
+        nombres.TryGetValue(id, out var nombre) ? nombre : "Personal del sistema";
 }

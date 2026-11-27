@@ -13,7 +13,7 @@
 <thead><tr><th>Fecha</th><th>Contexto</th><th>Ubicación</th><th>Temperatura</th><th>Evaluación</th><th>Responsable</th><th>Observación</th></tr></thead>
 <tbody>@foreach(var x in Model.Datos.Elementos){var lote=x.LoteId is null?null:Model.Lotes.GetValueOrDefault(x.LoteId.Value);<tr>
 <td>@Hora.Mostrar(x.Fecha)</td>
-<td>@if(lote is not null){<span>Lote @lote.Codigo</span><small>@(Model.Productos.TryGetValue(lote.ProductoId,out var p)?p.Nombre:"")</small>}else if(x.EntregaId is not null){<span>Entrega</span><small>@(Model.Entregas.GetValueOrDefault(x.EntregaId.Value)??"En transporte")</small>}else{<span>—</span>}</td>
+<td>@if(lote is not null){<span>Lote @lote.Codigo</span><small>@(Model.Productos.TryGetValue(lote.ProductoId,out var p)?p.Nombre:"")</small>}else if(x.EntregaId is not null){<span>Entrega</span><small>@(Model.Entregas.GetValueOrDefault(x.EntregaId.Value)??"En transporte")</small>}else{<span>Cámara completa</span>}@if(x.InicioFalla is not null){<small>Fuera de temperatura desde @Hora.Mostrar(x.InicioFalla.Value)</small>}</td>
 <td>@x.Ubicacion</td>
 <td class="strong">@x.Temperatura.ToString("0.##") @x.Unidad</td>
 <td><span class="badge @(x.Evaluacion=="RECHAZADO"?"danger":x.Evaluacion=="OBSERVADO"?"muted-badge":"")">@x.Evaluacion</span></td>

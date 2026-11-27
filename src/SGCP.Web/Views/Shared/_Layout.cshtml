@@ -78,7 +78,7 @@
                 }.Where(x => x.Ver).ToList();
                 var reparto = new List<(string Ruta, string Nombre, bool Ver, string Controlador, string Icono)>
                 {
-                    ("/Entregas", "Entregas", User.HasClaim("permiso", "entregas.administrar"), "Entregas", "truck"),
+                    ("/Entregas", "Entregas", User.HasClaim("permiso", "entregas.atender"), "Entregas", "truck"),
                     ("/Rutas", "Rutas", User.HasClaim("permiso", "entregas.administrar"), "Rutas", "route"),
                     ("/Transportes", "Transportes", User.HasClaim("permiso", "entregas.administrar"), "Transportes", "transport"),
                     ("/Recepciones/Conflictos", "Conflictos de recepción", User.HasClaim("permiso", "entregas.revisar"), "Recepciones", "alert")

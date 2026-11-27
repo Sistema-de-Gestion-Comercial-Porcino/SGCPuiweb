@@ -44,6 +44,12 @@ public class PedidosPorPrepararViewModel
     public Dictionary<Guid, ExistenciaDto> Existencias { get; set; } = [];
     public Dictionary<Guid, string> Nombres { get; set; } = [];
     public bool SoloPendientes { get; set; } = true;
+    public string Estado { get; set; } = "pendientes";
+    public string Busqueda { get; set; } = "";
+    public int Pagina { get; set; } = 1;
+    public int TamanoPagina { get; set; } = 10;
+    public int TotalPaginas { get; set; } = 1;
+    public int TotalRegistros { get; set; }
 }
 
 public class ReservaFormViewModel

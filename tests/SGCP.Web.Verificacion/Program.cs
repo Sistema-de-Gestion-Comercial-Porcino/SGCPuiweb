@@ -61,6 +61,19 @@ Check(ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoEntrega }).Any(x 
     && !ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoEntrega, EntregaId = Guid.NewGuid() }).Any(), "Frío en transporte exige la entrega y no pide lote");
 Check(ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoLote }).Any(x => x.MemberNames.Contains(nameof(FrioFormViewModel.LoteId)))
     && ErroresFrio(new() { Objetivo = "OTRO", LoteId = Guid.NewGuid() }).Any(), "Frío en cámara exige el lote y no se acepta otro tipo de control");
+// Revisión del Sprint 2 · frío de una cámara completa con la hora de inicio de la falla
+var lectura = new DateTime(2026, 11, 26, 10, 0, 0);
+Check(ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoCamara, Evaluacion = "RECHAZADO", Fecha = lectura }).Any(x => x.MemberNames.Contains(nameof(FrioFormViewModel.InicioFalla)))
+    && !ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoCamara, Evaluacion = "RECHAZADO", Fecha = lectura, InicioFalla = lectura.AddHours(-3) }).Any()
+    && !ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoCamara, Evaluacion = "APTO", Fecha = lectura }).Any(),
+    "Rechazar una cámara completa exige la hora desde la que estuvo fuera de temperatura; una lectura apta no");
+Check(ErroresFrio(new() { Objetivo = FrioFormViewModel.ObjetivoLote, LoteId = Guid.NewGuid(), Fecha = lectura, InicioFalla = lectura.AddMinutes(5) }).Any(x => x.MemberNames.Contains(nameof(FrioFormViewModel.InicioFalla))),
+    "El inicio de la falla no puede ser posterior a la lectura");
+Check(SGCP.Web.Services.Nombres.Responsable([], Guid.NewGuid()) == "Personal del sistema",
+    "Un responsable sin nombre conocido no muestra un fragmento de su identificador");
+var existenciaApi = JsonSerializer.Deserialize<ExistenciaDto>("""{"id":"098e7092-907e-4956-9d67-6ed5f294e43d","procedencia":"Granja Norte","orden":"OP-0003","ingreso":"2026-11-26T14:00:00Z","ingresoResponsableId":"deaf9920-0ddc-4593-9eef-67fad8531710"}""", jsonWeb)!;
+Check(existenciaApi.Procedencia == "Granja Norte" && existenciaApi.Orden == "OP-0003" && existenciaApi.Ingreso is not null && existenciaApi.IngresoResponsableId is not null,
+    "Contrato de GET existencias con la procedencia, la orden y quién ingresó el lote a la cámara");
 var frioApi = JsonSerializer.Deserialize<MisEntregasDto>("""{"entregas":[{"id":"098e7092-907e-4956-9d67-6ed5f294e43d","version":1,"pedidoId":"deaf9920-0ddc-4593-9eef-67fad8531710","pedido":"PED-018","rutaId":null,"fechaPrevista":"2026-11-25T23:18:13Z","estado":"DESPACHADA","cliente":"Restaurante S5","direccion":"Av. Cañoto 456","telefono":"70011122"}],"detalles":[]}""", jsonWeb)!;
 Check(frioApi.Entregas.Single().Pedido == "PED-018" && frioApi.Entregas[0].Cliente == "Restaurante S5", "Contrato de GET mis-entregas para nombrar la entrega controlada");
 // Sprint 5 · P2 · decimales: la coma nunca es separador de miles («6,2» no puede volverse 62)

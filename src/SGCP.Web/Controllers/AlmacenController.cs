@@ -15,6 +15,7 @@ public class AlmacenController(InventarioApi api) : GestionControllerBase
     public async Task<IActionResult> Existencias(Guid? productoId, int pagina = 1, int tamanoPagina = 20)
     {
         var ruta = $"existencias?pagina={pagina}&tamanoPagina={tamanoPagina}" + (productoId is null ? "" : "&productoId=" + productoId);
+        ViewData["Nombres"] = await Nombres.Usuarios(api, User);
         return View(new ListaViewModel<ExistenciaDto>
         {
             Filtro = productoId?.ToString() ?? "",
@@ -114,17 +115,37 @@ public class AlmacenController(InventarioApi api) : GestionControllerBase
 
     /// <summary>Cola de pedidos confirmados que todavía no salieron, con lo reservado y lo que falta por detalle.</summary>
     [Authorize(Policy = "inventario.administrar")]
-    public async Task<IActionResult> Pedidos(bool soloPendientes = true)
+    public async Task<IActionResult> Pedidos(string? estado, string? busqueda, bool? soloPendientes, int pagina = 1, int tamanoPagina = 10)
     {
+        estado = estado is "pendientes" or "completos" or "todos" ? estado : soloPendientes == false ? "todos" : "pendientes";
+        if (tamanoPagina is not (10 or 20 or 50 or 100)) tamanoPagina = 10;
         var pedidos = PedidoPorPreparar.Armar(
             (await api.Todos<PedidoOperativoDto>("pedidos-operativos")).OrderBy(x => x.FechaComprometida),
             await api.Todos<ReservaDto>("reservas"));
+        IEnumerable<PedidoPorPreparar> filtrados = estado switch
+        {
+            "pendientes" => pedidos.Where(x => !x.Completo),
+            "completos" => pedidos.Where(x => x.Completo),
+            _ => pedidos
+        };
+        if (!string.IsNullOrWhiteSpace(busqueda))
+            filtrados = filtrados.Where(x => x.Pedido.Codigo.Contains(busqueda.Trim(), StringComparison.OrdinalIgnoreCase)
+                || x.Pedido.Cliente.Contains(busqueda.Trim(), StringComparison.OrdinalIgnoreCase));
+        var lista = filtrados.ToList();
+        var totalPaginas = Math.Max(1, (int)Math.Ceiling(lista.Count / (double)tamanoPagina));
+        pagina = Math.Clamp(pagina, 1, totalPaginas);
         return View(new PedidosPorPrepararViewModel
         {
-            Pedidos = soloPendientes ? pedidos.Where(x => !x.Completo).ToList() : pedidos,
+            Pedidos = lista.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToList(),
             Existencias = (await api.Todos<ExistenciaDto>("existencias")).ToDictionary(x => x.Id),
             Nombres = await Nombres.Usuarios(api, User),
-            SoloPendientes = soloPendientes
+            SoloPendientes = estado == "pendientes",
+            Estado = estado,
+            Busqueda = busqueda?.Trim() ?? "",
+            Pagina = pagina,
+            TamanoPagina = tamanoPagina,
+            TotalPaginas = totalPaginas,
+            TotalRegistros = lista.Count
         });
     }
 

@@ -107,6 +107,8 @@ public class ResponsableDto
 {
     public Guid Id { get; set; }
     public string Nombre { get; set; } = "";
+    /// <summary>ENTREGA (repartidor) o VENTAS (vendedor, solo para retiro en el local).</summary>
+    public string Rol { get; set; } = "";
 }
 
 public class RecepcionDto

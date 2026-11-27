@@ -13,6 +13,8 @@
 <div class="form-grid">
 <div class="field wide"><label asp-for="ExistenciaId">Existencia (producto · lote · disponible)</label><select asp-for="ExistenciaId" required><option value="">Seleccionar…</option>@foreach(var e in Model.Existencias){<option value="@e.Id">@e.Producto · lote @e.Lote · @e.Disponible.ToString("0.###") @e.Unidad disponibles</option>}</select><span asp-validation-for="ExistenciaId" class="validation"></span></div>
 <div class="field"><label asp-for="Cantidad">Cantidad consumida</label><input asp-for="Cantidad" type="number" min="0.001" step="0.001" required/><span asp-validation-for="Cantidad" class="validation"></span></div>
+<div class="notice danger wide" role="note"><b>El consumo es irreversible.</b> El insumo se mezcla en el producto fabricado y no se devuelve a su lote: después del primer consumo la orden ya no se puede anular, solo confirmar con lo que realmente se obtuvo. Registra solo lo que almacén ya entregó para producir.</div>
+<label class="checkbox wide"><input asp-for="ConfirmoIrreversible" type="checkbox"/> Confirmo que este insumo ya salió de la cámara y se usó en esta fabricación.</label><span asp-validation-for="ConfirmoIrreversible" class="validation"></span>
 </div>
 <div class="form-actions"><a class="button secondary" asp-action="Detalle" asp-route-id="@Model.OrdenId">Cancelar</a><button class="button" type="submit" disabled="@(Model.Existencias.Count==0)">Registrar consumo</button></div>
 </form>

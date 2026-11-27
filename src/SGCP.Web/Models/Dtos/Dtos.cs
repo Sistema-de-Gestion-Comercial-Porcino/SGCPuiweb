@@ -283,6 +283,11 @@ public class EntradaInventarioDto
     public DateTime? AnuladaEn { get; set; }
     public string MotivoAnulacion { get; set; } = "";
 }
+public class NombreUsuarioDto
+{
+    public Guid Id { get; set; }
+    public string Nombre { get; set; } = "";
+}
 public class ExistenciaDto
 {
     public Guid Id { get; set; }
@@ -297,6 +302,10 @@ public class ExistenciaDto
     public DateTime Vencimiento { get; set; }
     public decimal Reservada { get; set; }
     public decimal Disponible { get; set; }
+    public string Procedencia { get; set; } = "";
+    public string? Orden { get; set; }
+    public DateTime? Ingreso { get; set; }
+    public Guid? IngresoResponsableId { get; set; }
 }
 public class ControlFrioDto
 {
@@ -310,6 +319,7 @@ public class ControlFrioDto
     public string Evaluacion { get; set; } = "";
     public string Observacion { get; set; } = "";
     public DateTime Fecha { get; set; }
+    public DateTime? InicioFalla { get; set; }
 }
 public class CargoDto
 {
